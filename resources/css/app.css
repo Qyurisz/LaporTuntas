@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Nunito Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --color-primary: #16A6D8;
+    --color-primary-hover: #0D8BB8;
+    --color-primary-soft: #DFF5FC;
+    --color-navy: #17324D;
+    --color-lime: #C5E84A;
+    --color-coral: #FF6B5C;
+    --color-surface: #FFFFFF;
+    --color-canvas: #F3F7F8;
+    --color-map: #EAF1E8;
+    --color-border: #D7E1E5;
+    --color-text-main: #17324D;
+    --color-text-muted: #617482;
+
+    --color-status-new: #16A6D8;
+    --color-status-verified: #7966D9;
+    --color-status-processing: #F5B82E;
+    --color-status-awaiting: #22A994;
+    --color-status-closed: #278653;
+    --color-status-overdue: #D94343;
+    --color-status-rejected: #697782;
+}
+
+:root {
+    --color-primary: #16A6D8;
+    --color-primary-hover: #0D8BB8;
+    --color-primary-soft: #DFF5FC;
+    --color-navy: #17324D;
+    --color-lime: #C5E84A;
+    --color-coral: #FF6B5C;
+    --color-surface: #FFFFFF;
+    --color-canvas: #F3F7F8;
+    --color-border: #D7E1E5;
+    --color-text: #17324D;
+    --color-text-muted: #617482;
+    --status-new: #16A6D8;
+    --status-verified: #7966D9;
+    --status-processing: #F5B82E;
+    --status-awaiting-citizen: #22A994;
+    --status-closed: #278653;
+    --status-overdue: #D94343;
+    --status-rejected: #697782;
+}
+
+body {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Custom Map Pin & Cluster Styling (Waze-inspired Civic Tech) */
+.lt-map-pin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 6px 16px rgba(23, 50, 77, 0.25);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    position: relative;
+}
+
+.lt-map-pin::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 7px 6px 0;
+    border-style: solid;
+    border-color: #FFFFFF transparent transparent;
+}
+
+.lt-map-pin:hover,
+.lt-map-pin.is-active {
+    transform: scale(1.14) translateY(-2px);
+    box-shadow: 0 10px 24px rgba(23, 50, 77, 0.34);
+    z-index: 50 !important;
+}
+
+.lt-user-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: #16A6D8;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 0 0 8px rgba(22, 166, 216, 0.24), 0 3px 10px rgba(23, 50, 77, 0.3);
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+    background-color: rgba(22, 166, 216, 0.22) !important;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+    background-color: #17324D !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    font-family: var(--font-sans) !important;
+    border: 2px solid #FFFFFF !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

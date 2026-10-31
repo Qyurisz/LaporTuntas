@@ -1,0 +1,48 @@
+<?php
+
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ReportApiController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StaffAuthController;
+use App\Http\Controllers\StaffDashboardController;
+use App\Http\Controllers\StaffReportActionController;
+use App\Http\Controllers\TicketController;
+use Illuminate\Support\Facades\Route;
+
+// Public Citizen Routes (No Login Required)
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::prefix('api')->group(function (): void {
+    Route::get('/reports/nearby', [ReportApiController::class, 'nearby'])->name('api.reports.nearby');
+    Route::post('/demo/relocate', [ReportApiController::class, 'relocateDemoData'])->name('api.demo.relocate');
+});
+
+Route::post('/lapor', [ReportController::class, 'store'])
+    ->middleware('throttle:create-report')
+    ->name('reports.store');
+
+Route::get('/tiket/{ticketId}/berhasil', [ReportController::class, 'success'])
+    ->name('reports.success');
+
+Route::get('/lacak', [TicketController::class, 'index'])
+    ->middleware('throttle:track-ticket')
+    ->name('tickets.index');
+
+Route::get('/lacak/{ticketId}', [TicketController::class, 'show'])
+    ->middleware('throttle:track-ticket')
+    ->name('tickets.show');
+
+// Staff & Admin Authentication Routes
+Route::prefix('staff')->group(function (): void {
+    Route::get('/login', [StaffAuthController::class, 'showLogin'])->name('staff.login');
+    Route::post('/login', [StaffAuthController::class, 'login'])->name('staff.login.submit');
+    Route::post('/logout', [StaffAuthController::class, 'logout'])->name('staff.logout');
+
+    Route::middleware('auth')->group(function (): void {
+        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+        Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('staff.reports.show');
+        Route::patch('/reports/{report}/assign', [StaffReportActionController::class, 'assign'])->name('staff.reports.assign');
+        Route::patch('/reports/{report}/status', [StaffReportActionController::class, 'updateStatus'])->name('staff.reports.status');
+        Route::patch('/reports/{report}/reject', [StaffReportActionController::class, 'reject'])->name('staff.reports.reject');
+    });
+});
