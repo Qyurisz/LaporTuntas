@@ -8,8 +8,18 @@ use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\StaffReportActionController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 // Public Citizen Routes (No Login Required)
+Route::get('/media/{path}', function (string $path): StreamedResponse {
+    if (str_contains($path, '..') || ! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*')->name('media.public');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::prefix('api')->group(function (): void {

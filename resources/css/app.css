@@ -66,45 +66,69 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-/* Custom Map Pin & Cluster Styling (Waze-inspired Civic Tech) */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Circular Halo Map Marker (Modern Mobile Map Style) */
 .lt-map-pin {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 9999px;
     border: 3px solid #FFFFFF;
-    box-shadow: 0 6px 16px rgba(23, 50, 77, 0.25);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.52), 0 8px 20px rgba(23, 50, 77, 0.24);
     transition: transform 180ms ease, box-shadow 180ms ease;
     position: relative;
 }
 
-.lt-map-pin::after {
-    content: '';
-    position: absolute;
-    bottom: -7px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 7px 6px 0;
-    border-style: solid;
-    border-color: #FFFFFF transparent transparent;
-}
-
 .lt-map-pin:hover,
 .lt-map-pin.is-active {
-    transform: scale(1.14) translateY(-2px);
-    box-shadow: 0 10px 24px rgba(23, 50, 77, 0.34);
+    transform: scale(1.16);
+    box-shadow: 0 0 0 8px rgba(22, 166, 216, 0.28), 0 12px 26px rgba(23, 50, 77, 0.34);
     z-index: 50 !important;
 }
 
+/* User GPS Radar Ring + Crisp Inner Dot */
+.lt-user-radar {
+    width: 68px;
+    height: 68px;
+    border-radius: 9999px;
+    background: rgba(22, 166, 216, 0.14);
+    border: 1.5px solid rgba(22, 166, 216, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
 .lt-user-dot {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 9999px;
     background: #16A6D8;
     border: 3px solid #FFFFFF;
-    box-shadow: 0 0 0 8px rgba(22, 166, 216, 0.24), 0 3px 10px rgba(23, 50, 77, 0.3);
+    box-shadow: 0 3px 10px rgba(22, 166, 216, 0.45);
+}
+
+/* Floating Callout Speech Bubble Pointer */
+.lt-callout-card::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 11px 11px 0;
+    border-style: solid;
+    border-color: #FFFFFF transparent transparent;
+    filter: drop-shadow(0 4px 4px rgba(23, 50, 77, 0.08));
 }
 
 .marker-cluster-small,
@@ -123,8 +147,20 @@ body {
     border: 2px solid #FFFFFF !important;
 }
 
+@media (max-width: 1023px) {
+    .leaflet-bottom {
+        bottom: 180px !important;
+    }
+    .leaflet-control-attribution {
+        font-size: 9px !important;
+        background: rgba(255, 255, 255, 0.65) !important;
+        border-radius: 8px 0 0 0;
+        padding: 1px 5px !important;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *, *::before, *::before, *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
     }

@@ -51,6 +51,9 @@ class ReportFlowTest extends TestCase
         $this->assertCount(2, $report->media);
         $this->assertCount(1, $report->statusHistories);
 
+        $firstMediaUrl = $report->media->first()->publicUrl();
+        $this->get($firstMediaUrl)->assertOk();
+
         $response->assertRedirect(route('reports.success', ['ticketId' => $report->ticket_id]));
 
         $successPage = $this->get(route('reports.success', ['ticketId' => $report->ticket_id]));

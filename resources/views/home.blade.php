@@ -1,60 +1,63 @@
-@extends('layouts.app', ['title' => 'Lapor Tuntas — Peta Masalah Publik di Sekitarmu'])
+@extends('layouts.app', [
+    'title' => 'Lapor Tuntas — Peta Masalah Publik di Sekitarmu',
+    'fullBleedMobile' => true,
+])
 
 @section('content')
 <div x-data="laporTuntasMapApp()"
      x-init="initApp()"
      @open-report-modal.window="openCreateReportModal()"
-     class="relative flex-1 flex flex-col lg:flex-row h-[calc(100vh-4rem)] overflow-hidden bg-[#EAF1E8]">
+     class="relative flex-1 flex flex-col lg:flex-row h-[100dvh] lg:h-[calc(100vh-4rem)] overflow-hidden bg-[#EAF1E8]">
 
     <!-- ===================================================================== -->
     <!-- MANDATORY GPS LOCATION PERMISSION GATE (PRD FR-02 & FR-15)             -->
     <!-- ===================================================================== -->
     <div x-show="gpsState !== 'granted'"
          x-transition.opacity
-         class="absolute inset-0 z-30 bg-[#F3F7F8]/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-        <div class="max-w-lg w-full bg-white rounded-[24px] border border-[#D7E1E5] shadow-[0_8px_24px_rgba(23,50,77,0.14)] p-6 sm:p-8 text-center">
+         class="absolute inset-0 z-40 bg-[#F3F7F8]/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pb-24 lg:pb-6 overflow-y-auto">
+        <div class="max-w-md w-full bg-white rounded-[28px] border border-[#E6EEF2] shadow-[0_14px_36px_rgba(23,50,77,0.12)] p-6 sm:p-8 text-center">
             <!-- Vector Illustration -->
-            <div class="mx-auto w-24 h-24 rounded-full bg-[#DFF5FC] border-4 border-white shadow-md flex items-center justify-center mb-5 relative">
-                <svg class="w-12 h-12 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <div class="mx-auto w-20 h-20 rounded-full bg-[#DFF5FC] border-4 border-white shadow-md flex items-center justify-center mb-4 relative">
+                <svg class="w-10 h-10 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                     <circle cx="12" cy="10" r="3"/>
                 </svg>
-                <span class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#C5E84A] text-[#17324D] font-extrabold flex items-center justify-center text-xs border-2 border-white">
+                <span class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#C5E84A] text-[#17324D] font-extrabold flex items-center justify-center text-[10px] border-2 border-white">
                     GPS
                 </span>
             </div>
 
             <template x-if="gpsState === 'prompt' || gpsState === 'loading'">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] mb-3">
-                        Wajib Aktifkan Lokasi (FR-02)
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] mb-2.5">
+                        Lapor Tuntas • Peta Warga
                     </span>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#17324D] leading-tight">
-                        Aktifkan lokasi untuk melihat &amp; melaporkan masalah di sekitarmu
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-[#17324D] leading-snug">
+                        Aktifkan lokasi untuk membuka peta laporan di sekitarmu
                     </h1>
-                    <p class="mt-3 text-sm sm:text-base text-[#617482] leading-relaxed">
-                        Lapor Tuntas menampilkan peta laporan yang sedang berjalan tepat di sekitar posisi kamu dan memastikan titik masalah yang dilaporkan akurat bagi petugas lapangan.
+                    <p class="mt-2.5 text-xs sm:text-sm text-[#617482] leading-relaxed">
+                        Kami menggunakan titik GPS perangkatmu untuk menampilkan masalah publik terdekat dan memastikan lokasi laporan akurat.
                     </p>
 
-                    <div class="mt-5 p-3.5 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5] text-left text-xs sm:text-sm text-[#17324D] space-y-1.5">
+                    <div class="mt-4 p-3.5 rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1.5">
                         <div class="flex items-start gap-2">
                             <span class="text-[#278653] font-extrabold">✓</span>
-                            <span><strong>Privasi terjaga:</strong> Koordinat posisi kamu tidak disimpan saat hanya melihat peta.</span>
+                            <span><strong>Privasi aman:</strong> Posisi kamu tidak disimpan saat menjelajahi peta.</span>
                         </div>
                         <div class="flex items-start gap-2">
                             <span class="text-[#278653] font-extrabold">✓</span>
-                            <span><strong>Tanpa akun:</strong> Langsung lapor dan terima ID tiket unik.</span>
+                            <span><strong>Tanpa login:</strong> Langsung lapor dan simpan tiket ber-QR.</span>
                         </div>
                     </div>
 
                     <button type="button"
                             @click="requestGpsLocation()"
                             :disabled="gpsState === 'loading'"
-                            class="mt-6 w-full min-h-[48px] px-6 py-3.5 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-base shadow-[0_6px_18px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
+                            class="mt-5 w-full min-h-[48px] px-6 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-sm sm:text-base shadow-[0_8px_20px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
                         <svg x-show="gpsState !== 'loading'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                         </svg>
-                        <span x-text="gpsState === 'loading' ? 'Sedang mendeteksi titik GPS...' : 'Aktifkan Izin Lokasi Sekarang'"></span>
+                        <span x-text="gpsState === 'loading' ? 'Mendeteksi titik GPS...' : 'Aktifkan Izin Lokasi'"></span>
                     </button>
                 </div>
             </template>
@@ -62,268 +65,555 @@
             <!-- State when GPS permission is denied (PRD FR-15) -->
             <template x-if="gpsState === 'denied'">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#FF6B5C]/15 text-[#D94343] mb-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#FF6B5C]/15 text-[#D94343] mb-2.5">
                         Izin Lokasi Belum Aktif
                     </span>
-                    <h1 class="text-2xl font-extrabold text-[#17324D]">
-                        Peta dan formulir lapor membutuhkan akses lokasi
+                    <h1 class="text-xl font-extrabold text-[#17324D]">
+                        Peta &amp; form lapor memerlukan akses lokasi
                     </h1>
-                    <p class="mt-2.5 text-sm text-[#617482] leading-relaxed" x-text="gpsErrorMessage || 'Izin lokasi ditolak oleh browser perangkat kamu. Ikuti petunjuk singkat di bawah ini untuk mengaktifkannya kembali.'"></p>
+                    <p class="mt-2 text-xs sm:text-sm text-[#617482] leading-relaxed" x-text="gpsErrorMessage || 'Izin lokasi ditolak oleh browser perangkat kamu.'"></p>
 
-                    <div class="mt-5 p-4 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5] text-left text-xs sm:text-sm text-[#17324D] space-y-2">
-                        <p class="font-extrabold text-[#17324D]">Cara mengaktifkan izin lokasi di browser:</p>
-                        <ol class="list-decimal list-inside space-y-1.5 text-[#617482] font-semibold">
-                            <li>Ketuk ikon <strong>Gembok / Pengaturan Situs</strong> di sebelah kiri alamat website (URL bar).</li>
-                            <li>Pilih menu <strong>Izin (Permissions)</strong> lalu ubah <strong>Lokasi (Location)</strong> menjadi <strong>Izinkan (Allow)</strong>.</li>
-                            <li>Tekan tombol <strong>Coba Aktifkan Lagi</strong> di bawah ini.</li>
+                    <div class="mt-4 p-3.5 rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1.5">
+                        <p class="font-extrabold">Cara mengaktifkan kembali:</p>
+                        <ol class="list-decimal list-inside space-y-1 text-[#617482] font-semibold">
+                            <li>Ketuk ikon <strong>Pengaturan Situs / Gembok</strong> di bilah alamat browser.</li>
+                            <li>Ubah izin <strong>Lokasi (Location)</strong> menjadi <strong>Izinkan (Allow)</strong>.</li>
+                            <li>Tekan tombol <strong>Coba Lagi</strong> di bawah ini.</li>
                         </ol>
                     </div>
 
                     <button type="button"
                             @click="requestGpsLocation()"
-                            class="mt-6 w-full min-h-[48px] px-6 py-3.5 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-base shadow-[0_6px_18px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                            <path d="M3 3v5h5"/>
-                            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                            <path d="M16 16h5v5"/>
-                        </svg>
+                            class="mt-5 w-full min-h-[48px] px-6 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
                         <span>Coba Aktifkan Lagi</span>
                     </button>
                 </div>
             </template>
 
-            <!-- Ticket Tracking Shortcut (Still accessible even without GPS) -->
-            <div class="mt-6 pt-5 border-t border-[#D7E1E5] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-                <span class="text-[#617482] font-semibold">Sudah punya ID tiket laporan?</span>
-                <a href="{{ route('tickets.index') }}" class="font-extrabold text-[#0D8BB8] hover:underline inline-flex items-center gap-1">
-                    <span>Lacak tiket dengan ID</span>
-                    <span>→</span>
+            <div class="mt-5 pt-4 border-t border-[#E6EEF2] flex items-center justify-between gap-2 text-xs">
+                <span class="text-[#617482] font-semibold">Sudah punya ID tiket?</span>
+                <a href="{{ route('tickets.index') }}" class="font-extrabold text-[#0D8BB8] hover:underline">
+                    Lacak tiket →
                 </a>
             </div>
         </div>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- LEFT / MAIN AREA: INTERACTIVE MAP (65% on Desktop, Full on Mobile)     -->
+    <!-- MAIN FULL-BLEED MAP CANVAS (100% Mobile, 64% Desktop)                  -->
     <!-- ===================================================================== -->
     <div class="relative flex-1 h-full w-full lg:w-[64%]">
         <div id="main-map" class="w-full h-full z-10" aria-label="Peta laporan masalah publik di sekitar Anda"></div>
 
-        <!-- Floating Map Legend & Recenter Control -->
-        <div class="absolute top-3 left-3 right-3 z-20 pointer-events-none flex items-start justify-between gap-2">
-            <!-- Status Legend Pill -->
-            <div class="pointer-events-auto bg-white/95 backdrop-blur border border-[#D7E1E5] rounded-2xl px-3.5 py-2 shadow-[0_4px_14px_rgba(23,50,77,0.1)] flex flex-wrap items-center gap-3 text-xs font-bold text-[#17324D]">
-                <span class="inline-flex items-center gap-1.5">
-                    <span class="w-3 h-3 rounded-full bg-[#16A6D8] inline-block"></span>
-                    <span>Baru</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                    <span class="w-3 h-3 rounded-full bg-[#7966D9] inline-block"></span>
-                    <span>Ditugaskan</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                    <span class="w-3 h-3 rounded-full bg-[#F5B82E] inline-block"></span>
-                    <span>Diproses</span>
-                </span>
-                <span class="hidden sm:inline text-[#617482] font-semibold border-l border-[#D7E1E5] pl-2.5">
-                    Penanda hilang saat laporan Selesai
-                </span>
+        <!-- TOP FLOATING CONTROLS BAR (Matches Reference Screenshot) -->
+        <div class="absolute top-4 inset-x-4 z-20 pointer-events-none flex items-start justify-between gap-3">
+            <!-- Left Location & Radius Pill Dropdown -->
+            <div class="pointer-events-auto relative" @click.outside="radiusMenuOpen = false">
+                <button type="button"
+                        @click="radiusMenuOpen = !radiusMenuOpen; filterPopoverOpen = false"
+                        class="min-h-[46px] pl-3.5 pr-4 py-2 rounded-full bg-white shadow-[0_8px_24px_rgba(23,50,77,0.11)] hover:bg-[#F3F7F8]/90 flex items-center gap-2 text-[#17324D] transition cursor-pointer">
+                    <svg class="w-5 h-5 text-[#17324D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span class="font-extrabold text-sm tracking-tight">
+                        Sekitarmu
+                        <span class="text-[#0D8BB8] font-extrabold tabular-nums"
+                              x-text="'• ' + (filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km')"></span>
+                    </span>
+                    <svg class="w-4 h-4 text-[#617482] transition-transform duration-150"
+                         :class="radiusMenuOpen ? 'rotate-180' : ''"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                </button>
+
+                <!-- Radius & Quick Demo Dropdown Card -->
+                <div x-show="radiusMenuOpen"
+                     x-transition
+                     class="mt-2.5 w-68 bg-white rounded-[24px] p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
+                    <div>
+                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Jangkauan Radius Peta</p>
+                        <div class="grid grid-cols-3 gap-1.5 bg-[#F3F7F8] p-1 rounded-2xl">
+                            <template x-for="r in [500, 1000, 5000]" :key="r">
+                                <button type="button"
+                                        @click="setRadius(r); radiusMenuOpen = false"
+                                        :class="filters.radius === r ? 'bg-[#16A6D8] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                        class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer tabular-nums"
+                                        x-text="r < 1000 ? r + ' m' : (r / 1000) + ' km'"></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-[#E6EEF2] space-y-1.5 text-xs font-bold text-[#17324D]">
+                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482]">Keterangan Warna Pin</p>
+                        <div class="flex items-center gap-3 pt-0.5">
+                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#16A6D8]"></span>Baru</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#7966D9]"></span>Ditugaskan</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F5B82E]"></span>Diproses</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-[#E6EEF2]">
+                        <button type="button"
+                                @click="relocateDemoDataToUser(); radiusMenuOpen = false"
+                                :disabled="isRelocatingDemo"
+                                class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-[#DFF5FC]/70 hover:bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold transition cursor-pointer">
+                            <span x-text="isRelocatingDemo ? 'Memindahkan simulasi...' : '⚡ Tarik Simulasi ke GPS Saya'"></span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Recenter GPS Button -->
+            <!-- Right Circular Action Buttons: Crosshair GPS & Filter Sliders -->
+            <div class="pointer-events-auto flex items-center gap-2.5">
+                <!-- 1. GPS Target / Crosshair Button -->
+                <button type="button"
+                        @click="recenterToUser()"
+                        title="Pusatkan ke posisi GPS saya"
+                        aria-label="Pusatkan ke posisi GPS saya"
+                        class="w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.11)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="7"/>
+                        <circle cx="12" cy="12" r="2"/>
+                        <line x1="12" x2="12" y1="2" y2="5"/>
+                        <line x1="12" x2="12" y1="19" y2="22"/>
+                        <line x1="2" x2="5" y1="12" y2="12"/>
+                        <line x1="19" x2="22" y1="12" y2="12"/>
+                    </svg>
+                </button>
+
+                <!-- 2. Filter Sliders Button -->
+                <button type="button"
+                        @click="filterPopoverOpen = !filterPopoverOpen; radiusMenuOpen = false"
+                        title="Filter laporan sekitar"
+                        aria-label="Filter laporan sekitar"
+                        class="relative w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.11)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="10" y1="8" y2="8"/>
+                        <line x1="14" x2="20" y1="8" y2="8"/>
+                        <circle cx="12" cy="8" r="2"/>
+                        <line x1="4" x2="14" y1="16" y2="16"/>
+                        <line x1="18" x2="20" y1="16" y2="16"/>
+                        <circle cx="16" cy="16" r="2"/>
+                    </svg>
+                    <span x-show="filters.status !== 'all' || filters.category !== 'all'"
+                          class="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-[#16A6D8] ring-2 ring-white"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FLOATING FILTER POPOVER (Opened via Top-Right Sliders Icon) -->
+        <div x-show="filterPopoverOpen"
+             x-transition
+             @click.outside="filterPopoverOpen = false"
+             class="absolute top-[70px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[350px] z-30 bg-white rounded-[26px] p-4 sm:p-5 shadow-[0_16px_40px_rgba(23,50,77,0.18)] border border-[#E6EEF2] space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-[#17324D]">Filter Laporan Peta</h3>
+                <button type="button"
+                        x-show="filters.status !== 'all' || filters.category !== 'all'"
+                        @click="setStatusFilter('all'); setCategoryFilter('all')"
+                        class="text-xs font-extrabold text-[#0D8BB8] hover:underline cursor-pointer">
+                    Reset Filter
+                </button>
+            </div>
+
+            <!-- Status Chips -->
+            <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Status Laporan</p>
+                <div class="flex flex-wrap gap-1.5">
+                    <button type="button"
+                            @click="setStatusFilter('all')"
+                            :class="filters.status === 'all' ? 'bg-[#17324D] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Semua
+                    </button>
+                    <button type="button"
+                            @click="setStatusFilter('baru')"
+                            :class="filters.status === 'baru' ? 'bg-[#16A6D8] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Baru
+                    </button>
+                    <button type="button"
+                            @click="setStatusFilter('ditugaskan')"
+                            :class="filters.status === 'ditugaskan' ? 'bg-[#7966D9] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Ditugaskan
+                    </button>
+                    <button type="button"
+                            @click="setStatusFilter('diproses')"
+                            :class="filters.status === 'diproses' ? 'bg-[#F5B82E] text-[#17324D]' : 'bg-[#F3F7F8] text-[#17324D]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Diproses
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Chips -->
+            <div>
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Kategori Masalah</p>
+                <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                    <button type="button"
+                            @click="setCategoryFilter('all')"
+                            :class="filters.category === 'all' ? 'bg-[#DFF5FC] text-[#0D8BB8] ring-1 ring-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Semua Kategori
+                    </button>
+                    @foreach($categories as $category)
+                        <button type="button"
+                                @click="setCategoryFilter('{{ $category->slug }}')"
+                                :class="filters.category === '{{ $category->slug }}' ? 'bg-[#DFF5FC] text-[#0D8BB8] ring-1 ring-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482]'"
+                                class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            {{ $category->name }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
             <button type="button"
-                    @click="recenterToUser()"
-                    title="Pusatkan ke lokasi GPS saya"
-                    class="pointer-events-auto min-w-[44px] min-h-[44px] px-3.5 py-2.5 rounded-2xl bg-white hover:bg-[#F3F7F8] border border-[#D7E1E5] shadow-[0_4px_14px_rgba(23,50,77,0.12)] text-[#17324D] font-extrabold text-xs flex items-center gap-1.5 cursor-pointer transition">
-                <svg class="w-5 h-5 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 2v3"/>
-                    <path d="M12 19v3"/>
-                    <path d="M2 12h3"/>
-                    <path d="M19 12h3"/>
-                </svg>
-                <span class="hidden sm:inline">Lokasi Saya</span>
+                    @click="filterPopoverOpen = false"
+                    class="w-full min-h-[42px] rounded-full bg-[#16A6D8] text-white text-xs font-extrabold cursor-pointer">
+                Terapkan Filter
             </button>
         </div>
 
-        <!-- Selected Marker Summary Card Overlay (Style Guide 9.2) -->
-        <div x-show="selectedReport"
-             x-transition
-             class="absolute bottom-24 lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:w-[390px] z-20 bg-white rounded-[20px] border-2 border-[#16A6D8] shadow-[0_8px_24px_rgba(23,50,77,0.2)] p-4">
+        <!-- ================================================================= -->
+        <!-- CENTER FLOATING CALLOUT POPOVER CARD (Matches Reference Image!)   -->
+        <!-- ================================================================= -->
+        <div x-show="selectedReport && activeMobileTab === 'peta'"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             class="absolute top-[16%] sm:top-[18%] inset-x-4 max-w-[348px] mx-auto z-20 pointer-events-auto">
             <template x-if="selectedReport">
-                <div>
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"
-                                  :style="`background:${selectedReport.status_bg}; color:${selectedReport.status_text}`"
-                                  x-text="selectedReport.status_label"></span>
-                            <span class="text-xs font-mono font-bold text-[#617482]" x-text="selectedReport.ticket_id"></span>
-                        </div>
-                        <button type="button"
-                                @click="selectedReport = null"
-                                class="w-8 h-8 rounded-lg hover:bg-[#F3F7F8] text-[#617482] font-bold flex items-center justify-center cursor-pointer"
-                                aria-label="Tutup ringkasan">
-                            ✕
-                        </button>
-                    </div>
-
-                    <div class="mt-3 flex gap-3">
+                <div class="bg-white rounded-[26px] p-4 shadow-[0_16px_40px_rgba(23,50,77,0.16)] border border-white relative lt-callout-card">
+                    <!-- Top Content: Left Square Photo + Right Metadata -->
+                    <div class="flex items-center gap-3.5">
                         <template x-if="selectedReport.photo_url">
                             <img :src="selectedReport.photo_url"
+                                 x-on:error="selectedReport.photo_url = null"
                                  :alt="selectedReport.title"
-                                 class="w-20 h-20 rounded-xl object-cover border border-[#D7E1E5] shrink-0 bg-[#F3F7F8]">
+                                 class="w-[72px] h-[72px] rounded-[18px] object-cover shrink-0 bg-[#F3F7F8]">
                         </template>
+                        <template x-if="!selectedReport.photo_url">
+                            <div class="w-[72px] h-[72px] rounded-[18px] flex items-center justify-center text-white font-extrabold text-lg shrink-0"
+                                 :style="`background-color: ${selectedReport.status_color}`"
+                                 x-text="selectedReport.category_name.slice(0, 2)"></div>
+                        </template>
+
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs font-extrabold text-[#0D8BB8]" x-text="selectedReport.category_name"></p>
-                            <h3 class="text-sm font-extrabold text-[#17324D] line-clamp-2 mt-0.5" x-text="selectedReport.title"></h3>
-                            <p class="text-xs text-[#617482] font-semibold mt-1">
-                                <span x-text="selectedReport.distance_label"></span> • <span x-text="selectedReport.created_human"></span>
-                            </p>
+                            <h3 class="text-[15px] font-extrabold text-[#17324D] truncate" x-text="selectedReport.title"></h3>
+
+                            <!-- Timestamp + Status Pill Row -->
+                            <div class="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#617482]">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                                    <line x1="16" x2="16" y1="2" y2="6"/>
+                                    <line x1="8" x2="8" y1="2" y2="6"/>
+                                    <line x1="3" x2="21" y1="10" y2="10"/>
+                                </svg>
+                                <span class="truncate" x-text="selectedReport.created_human"></span>
+                                <span>•</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0"
+                                      :style="`background:${selectedReport.status_bg}; color:${selectedReport.status_text}`"
+                                      x-text="selectedReport.status_label"></span>
+                            </div>
+
+                            <!-- Location Pin Row -->
+                            <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#617482]">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <span class="truncate" x-text="selectedReport.location_label"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-3.5 pt-3 border-t border-[#D7E1E5] flex items-center justify-between gap-2">
-                        <span class="text-xs font-semibold text-[#617482] truncate" x-text="selectedReport.agency_name"></span>
+                    <!-- Bottom Dual Pill Action Buttons (Matches "Next time" & "Going" in Reference) -->
+                    <div class="mt-4 grid grid-cols-2 gap-2.5">
+                        <button type="button"
+                                @click="selectedReport = null"
+                                class="min-h-[44px] px-4 py-2 rounded-full border border-[#D7E1E5] bg-white hover:bg-[#F3F7F8] text-[#17324D] text-xs sm:text-sm font-bold transition cursor-pointer">
+                            Tutup
+                        </button>
                         <a :href="selectedReport.track_url"
-                           class="min-h-[40px] px-4 py-2 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 transition">
-                            <span>Lihat detail</span>
-                            <span>→</span>
+                           class="min-h-[44px] px-4 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs sm:text-sm font-extrabold shadow-[0_6px_16px_rgba(22,166,216,0.34)] flex items-center justify-center transition">
+                            Lihat detail
                         </a>
                     </div>
                 </div>
             </template>
         </div>
 
-        <!-- Mobile Floating CTA "+ Buat laporan" (Style Guide 8) -->
-        <button type="button"
-                @click="openCreateReportModal()"
-                class="lg:hidden fixed bottom-20 right-4 z-20 min-h-[52px] px-5 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-sm shadow-[0_8px_24px_rgba(22,166,216,0.45)] border-2 border-white flex items-center gap-2 cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"/>
-                <path d="M12 5v14"/>
-            </svg>
-            <span>Buat laporan</span>
-        </button>
+        <!-- ================================================================= -->
+        <!-- MOBILE BOTTOM HORIZONTAL PEEKING CARDS CAROUSEL (Matches Ref!)    -->
+        <!-- ================================================================= -->
+        <div x-show="gpsState === 'granted' && activeMobileTab === 'peta'"
+             class="lg:hidden absolute bottom-[96px] inset-x-0 z-20 pointer-events-none">
+
+            <!-- Loading Skeleton Card -->
+            <template x-if="isLoadingNearby">
+                <div class="px-4 pointer-events-auto">
+                    <div class="w-[85%] bg-white rounded-[22px] p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 animate-pulse">
+                        <div class="w-16 h-16 rounded-2xl bg-[#D7E1E5] shrink-0"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-4 w-3/4 bg-[#D7E1E5] rounded"></div>
+                            <div class="h-3 w-1/2 bg-[#F3F7F8] rounded"></div>
+                            <div class="h-3 w-1/3 bg-[#F3F7F8] rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty State Compact Floating Card -->
+            <template x-if="!isLoadingNearby && reports.length === 0">
+                <div class="px-4 pointer-events-auto">
+                    <div class="bg-white rounded-[22px] p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-sm font-extrabold text-[#17324D] truncate">Belum ada laporan di radius ini</p>
+                            <p class="text-xs text-[#617482] font-semibold truncate">Perluas radius atau tarik data simulasi demo</p>
+                        </div>
+                        <button type="button"
+                                @click="relocateDemoDataToUser()"
+                                :disabled="isRelocatingDemo"
+                                class="min-h-[40px] px-3.5 py-2 rounded-full bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold shrink-0 cursor-pointer">
+                            <span x-text="isRelocatingDemo ? 'Memuat...' : '⚡ Simulasi'"></span>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Horizontal Snap-Scroll Peeking Cards (Matches "Beachside Picnic" Card) -->
+            <template x-if="!isLoadingNearby && reports.length > 0">
+                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-2 no-scrollbar pointer-events-auto">
+                    <template x-for="report in reports" :key="'mob-card-' + report.id">
+                        <article @click="focusReportOnMap(report)"
+                                 :class="selectedReport && selectedReport.id === report.id ? 'ring-2 ring-[#16A6D8]' : ''"
+                                 class="w-[84%] max-w-[330px] shrink-0 snap-start bg-white rounded-[22px] p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 cursor-pointer transition active:scale-[0.99]">
+                            <!-- Square Rounded Photo Thumbnail -->
+                            <template x-if="report.photo_url">
+                                <img :src="report.photo_url"
+                                     x-on:error="report.photo_url = null"
+                                     :alt="report.title"
+                                     class="w-16 h-16 rounded-[16px] object-cover shrink-0 bg-[#F3F7F8]">
+                            </template>
+                            <template x-if="!report.photo_url">
+                                <div class="w-16 h-16 rounded-[16px] flex items-center justify-center text-white font-extrabold shrink-0"
+                                     :style="`background-color: ${report.status_color}`"
+                                     x-text="report.category_name.slice(0, 2)"></div>
+                            </template>
+
+                            <!-- Right Text Block -->
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-[15px] font-extrabold text-[#17324D] truncate" x-text="report.title"></h3>
+
+                                <p class="mt-0.5 flex items-center gap-1 text-xs text-[#617482] font-semibold truncate">
+                                    <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+                                    <span class="truncate" x-text="report.location_label"></span>
+                                </p>
+
+                                <div class="mt-1 flex items-center gap-1.5 text-xs text-[#617482]">
+                                    <span class="w-2 h-2 rounded-full shrink-0" :style="`background-color: ${report.status_color}`"></span>
+                                    <span class="font-extrabold text-[#17324D]" x-text="report.status_label"></span>
+                                    <span>•</span>
+                                    <span class="font-extrabold text-[#0D8BB8] tabular-nums" x-text="report.distance_label"></span>
+                                </div>
+                            </div>
+                        </article>
+                    </template>
+                </div>
+            </template>
+        </div>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- RIGHT / BOTTOM SHEET: NEARBY REPORTS & FILTERS (Style Guide 8 & 9.3)   -->
+    <!-- MOBILE "SEKITAR" FULL LIST DRAWER (Accessible List Alternative)       -->
     <!-- ===================================================================== -->
-    <aside :class="mobileSheetExpanded ? 'h-[78vh]' : 'h-[42vh]'"
-           class="w-full lg:w-[36%] lg:h-full bg-white border-t lg:border-t-0 lg:border-l border-[#D7E1E5] shadow-[0_-8px_24px_rgba(23,50,77,0.1)] lg:shadow-none z-20 flex flex-col transition-all duration-200">
-
-        <!-- Mobile Drag Handle -->
-        <button type="button"
-                @click="mobileSheetExpanded = !mobileSheetExpanded"
-                class="lg:hidden w-full py-2.5 flex flex-col items-center justify-center border-b border-[#D7E1E5]/60 cursor-pointer"
-                aria-label="Perluas atau kecilkan panel daftar laporan">
-            <span class="w-12 h-1.5 rounded-full bg-[#D7E1E5]"></span>
-            <span class="text-[11px] font-bold text-[#617482] mt-1"
-                  x-text="mobileSheetExpanded ? 'Ketuk untuk mengecilkan panel' : 'Ketuk untuk melihat lebih banyak laporan'"></span>
-        </button>
-
-        <!-- Quick Ticket ID Search Bar on Homepage (PRD FR-17) -->
-        <div class="p-3.5 sm:p-4 border-b border-[#D7E1E5] bg-[#F3F7F8]/60">
-            <form action="{{ route('tickets.index') }}" method="GET" class="flex items-center gap-2">
-                <label for="quick-ticket-id" class="sr-only">Cari laporan berdasarkan ID tiket</label>
-                <div class="relative flex-1">
-                    <input id="quick-ticket-id"
-                           type="text"
-                           name="ticket_id"
-                           placeholder="Lacak ID tiket (mis. LT-7K9P-2M4X)"
-                           class="w-full min-h-[44px] pl-3.5 pr-3 py-2 rounded-xl bg-white border border-[#D7E1E5] text-sm font-mono font-bold text-[#17324D] placeholder:font-sans placeholder:font-normal placeholder:text-[#617482] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8] uppercase">
-                </div>
-                <button type="submit"
-                        class="min-h-[44px] px-4 py-2 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs sm:text-sm font-extrabold shrink-0 transition cursor-pointer">
-                    Cari ID
+    <div x-show="activeMobileTab === 'sekitar'"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="translate-y-full"
+         x-transition:enter-end="translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="translate-y-0"
+         x-transition:leave-end="translate-y-full"
+         class="lg:hidden fixed inset-x-0 top-12 bottom-[74px] z-30 bg-white rounded-t-[28px] shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-[#E6EEF2] flex flex-col overflow-hidden">
+        <div class="p-4 border-b border-[#E6EEF2] flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-extrabold text-[#17324D] flex items-center gap-2">
+                    <span>Daftar Laporan Sekitar</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] tabular-nums"
+                          x-text="reports.length"></span>
+                </h2>
+                <p class="text-xs text-[#617482] font-semibold">
+                    Radius <span class="font-extrabold text-[#17324D] tabular-nums" x-text="filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km'"></span> • Ketuk kartu untuk lihat di peta
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button"
+                        x-show="filters.status !== 'all' || filters.category !== 'all'"
+                        @click="setStatusFilter('all'); setCategoryFilter('all')"
+                        class="min-h-[38px] px-3 py-1.5 rounded-full bg-[#DFF5FC] text-xs font-extrabold text-[#0D8BB8] cursor-pointer">
+                    Reset Filter
                 </button>
-            </form>
+                <button type="button"
+                        @click="activeMobileTab = 'peta'"
+                        class="min-h-[38px] px-3.5 py-1.5 rounded-full bg-[#F3F7F8] text-xs font-extrabold text-[#17324D] cursor-pointer">
+                    Tutup ✕
+                </button>
+            </div>
         </div>
 
-        <!-- Filters Header: Radius, Status, & Category Chips (FR-14 & Style Guide 9.8) -->
-        <div class="p-3.5 sm:p-4 border-b border-[#D7E1E5] space-y-3">
-            <div class="flex items-center justify-between gap-2">
-                <div>
-                    <h2 class="text-base sm:text-lg font-extrabold text-[#17324D] flex items-center gap-2">
-                        <span>Laporan di sekitarmu</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] tabular-nums"
-                              x-text="reports.length"></span>
-                    </h2>
-                    <p class="text-xs text-[#617482] font-semibold">
-                        Menampilkan masalah publik yang sedang ditangani dalam radius terpilih
-                    </p>
-                </div>
-
-                <!-- Radius Selector Pills -->
-                <div class="inline-flex rounded-xl bg-[#F3F7F8] p-1 border border-[#D7E1E5]" role="group" aria-label="Filter radius jarak">
-                    <template x-for="r in [500, 1000, 5000]" :key="r">
-                        <button type="button"
-                                @click="setRadius(r)"
-                                :class="filters.radius === r ? 'bg-[#16A6D8] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
-                                class="px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer tabular-nums"
-                                x-text="r < 1000 ? r + ' m' : (r / 1000) + ' km'"></button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Status Filter Chips -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                <button type="button"
-                        @click="setStatusFilter('all')"
-                        :class="filters.status === 'all' ? 'bg-[#17324D] text-white border-[#17324D]' : 'bg-white text-[#17324D] border-[#D7E1E5] hover:bg-[#F3F7F8]'"
-                        class="min-h-[36px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 transition cursor-pointer">
-                    Semua Status Aktif
-                </button>
-                <button type="button"
-                        @click="setStatusFilter('baru')"
-                        :class="filters.status === 'baru' ? 'bg-[#16A6D8] text-white border-[#16A6D8]' : 'bg-white text-[#17324D] border-[#D7E1E5] hover:bg-[#F3F7F8]'"
-                        class="min-h-[36px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 flex items-center gap-1.5 transition cursor-pointer">
-                    <span class="w-2 h-2 rounded-full bg-current"></span>
-                    <span>Baru</span>
-                </button>
-                <button type="button"
-                        @click="setStatusFilter('ditugaskan')"
-                        :class="filters.status === 'ditugaskan' ? 'bg-[#7966D9] text-white border-[#7966D9]' : 'bg-white text-[#17324D] border-[#D7E1E5] hover:bg-[#F3F7F8]'"
-                        class="min-h-[36px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 flex items-center gap-1.5 transition cursor-pointer">
-                    <span class="w-2 h-2 rounded-full bg-current"></span>
-                    <span>Ditugaskan</span>
-                </button>
-                <button type="button"
-                        @click="setStatusFilter('diproses')"
-                        :class="filters.status === 'diproses' ? 'bg-[#F5B82E] text-[#17324D] border-[#F5B82E]' : 'bg-white text-[#17324D] border-[#D7E1E5] hover:bg-[#F3F7F8]'"
-                        class="min-h-[36px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 flex items-center gap-1.5 transition cursor-pointer">
-                    <span class="w-2 h-2 rounded-full bg-current"></span>
-                    <span>Sedang diproses</span>
-                </button>
-            </div>
-
-            <!-- Category Horizontal Chips -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                <button type="button"
-                        @click="setCategoryFilter('all')"
-                        :class="filters.category === 'all' ? 'bg-[#DFF5FC] text-[#0D8BB8] border-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482] border-transparent hover:text-[#17324D]'"
-                        class="min-h-[34px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 transition cursor-pointer">
-                    Semua Kategori
-                </button>
-                @foreach($categories as $category)
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+            <template x-if="reports.length === 0">
+                <div class="p-6 text-center rounded-2xl bg-[#F3F7F8]">
+                    <p class="text-sm font-extrabold text-[#17324D]">Belum ada laporan aktif di radius ini</p>
                     <button type="button"
-                            @click="setCategoryFilter('{{ $category->slug }}')"
-                            :class="filters.category === '{{ $category->slug }}' ? 'bg-[#DFF5FC] text-[#0D8BB8] border-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482] border-transparent hover:text-[#17324D]'"
-                            class="min-h-[34px] px-3 py-1 rounded-full text-xs font-extrabold border shrink-0 transition cursor-pointer">
-                        {{ $category->name }}
+                            @click="relocateDemoDataToUser()"
+                            class="mt-3 min-h-[42px] px-4 py-2 rounded-full bg-[#16A6D8] text-white text-xs font-extrabold cursor-pointer">
+                        ⚡ Tarik 6 Simulasi ke GPS Saya
                     </button>
-                @endforeach
+                </div>
+            </template>
+
+            <template x-for="report in reports" :key="'drawer-item-' + report.id">
+                <article @click="activeMobileTab = 'peta'; focusReportOnMap(report)"
+                         class="p-3.5 rounded-[20px] border border-[#E6EEF2] bg-white shadow-2xs flex items-center gap-3.5 cursor-pointer">
+                    <template x-if="report.photo_url">
+                        <img :src="report.photo_url"
+                             x-on:error="report.photo_url = null"
+                             :alt="report.title"
+                             class="w-16 h-16 rounded-2xl object-cover shrink-0 bg-[#F3F7F8]">
+                    </template>
+                    <template x-if="!report.photo_url">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-white font-extrabold"
+                             :style="`background-color: ${report.status_color}`"
+                             x-text="report.category_name.slice(0, 2)"></div>
+                    </template>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-extrabold text-[#0D8BB8] truncate" x-text="report.category_name"></span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0"
+                                  :style="`background:${report.status_bg}; color:${report.status_text}`"
+                                  x-text="report.status_label"></span>
+                        </div>
+                        <h3 class="text-sm font-extrabold text-[#17324D] truncate mt-0.5" x-text="report.title"></h3>
+                        <p class="text-xs text-[#617482] font-semibold mt-0.5 truncate"
+                           x-text="report.distance_label + ' • ' + report.location_label"></p>
+                    </div>
+                </article>
+            </template>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR + RAISED "+" BUTTON (Matches Reference!) -->
+    <!-- ===================================================================== -->
+    <nav aria-label="Navigasi Bawah Mobile"
+         class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white rounded-t-[26px] shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-[#E6EEF2] px-3 pb-[env(safe-area-inset-bottom)]">
+        <div class="h-[74px] max-w-md mx-auto grid grid-cols-5 items-center relative">
+            <!-- 1. Peta (Home) -->
+            <button type="button"
+                    @click="activeMobileTab = 'peta'"
+                    :class="activeMobileTab === 'peta'
+                        ? 'bg-gradient-to-b from-[#DFF5FC]/35 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold'
+                        : 'text-[#617482] hover:text-[#17324D] font-bold'"
+                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="text-[11px]">Peta</span>
+            </button>
+
+            <!-- 2. Sekitar (Discover) -->
+            <button type="button"
+                    @click="activeMobileTab = (activeMobileTab === 'sekitar' ? 'peta' : 'sekitar')"
+                    :class="activeMobileTab === 'sekitar'
+                        ? 'bg-gradient-to-b from-[#DFF5FC]/35 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold'
+                        : 'text-[#617482] hover:text-[#17324D] font-bold'"
+                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <span class="text-[11px]">Sekitar</span>
+            </button>
+
+            <!-- Center Raised Circular "+" Action Button (Buat Laporan) -->
+            <div class="flex items-center justify-center">
+                <button type="button"
+                        @click="openCreateReportModal()"
+                        aria-label="Buat laporan baru"
+                        title="Buat laporan baru"
+                        class="-mt-9 w-14 h-14 rounded-full bg-[#17324D] hover:bg-[#16A6D8] text-white shadow-[0_10px_24px_rgba(23,50,77,0.34)] border-4 border-white flex items-center justify-center transition active:scale-95 cursor-pointer">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5v14"/>
+                    </svg>
+                </button>
             </div>
+
+            <!-- 3. Lacak Tiket -->
+            <a href="{{ route('tickets.index') }}"
+               class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    <path d="M8 10h.01"/>
+                    <path d="M12 10h.01"/>
+                    <path d="M16 10h.01"/>
+                </svg>
+                <span class="text-[11px]">Lacak</span>
+            </a>
+
+            <!-- 4. Petugas / Admin -->
+            <a href="{{ auth()->check() ? route('staff.dashboard') : route('staff.login') }}"
+               class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span class="text-[11px]">Petugas</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- DESKTOP RIGHT SIDEBAR PANEL (Clean Report List Only — No Redundancy!) -->
+    <!-- ===================================================================== -->
+    <aside class="hidden lg:flex lg:w-[36%] lg:h-full bg-white border-l border-[#E6EEF2] z-20 flex-col">
+        <!-- Compact Single Header -->
+        <div class="px-5 py-4 border-b border-[#E6EEF2] flex items-center justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-extrabold text-[#17324D] flex items-center gap-2">
+                    <span>Laporan di sekitarmu</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] tabular-nums"
+                          x-text="reports.length"></span>
+                </h2>
+                <p class="text-xs text-[#617482] font-semibold mt-0.5">
+                    Menampilkan laporan aktif dalam radius
+                    <span class="font-extrabold text-[#17324D] tabular-nums"
+                          x-text="filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km'"></span>
+                </p>
+            </div>
+
+            <button type="button"
+                    x-show="filters.status !== 'all' || filters.category !== 'all'"
+                    @click="setStatusFilter('all'); setCategoryFilter('all')"
+                    class="min-h-[36px] px-3 py-1.5 rounded-full bg-[#DFF5FC] hover:bg-[#16A6D8] text-[#0D8BB8] hover:text-white text-xs font-extrabold transition cursor-pointer shrink-0">
+                Reset Filter ✕
+            </button>
         </div>
 
-        <!-- Scrollable Report List Area -->
-        <div class="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3">
-            <!-- Skeleton Loading State (Style Guide 9.10) -->
+        <!-- Desktop Scrollable Report List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
             <template x-if="isLoadingNearby">
                 <div class="space-y-3">
-                    <template x-for="i in [1, 2, 3]" :key="i">
-                        <div class="p-4 rounded-[18px] border border-[#D7E1E5] bg-white animate-pulse space-y-2.5">
+                    <template x-for="i in [1, 2, 3]" :key="'desk-skel-' + i">
+                        <div class="p-4 rounded-[20px] border border-[#D7E1E5] bg-white animate-pulse space-y-2.5">
                             <div class="flex justify-between">
                                 <div class="h-4 w-28 bg-[#D7E1E5] rounded"></div>
                                 <div class="h-5 w-20 bg-[#D7E1E5] rounded-full"></div>
@@ -335,80 +625,67 @@
                 </div>
             </template>
 
-            <!-- Empty State + Demo Relocation Helper (Style Guide 9.10) -->
             <template x-if="!isLoadingNearby && reports.length === 0">
-                <div class="p-6 rounded-[18px] border border-dashed border-[#D7E1E5] bg-[#F3F7F8]/60 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#DFF5FC] text-[#16A6D8] mx-auto flex items-center justify-center mb-3">
-                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/>
-                            <path d="m9 10 2 2 4-4"/>
-                        </svg>
-                    </div>
+                <div class="p-6 rounded-[20px] border border-dashed border-[#D7E1E5] bg-[#F3F7F8]/60 text-center">
                     <h3 class="text-base font-extrabold text-[#17324D]">Belum ada laporan aktif pada radius ini</h3>
                     <p class="text-xs text-[#617482] font-semibold mt-1 leading-relaxed">
-                        Kamu bisa memperluas radius ke <strong>5 km</strong>, menjadi warga pertama yang melapor, atau menarik data simulasi demo ke sekitar titik GPS kamu.
+                        Perluas radius ke 5 km, buat laporan baru, atau tarik data simulasi demo ke sekitar titik GPS kamu.
                     </p>
-
                     <div class="mt-4 flex flex-col gap-2">
                         <button type="button"
                                 @click="openCreateReportModal()"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs sm:text-sm font-extrabold transition cursor-pointer">
+                                class="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-sm font-extrabold transition cursor-pointer">
                             ＋ Buat laporan pertama di sini
                         </button>
-
                         <button type="button"
                                 @click="relocateDemoDataToUser()"
                                 :disabled="isRelocatingDemo"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white hover:bg-[#DFF5FC]/50 border border-[#16A6D8] text-[#0D8BB8] text-xs font-extrabold transition cursor-pointer">
+                                class="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-white hover:bg-[#DFF5FC]/50 border border-[#16A6D8] text-[#0D8BB8] text-xs font-extrabold transition cursor-pointer">
                             <span x-text="isRelocatingDemo ? 'Memindahkan data simulasi...' : '⚡ Tarik 6 Data Simulasi Demo ke Sekitar GPS Saya'"></span>
                         </button>
                     </div>
                 </div>
             </template>
 
-            <!-- Report Cards (Style Guide 9.3: 1. Category Icon, 2. Title, 3. Location & Time, 4. Status Badge, 5. Supporting Info) -->
-            <template x-for="report in reports" :key="report.id">
+            <template x-for="report in reports" :key="'desk-card-' + report.id">
                 <article @click="focusReportOnMap(report)"
-                         :class="selectedReport && selectedReport.id === report.id ? 'border-[#16A6D8] bg-[#DFF5FC]/25 ring-2 ring-[#16A6D8]/30' : 'border-[#D7E1E5] bg-white hover:border-[#16A6D8]/60'"
-                         class="p-4 rounded-[18px] border shadow-[0_4px_14px_rgba(23,50,77,0.06)] transition cursor-pointer">
-                    <div class="flex items-start gap-3">
-                        <!-- 1. Category Icon Badge -->
-                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-xs"
-                             :style="`background-color: ${report.status_color}`">
-                            <span class="text-xs font-extrabold uppercase" x-text="report.category_name.slice(0, 2)"></span>
+                         :class="selectedReport && selectedReport.id === report.id ? 'border-[#16A6D8] bg-[#DFF5FC]/25 ring-2 ring-[#16A6D8]/30' : 'border-[#E6EEF2] bg-white hover:border-[#16A6D8]/60'"
+                         class="p-3.5 rounded-[22px] border shadow-[0_4px_14px_rgba(23,50,77,0.05)] transition cursor-pointer flex items-center gap-3.5">
+                    <template x-if="report.photo_url">
+                        <img :src="report.photo_url"
+                             x-on:error="report.photo_url = null"
+                             :alt="report.title"
+                             class="w-16 h-16 rounded-[16px] object-cover shrink-0 bg-[#F3F7F8]">
+                    </template>
+                    <template x-if="!report.photo_url">
+                        <div class="w-16 h-16 rounded-[16px] flex items-center justify-center shrink-0 text-white font-extrabold"
+                             :style="`background-color: ${report.status_color}`"
+                             x-text="report.category_name.slice(0, 2)"></div>
+                    </template>
+
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-extrabold text-[#0D8BB8] truncate" x-text="report.category_name"></span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0"
+                                  :style="`background-color: ${report.status_bg}; color: ${report.status_text}`"
+                                  x-text="report.status_label"></span>
                         </div>
 
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-xs font-extrabold text-[#0D8BB8] truncate" x-text="report.category_name"></span>
-                                <!-- 4. Status Badge -->
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0"
-                                      :style="`background-color: ${report.status_bg}; color: ${report.status_text}`"
-                                      x-text="report.status_label"></span>
-                            </div>
+                        <h3 class="text-sm font-extrabold text-[#17324D] line-clamp-1 mt-0.5" x-text="report.title"></h3>
 
-                            <!-- 2. Issue Title (Max 2 lines) -->
-                            <h3 class="text-sm sm:text-[15px] font-extrabold text-[#17324D] line-clamp-2 mt-1" x-text="report.title"></h3>
+                        <p class="text-xs text-[#617482] font-semibold mt-1 truncate">
+                            <span class="font-extrabold text-[#17324D] tabular-nums" x-text="report.distance_label"></span>
+                            <span> • </span>
+                            <span x-text="report.location_label"></span>
+                        </p>
 
-                            <!-- 3. Short Location & Timestamp -->
-                            <p class="text-xs text-[#617482] font-semibold mt-1.5 flex items-center flex-wrap gap-x-2 gap-y-0.5">
-                                <span class="font-extrabold text-[#17324D] tabular-nums" x-text="report.distance_label"></span>
-                                <span>•</span>
-                                <span class="truncate max-w-[170px]" x-text="report.location_label"></span>
-                                <span>•</span>
-                                <span x-text="report.created_human"></span>
-                            </p>
-
-                            <!-- 5. Supporting Info & Detail Link -->
-                            <div class="mt-3 pt-2.5 border-t border-[#D7E1E5]/70 flex items-center justify-between gap-2 text-xs">
-                                <span class="font-mono font-bold text-[#617482]" x-text="report.ticket_id"></span>
-                                <a :href="report.track_url"
-                                   @click.stop
-                                   class="font-extrabold text-[#0D8BB8] hover:underline inline-flex items-center gap-1">
-                                    <span>Detail &amp; Linimasa</span>
-                                    <span>→</span>
-                                </a>
-                            </div>
+                        <div class="mt-2 flex items-center justify-between text-xs">
+                            <span class="font-mono font-bold text-[#617482]" x-text="report.ticket_id"></span>
+                            <a :href="report.track_url"
+                               @click.stop
+                               class="font-extrabold text-[#0D8BB8] hover:underline">
+                                Detail →
+                            </a>
                         </div>
                     </div>
                 </article>
@@ -428,23 +705,23 @@
          aria-labelledby="modal-report-title">
 
         <div @click.outside="closeCreateReportModal()"
-             class="w-full max-w-2xl bg-white rounded-t-[24px] sm:rounded-[24px] border border-[#D7E1E5] shadow-[0_8px_24px_rgba(23,50,77,0.25)] max-h-[92vh] flex flex-col overflow-hidden">
+             class="w-full max-w-2xl bg-white rounded-t-[28px] sm:rounded-[28px] border border-[#E6EEF2] shadow-[0_14px_40px_rgba(23,50,77,0.25)] max-h-[92dvh] flex flex-col overflow-hidden">
 
             <!-- Modal Header -->
-            <div class="px-5 py-4 border-b border-[#D7E1E5] flex items-center justify-between bg-[#F3F7F8]">
+            <div class="px-5 py-4 border-b border-[#E6EEF2] flex items-center justify-between bg-[#F3F7F8]">
                 <div>
                     <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0D8BB8]">Tanpa Login • Dibawah 1 Menit</span>
                     <h2 id="modal-report-title" class="text-lg sm:text-xl font-extrabold text-[#17324D]">Buat Laporan Masalah Publik</h2>
                 </div>
                 <button type="button"
                         @click="closeCreateReportModal()"
-                        class="min-w-[44px] min-h-[44px] rounded-xl hover:bg-white text-[#617482] hover:text-[#17324D] font-extrabold flex items-center justify-center cursor-pointer"
+                        class="min-w-[44px] min-h-[44px] rounded-full hover:bg-white text-[#617482] hover:text-[#17324D] font-extrabold flex items-center justify-center cursor-pointer"
                         aria-label="Tutup formulir laporan">
                     ✕
                 </button>
             </div>
 
-            <!-- Form Content (Ordered per Style Guide 9.4: 1. Foto, 2. Kategori, 3. Lokasi GPS, 4. Deskripsi, 5. Pratinjau sekitar, 6. Kirim) -->
+            <!-- Form Content -->
             <form action="{{ route('reports.store') }}"
                   method="POST"
                   enctype="multipart/form-data"
@@ -463,7 +740,7 @@
                     </div>
                 @endif
 
-                <!-- 1. Foto Bukti (1 - 5 Foto, dikompresi otomatis di sisi klien) -->
+                <!-- 1. Foto Bukti -->
                 <div>
                     <label for="report-photos" class="block text-sm font-extrabold text-[#17324D] mb-1">
                         1. Foto bukti masalah <span class="text-[#D94343]">*</span>
@@ -478,19 +755,18 @@
                            multiple
                            required
                            @change="handlePhotoSelection($event)"
-                           class="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-dashed border-[#16A6D8] bg-[#DFF5FC]/35 text-sm font-bold text-[#17324D] file:mr-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:bg-[#16A6D8] file:text-white file:font-extrabold hover:bg-[#DFF5FC]/60 cursor-pointer">
+                           class="w-full min-h-[48px] px-3.5 py-2.5 rounded-2xl border border-dashed border-[#16A6D8] bg-[#DFF5FC]/35 text-sm font-bold text-[#17324D] file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:bg-[#16A6D8] file:text-white file:font-extrabold hover:bg-[#DFF5FC]/60 cursor-pointer">
 
                     <p x-show="isCompressingPhotos" class="mt-2 text-xs font-bold text-[#0D8BB8]">
                         ⏳ Mengoptimalkan ukuran foto agar cepat diunggah...
                     </p>
                     <p x-show="photoError" x-text="photoError" class="mt-2 text-xs font-bold text-[#D94343]"></p>
 
-                    <!-- Photo Previews -->
                     <div x-show="photoPreviews.length > 0" class="mt-3 grid grid-cols-3 sm:grid-cols-5 gap-2.5">
                         <template x-for="(src, idx) in photoPreviews" :key="idx">
-                            <div class="relative aspect-square rounded-xl overflow-hidden border border-[#D7E1E5] bg-[#F3F7F8]">
+                            <div class="relative aspect-square rounded-2xl overflow-hidden border border-[#D7E1E5] bg-[#F3F7F8]">
                                 <img :src="src" class="w-full h-full object-cover" alt="Pratinjau foto bukti">
-                                <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-[#17324D]/80 text-white text-[10px] font-bold"
+                                <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-[#17324D]/80 text-white text-[10px] font-bold"
                                       x-text="'#' + (idx + 1)"></span>
                             </div>
                         </template>
@@ -510,7 +786,7 @@
                                     :class="form.categoryId === {{ $category->id }}
                                         ? 'border-2 border-[#16A6D8] bg-[#DFF5FC]/60 text-[#17324D]'
                                         : 'border border-[#D7E1E5] bg-white text-[#17324D] hover:bg-[#F3F7F8]'"
-                                    class="min-h-[54px] p-3 rounded-xl text-left flex items-center gap-2.5 transition cursor-pointer">
+                                    class="min-h-[54px] p-3 rounded-2xl text-left flex items-center gap-2.5 transition cursor-pointer">
                                 <div class="w-9 h-9 rounded-xl bg-[#16A6D8]/15 text-[#0D8BB8] flex items-center justify-center shrink-0">
                                     <x-category-icon :icon="$category->icon" class="w-5 h-5" />
                                 </div>
@@ -520,11 +796,11 @@
                     </div>
                 </div>
 
-                <!-- 3. Lokasi GPS & Peta Mini (Pin dapat digeser tipis untuk akurasi) -->
+                <!-- 3. Lokasi GPS & Peta Mini -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block text-sm font-extrabold text-[#17324D]">
-                            3. Titik lokasi masalah (Otomatis dari GPS) <span class="text-[#D94343]">*</span>
+                            3. Titik lokasi masalah (GPS) <span class="text-[#D94343]">*</span>
                         </label>
                         <span class="text-xs font-mono font-bold text-[#0D8BB8] tabular-nums"
                               x-text="form.latitude && form.longitude ? form.latitude.toFixed(5) + ', ' + form.longitude.toFixed(5) : ''"></span>
@@ -547,7 +823,7 @@
                                name="location_label"
                                x-model="form.locationLabel"
                                placeholder="Contoh: Depan Halte Transjakarta Monas arah Harmoni"
-                               class="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
+                               class="w-full min-h-[48px] px-4 py-2.5 rounded-2xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
                     </div>
                 </div>
 
@@ -563,23 +839,20 @@
                               minlength="10"
                               maxlength="1000"
                               x-model="form.description"
-                              placeholder="Jelaskan kondisi masalah secara singkat (minimal 10 karakter), misalnya ukuran lubang jalan atau sejak kapan lampu jalan padam..."
-                              class="w-full p-3.5 rounded-xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]"></textarea>
+                              placeholder="Jelaskan kondisi masalah secara singkat (minimal 10 karakter)..."
+                              class="w-full p-3.5 rounded-2xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]"></textarea>
                 </div>
 
-                <!-- 5. Pratinjau Laporan Serupa di Sekitar (Style Guide 9.4) -->
+                <!-- 5. Pratinjau Laporan Sekitar -->
                 <div x-show="reports.length > 0" class="p-3.5 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5]">
                     <p class="text-xs font-extrabold text-[#17324D]">
                         🔎 Ada <span x-text="reports.length"></span> laporan aktif di sekitar titik kamu:
                     </p>
-                    <p class="text-xs text-[#617482] font-semibold mt-0.5">
-                        Pastikan masalah yang kamu laporkan belum ada di daftar bawah agar tidak duplikat.
-                    </p>
-                    <div class="mt-2 flex gap-2 overflow-x-auto pb-1">
-                        <template x-for="nearbyItem in reports.slice(0, 3)" :key="nearbyItem.id">
+                    <div class="mt-2 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                        <template x-for="nearbyItem in reports.slice(0, 3)" :key="'modal-near-' + nearbyItem.id">
                             <a :href="nearbyItem.track_url"
                                target="_blank"
-                               class="p-2.5 rounded-xl bg-white border border-[#D7E1E5] min-w-[210px] max-w-[230px] shrink-0 hover:border-[#16A6D8]">
+                               class="p-2.5 rounded-xl bg-white border border-[#D7E1E5] min-w-[200px] max-w-[220px] shrink-0 hover:border-[#16A6D8]">
                                 <p class="text-[11px] font-extrabold text-[#0D8BB8]" x-text="nearbyItem.category_name + ' • ' + nearbyItem.distance_label"></p>
                                 <p class="text-xs font-bold text-[#17324D] truncate mt-0.5" x-text="nearbyItem.title"></p>
                             </a>
@@ -591,13 +864,13 @@
                 <div class="pt-2 flex flex-col sm:flex-row items-center justify-end gap-2.5">
                     <button type="button"
                             @click="closeCreateReportModal()"
-                            class="w-full sm:w-auto min-h-[48px] px-5 py-2.5 rounded-xl bg-white border border-[#D7E1E5] text-[#17324D] font-extrabold text-sm hover:bg-[#F3F7F8] cursor-pointer">
+                            class="w-full sm:w-auto min-h-[48px] px-6 py-2.5 rounded-full bg-white border border-[#D7E1E5] text-[#17324D] font-extrabold text-sm hover:bg-[#F3F7F8] cursor-pointer">
                         Batal
                     </button>
                     <button type="submit"
                             :disabled="isSubmitting || isCompressingPhotos"
-                            class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-[15px] shadow-[0_6px_18px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
-                        <span x-text="isSubmitting ? 'Sedang mengirim laporan...' : 'Kirim laporan'"></span>
+                            class="w-full sm:w-auto min-h-[48px] px-7 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-[15px] shadow-[0_6px_18px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
+                        <span x-text="isSubmitting ? 'Sedang mengirim...' : 'Kirim laporan'"></span>
                     </button>
                 </div>
             </form>
@@ -608,7 +881,7 @@
 <script>
     function laporTuntasMapApp() {
         return {
-            gpsState: 'prompt', // 'prompt' | 'loading' | 'granted' | 'denied'
+            gpsState: 'prompt',
             gpsErrorMessage: '',
             userLat: null,
             userLng: null,
@@ -622,7 +895,9 @@
             selectedReport: null,
             isLoadingNearby: false,
             isRelocatingDemo: false,
-            mobileSheetExpanded: false,
+            activeMobileTab: 'peta', // 'peta' | 'sekitar'
+            radiusMenuOpen: false,
+            filterPopoverOpen: false,
             reportModalOpen: false,
             isCompressingPhotos: false,
             isSubmitting: false,
@@ -643,7 +918,10 @@
             },
 
             initApp() {
-                // Check if browser already granted geolocation permission
+                if (window.location.hash === '#sekitar') {
+                    this.activeMobileTab = 'sekitar';
+                }
+
                 if (navigator.permissions && navigator.permissions.query) {
                     navigator.permissions.query({ name: 'geolocation' }).then((result) => {
                         if (result.state === 'granted') {
@@ -688,7 +966,7 @@
                     (error) => {
                         this.gpsState = 'denied';
                         if (error.code === error.PERMISSION_DENIED) {
-                            this.gpsErrorMessage = 'Izin lokasi ditolak. Sesuai aturan Lapor Tuntas, mohon aktifkan izin lokasi di browser agar peta sekitar dan formulir laporan dapat digunakan.';
+                            this.gpsErrorMessage = 'Izin lokasi ditolak. Aktifkan izin lokasi di browser agar peta sekitar dan formulir laporan dapat digunakan.';
                         } else {
                             this.gpsErrorMessage = 'Sinyal GPS belum berhasil ditemukan. Pastikan layanan lokasi perangkat kamu aktif lalu coba lagi.';
                         }
@@ -712,37 +990,52 @@
                     zoomControl: false,
                 }).setView([this.userLat, this.userLng], 15);
 
-                L.control.zoom({ position: 'bottomleft' }).addTo(this.mainMap);
+                if (window.innerWidth >= 1024) {
+                    L.control.zoom({ position: 'bottomright' }).addTo(this.mainMap);
+                }
 
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     maxZoom: 19,
                     attribution: '&copy; OpenStreetMap &copy; CARTO',
                 }).addTo(this.mainMap);
 
+                // Radar circle + crisp blue dot matching mobile UI reference
                 const userIcon = L.divIcon({
                     className: '',
-                    html: '<div class="lt-user-dot" title="Posisi GPS Kamu"></div>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10],
+                    html: '<div class="lt-user-radar"><div class="lt-user-dot"></div></div>',
+                    iconSize: [68, 68],
+                    iconAnchor: [34, 34],
                 });
 
-                this.userMarker = L.marker([this.userLat, this.userLng], { icon: userIcon })
-                    .addTo(this.mainMap)
-                    .bindPopup('<strong>Posisi Kamu Saat Ini</strong>');
+                this.userMarker = L.marker([this.userLat, this.userLng], { icon: userIcon, interactive: false })
+                    .addTo(this.mainMap);
 
                 this.radiusCircle = L.circle([this.userLat, this.userLng], {
                     radius: this.filters.radius,
                     color: '#16A6D8',
-                    weight: 1.5,
+                    weight: 1.2,
+                    dashArray: '5, 6',
                     fillColor: '#16A6D8',
-                    fillOpacity: 0.06,
+                    fillOpacity: 0.03,
                 }).addTo(this.mainMap);
 
                 this.clusterGroup = L.markerClusterGroup({
                     showCoverageOnHover: false,
-                    maxClusterRadius: 42,
+                    maxClusterRadius: 40,
                 });
                 this.mainMap.addLayer(this.clusterGroup);
+
+                setTimeout(() => {
+                    if (this.mainMap) {
+                        this.mainMap.invalidateSize();
+                    }
+                }, 150);
+
+                window.addEventListener('resize', () => {
+                    if (this.mainMap) {
+                        this.mainMap.invalidateSize();
+                    }
+                });
             },
 
             async fetchNearbyReports() {
@@ -768,6 +1061,12 @@
                         const data = await response.json();
                         this.reports = data.reports || [];
                         this.renderMapMarkers();
+
+                        if (this.reports.length > 0 && !this.selectedReport) {
+                            this.selectedReport = this.reports[0];
+                        } else if (this.reports.length === 0) {
+                            this.selectedReport = null;
+                        }
                     }
                 } catch (e) {
                     console.error('Gagal memuat laporan sekitar:', e);
@@ -795,14 +1094,13 @@
                     const markerIcon = L.divIcon({
                         className: '',
                         html: pinHtml,
-                        iconSize: [44, 44],
-                        iconAnchor: [22, 44],
+                        iconSize: [46, 46],
+                        iconAnchor: [23, 23],
                     });
 
                     const marker = L.marker([report.latitude, report.longitude], { icon: markerIcon });
                     marker.on('click', () => {
-                        this.selectedReport = report;
-                        this.mainMap.panTo([report.latitude, report.longitude]);
+                        this.focusReportOnMap(report);
                     });
 
                     this.clusterGroup.addLayer(marker);
@@ -823,13 +1121,22 @@
 
             focusReportOnMap(report) {
                 this.selectedReport = report;
-                if (this.mainMap) {
-                    this.mainMap.setView([report.latitude, report.longitude], 17, { animate: true });
+                if (!this.mainMap) {
+                    return;
                 }
+
+                const targetZoom = Math.max(this.mainMap.getZoom(), 16);
+                // Offset upward slightly so the marker sits right below the centered callout card
+                const point = this.mainMap.project([report.latitude, report.longitude], targetZoom);
+                point.y -= window.innerWidth < 1024 ? 70 : 60;
+                const offsetLatLng = this.mainMap.unproject(point, targetZoom);
+
+                this.mainMap.setView(offsetLatLng, targetZoom, { animate: true });
             },
 
             recenterToUser() {
                 if (this.mainMap && this.userLat && this.userLng) {
+                    this.selectedReport = null;
                     this.mainMap.setView([this.userLat, this.userLng], 15, { animate: true });
                 }
             },
@@ -877,6 +1184,7 @@
                     });
 
                     if (response.ok) {
+                        this.selectedReport = null;
                         await this.fetchNearbyReports();
                     }
                 } finally {
@@ -983,4 +1291,3 @@
     }
 </script>
 @endsection
-

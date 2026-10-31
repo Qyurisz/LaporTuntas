@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['report_id', 'type', 'file_path', 'mime_type', 'file_size'])]
 class ReportMedia extends Model
@@ -29,7 +28,7 @@ class ReportMedia extends Model
             return $this->file_path;
         }
 
-        return Storage::disk('public')->url($this->file_path);
+        return '/media/'.ltrim($this->file_path, '/');
     }
 }
 
