@@ -45,6 +45,7 @@ class StaffReportActionController extends Controller
                     Report::STATUS_BARU,
                     Report::STATUS_DITUGASKAN,
                     Report::STATUS_DIPROSES,
+                    Report::STATUS_SELESAI,
                 ], true),
             ]);
 
@@ -93,7 +94,7 @@ class StaffReportActionController extends Controller
 
             $report->update([
                 'status' => $newStatus,
-                'is_visible_on_map' => ! $isCompleted,
+                'is_visible_on_map' => true,
                 'resolved_at' => $isCompleted ? now() : null,
             ]);
 
@@ -121,7 +122,7 @@ class StaffReportActionController extends Controller
         });
 
         $message = $validated['status'] === Report::STATUS_SELESAI
-            ? 'Laporan ditandai Selesai. Penanda otomatis disembunyikan dari peta publik.'
+            ? 'Laporan ditandai Selesai dan tetap ditampilkan sebagai tuntas di peta publik.'
             : 'Status dan catatan tindak lanjut berhasil diperbarui.';
 
         return back()->with('success', $message);

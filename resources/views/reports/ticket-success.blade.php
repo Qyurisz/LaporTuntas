@@ -104,9 +104,9 @@
 
             <!-- Action Footer -->
             <div class="pt-4 border-t border-[#D7E1E5] flex flex-col sm:flex-row items-center justify-between gap-3">
-                <a href="{{ route('home') }}"
-                   class="w-full sm:w-auto min-h-[48px] px-5 py-2.5 rounded-xl bg-white border border-[#D7E1E5] hover:bg-[#F3F7F8] text-[#17324D] font-extrabold text-sm flex items-center justify-center gap-2">
-                    <span>← Kembali ke Beranda Peta</span>
+                <a href="{{ route('home', ['focus' => $report->ticket_id, 'lat' => $report->latitude, 'lng' => $report->longitude]) }}"
+                   class="w-full sm:w-auto min-h-[48px] px-5 py-2.5 rounded-xl bg-white border border-[#D7E1E5] hover:bg-[#F3F7F8] text-[#17324D] font-extrabold text-sm flex items-center justify-center gap-2 transition">
+                    <span>📍 Lihat Laporan di Peta Utama</span>
                 </a>
                 <a href="{{ route('tickets.show', ['ticketId' => $report->ticket_id]) }}"
                    class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white font-extrabold text-sm flex items-center justify-center gap-2 transition">

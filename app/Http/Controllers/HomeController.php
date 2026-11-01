@@ -22,6 +22,7 @@ class HomeController extends Controller
             Report::STATUS_BARU => Report::getStatusMetadata(Report::STATUS_BARU),
             Report::STATUS_DITUGASKAN => Report::getStatusMetadata(Report::STATUS_DITUGASKAN),
             Report::STATUS_DIPROSES => Report::getStatusMetadata(Report::STATUS_DIPROSES),
+            Report::STATUS_SELESAI => Report::getStatusMetadata(Report::STATUS_SELESAI),
         ];
 
         return view('home', [

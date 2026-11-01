@@ -7,15 +7,20 @@
 <div x-data="laporTuntasMapApp()"
      x-init="initApp()"
      @open-report-modal.window="openCreateReportModal()"
-     class="relative flex-1 flex flex-col lg:flex-row h-[100dvh] lg:h-[calc(100vh-4rem)] overflow-hidden bg-[#EAF1E8]">
+     class="relative w-full h-[100dvh] lg:h-[calc(100dvh-4rem)] min-h-[540px] shrink-0 flex flex-col lg:flex-row overflow-hidden bg-[#DCE8EE]">
 
     <!-- ===================================================================== -->
     <!-- MANDATORY GPS LOCATION PERMISSION GATE (PRD FR-02 & FR-15)             -->
     <!-- ===================================================================== -->
     <div x-show="gpsState !== 'granted'"
          x-transition.opacity
-         class="absolute inset-0 z-40 bg-[#F3F7F8]/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pb-24 lg:pb-6 overflow-y-auto">
+         class="absolute inset-0 z-40 bg-[#17324D]/30 backdrop-blur-[3px] flex items-center justify-center p-4 sm:p-6 pb-24 lg:pb-6 overflow-y-auto">
         <div class="max-w-md w-full bg-white rounded-[28px] border border-[#E6EEF2] shadow-[0_14px_36px_rgba(23,50,77,0.12)] p-6 sm:p-8 text-center">
+            <!-- Brand Logo -->
+            <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
+                 alt="LaporTuntas — Lacak sampai tuntas"
+                 class="h-10 w-auto mx-auto mb-5 object-contain">
+
             <!-- Vector Illustration -->
             <div class="mx-auto w-20 h-20 rounded-full bg-[#DFF5FC] border-4 border-white shadow-md flex items-center justify-center mb-4 relative">
                 <svg class="w-10 h-10 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -102,40 +107,64 @@
     <!-- ===================================================================== -->
     <!-- MAIN FULL-BLEED MAP CANVAS (100% Mobile, 64% Desktop)                  -->
     <!-- ===================================================================== -->
-    <div class="relative flex-1 h-full w-full lg:w-[64%]">
-        <div id="main-map" class="w-full h-full z-10" aria-label="Peta laporan masalah publik di sekitar Anda"></div>
+    <div x-ref="mapStage" class="relative w-full h-full flex-1 lg:flex-none lg:w-[64%] min-h-[420px] overflow-hidden isolate">
+        <div id="main-map" aria-label="Peta laporan masalah publik di sekitar Anda"></div>
 
         <!-- TOP FLOATING CONTROLS BAR (Matches Reference Screenshot) -->
-        <div class="absolute top-4 inset-x-4 z-20 pointer-events-none flex items-start justify-between gap-3">
+        <div class="absolute top-4 inset-x-4 z-20 pointer-events-none flex items-start justify-between gap-2.5">
             <!-- Left Location & Radius Pill Dropdown -->
-            <div class="pointer-events-auto relative" @click.outside="radiusMenuOpen = false">
+            <div class="pointer-events-auto relative min-w-0" @click.outside="radiusMenuOpen = false">
                 <button type="button"
                         @click="radiusMenuOpen = !radiusMenuOpen; filterPopoverOpen = false"
-                        class="min-h-[46px] pl-3.5 pr-4 py-2 rounded-full bg-white shadow-[0_8px_24px_rgba(23,50,77,0.11)] hover:bg-[#F3F7F8]/90 flex items-center gap-2 text-[#17324D] transition cursor-pointer">
-                    <svg class="w-5 h-5 text-[#17324D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        class="min-h-[46px] max-w-full pl-3.5 pr-4 py-2 rounded-full bg-white shadow-[0_8px_24px_rgba(23,50,77,0.14)] hover:bg-[#F3F7F8]/95 flex items-center gap-2 text-[#17324D] transition cursor-pointer">
+                    <svg class="w-5 h-5 text-[#16A6D8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                         <circle cx="12" cy="10" r="3"/>
                     </svg>
-                    <span class="font-extrabold text-sm tracking-tight">
-                        Sekitarmu
-                        <span class="text-[#0D8BB8] font-extrabold tabular-nums"
+                    <span class="font-extrabold text-sm tracking-tight flex items-center gap-1 min-w-0">
+                        <span class="truncate max-w-[130px] sm:max-w-[210px]" x-text="userAreaName || 'Sekitarmu'"></span>
+                        <span class="text-[#0D8BB8] font-extrabold tabular-nums shrink-0"
                               x-text="'• ' + (filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km')"></span>
                     </span>
-                    <svg class="w-4 h-4 text-[#617482] transition-transform duration-150"
+                    <svg class="w-4 h-4 text-[#617482] shrink-0 transition-transform duration-150"
                          :class="radiusMenuOpen ? 'rotate-180' : ''"
                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m6 9 6 6 6-6"/>
                     </svg>
                 </button>
 
-                <!-- Radius & Quick Demo Dropdown Card -->
+                <!-- Radius & Map Style Dropdown Card -->
                 <div x-show="radiusMenuOpen"
                      x-transition
-                     class="mt-2.5 w-68 bg-white rounded-[24px] p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
+                     class="mt-2.5 w-72 bg-white rounded-[24px] p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
                     <div>
+                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Mode Tampilan Peta</p>
+                        <div class="grid grid-cols-3 gap-1.5 bg-[#F3F7F8] p-1 rounded-2xl">
+                            <button type="button"
+                                    @click="setMapLayer('jalan')"
+                                    :class="activeMapLayer === 'jalan' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                Jalan
+                            </button>
+                            <button type="button"
+                                    @click="setMapLayer('satelit')"
+                                    :class="activeMapLayer === 'satelit' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                Satelit
+                            </button>
+                            <button type="button"
+                                    @click="setMapLayer('terang')"
+                                    :class="activeMapLayer === 'terang' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                Terang
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-[#E6EEF2]">
                         <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Jangkauan Radius Peta</p>
                         <div class="grid grid-cols-3 gap-1.5 bg-[#F3F7F8] p-1 rounded-2xl">
-                            <template x-for="r in [500, 1000, 5000]" :key="r">
+                            <template x-for="r in [1000, 5000, 15000]" :key="r">
                                 <button type="button"
                                         @click="setRadius(r); radiusMenuOpen = false"
                                         :class="filters.radius === r ? 'bg-[#16A6D8] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
@@ -147,32 +176,38 @@
 
                     <div class="pt-2.5 border-t border-[#E6EEF2] space-y-1.5 text-xs font-bold text-[#17324D]">
                         <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482]">Keterangan Warna Pin</p>
-                        <div class="flex items-center gap-3 pt-0.5">
-                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#16A6D8]"></span>Baru</span>
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
+                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#16A6D8]"></span>Belum diproses</span>
                             <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#7966D9]"></span>Ditugaskan</span>
                             <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F5B82E]"></span>Diproses</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#278653]"></span>Selesai</span>
                         </div>
-                    </div>
-
-                    <div class="pt-2.5 border-t border-[#E6EEF2]">
-                        <button type="button"
-                                @click="relocateDemoDataToUser(); radiusMenuOpen = false"
-                                :disabled="isRelocatingDemo"
-                                class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-[#DFF5FC]/70 hover:bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold transition cursor-pointer">
-                            <span x-text="isRelocatingDemo ? 'Memindahkan simulasi...' : '⚡ Tarik Simulasi ke GPS Saya'"></span>
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Circular Action Buttons: Crosshair GPS & Filter Sliders -->
-            <div class="pointer-events-auto flex items-center gap-2.5">
-                <!-- 1. GPS Target / Crosshair Button -->
+            <!-- Right Circular Action Buttons: Layer Toggle, Crosshair GPS & Filter Sliders -->
+            <div class="pointer-events-auto flex items-center gap-2 shrink-0">
+                <!-- 1. Satellite / Street Map Quick Toggle Button -->
+                <button type="button"
+                        @click="toggleSatelliteLayer()"
+                        :title="activeMapLayer === 'satelit' ? 'Ganti ke Peta Jalan' : 'Ganti ke Citra Satelit'"
+                        :aria-label="activeMapLayer === 'satelit' ? 'Ganti ke Peta Jalan' : 'Ganti ke Citra Satelit'"
+                        :class="activeMapLayer === 'satelit' ? 'bg-[#17324D] text-white' : 'bg-white text-[#17324D] hover:bg-[#F3F7F8] hover:text-[#16A6D8]'"
+                        class="w-[46px] h-[46px] rounded-full shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center transition cursor-pointer active:scale-95">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 12 17 22 12"/>
+                    </svg>
+                </button>
+
+                <!-- 2. GPS Target / Crosshair Button -->
                 <button type="button"
                         @click="recenterToUser()"
                         title="Pusatkan ke posisi GPS saya"
                         aria-label="Pusatkan ke posisi GPS saya"
-                        class="w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.11)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                        class="w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="7"/>
                         <circle cx="12" cy="12" r="2"/>
@@ -183,12 +218,12 @@
                     </svg>
                 </button>
 
-                <!-- 2. Filter Sliders Button -->
+                <!-- 3. Filter Sliders Button -->
                 <button type="button"
                         @click="filterPopoverOpen = !filterPopoverOpen; radiusMenuOpen = false"
                         title="Filter laporan sekitar"
                         aria-label="Filter laporan sekitar"
-                        class="relative w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.11)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                        class="relative w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="4" x2="10" y1="8" y2="8"/>
                         <line x1="14" x2="20" y1="8" y2="8"/>
@@ -232,7 +267,7 @@
                             @click="setStatusFilter('baru')"
                             :class="filters.status === 'baru' ? 'bg-[#16A6D8] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
                             class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
-                        Baru
+                        Belum diproses
                     </button>
                     <button type="button"
                             @click="setStatusFilter('ditugaskan')"
@@ -245,6 +280,12 @@
                             :class="filters.status === 'diproses' ? 'bg-[#F5B82E] text-[#17324D]' : 'bg-[#F3F7F8] text-[#17324D]'"
                             class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Diproses
+                    </button>
+                    <button type="button"
+                            @click="setStatusFilter('selesai')"
+                            :class="filters.status === 'selesai' ? 'bg-[#278653] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
+                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                        Selesai
                     </button>
                 </div>
             </div>
@@ -372,13 +413,12 @@
                     <div class="bg-white rounded-[22px] p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <p class="text-sm font-extrabold text-[#17324D] truncate">Belum ada laporan di radius ini</p>
-                            <p class="text-xs text-[#617482] font-semibold truncate">Perluas radius atau tarik data simulasi demo</p>
+                            <p class="text-xs text-[#617482] font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
                         </div>
                         <button type="button"
-                                @click="relocateDemoDataToUser()"
-                                :disabled="isRelocatingDemo"
-                                class="min-h-[40px] px-3.5 py-2 rounded-full bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold shrink-0 cursor-pointer">
-                            <span x-text="isRelocatingDemo ? 'Memuat...' : '⚡ Simulasi'"></span>
+                                @click="openCreateReportModal()"
+                                class="min-h-[40px] px-3.5 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs font-extrabold shrink-0 cursor-pointer transition">
+                            ＋ Lapor
                         </button>
                     </div>
                 </div>
@@ -470,11 +510,12 @@
         <div class="flex-1 overflow-y-auto p-4 space-y-3">
             <template x-if="reports.length === 0">
                 <div class="p-6 text-center rounded-2xl bg-[#F3F7F8]">
-                    <p class="text-sm font-extrabold text-[#17324D]">Belum ada laporan aktif di radius ini</p>
+                    <p class="text-sm font-extrabold text-[#17324D]">Belum ada laporan di radius ini</p>
+                    <p class="mt-1 text-xs text-[#617482] font-semibold">Temukan masalah fasilitas umum? Kirim laporan pertamamu sekarang.</p>
                     <button type="button"
-                            @click="relocateDemoDataToUser()"
-                            class="mt-3 min-h-[42px] px-4 py-2 rounded-full bg-[#16A6D8] text-white text-xs font-extrabold cursor-pointer">
-                        ⚡ Tarik 6 Simulasi ke GPS Saya
+                            @click="activeMobileTab = 'peta'; openCreateReportModal()"
+                            class="mt-3 min-h-[42px] px-4 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs font-extrabold cursor-pointer transition">
+                        ＋ Buat Laporan Baru
                     </button>
                 </div>
             </template>
@@ -594,7 +635,7 @@
                           x-text="reports.length"></span>
                 </h2>
                 <p class="text-xs text-[#617482] font-semibold mt-0.5">
-                    Menampilkan laporan aktif dalam radius
+                    <span x-text="filters.status === 'all' && filters.category === 'all' ? 'Menampilkan semua laporan dalam radius' : 'Menampilkan laporan terfilter dalam radius'"></span>
                     <span class="font-extrabold text-[#17324D] tabular-nums"
                           x-text="filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km'"></span>
                 </p>
@@ -627,21 +668,15 @@
 
             <template x-if="!isLoadingNearby && reports.length === 0">
                 <div class="p-6 rounded-[20px] border border-dashed border-[#D7E1E5] bg-[#F3F7F8]/60 text-center">
-                    <h3 class="text-base font-extrabold text-[#17324D]">Belum ada laporan aktif pada radius ini</h3>
+                    <h3 class="text-base font-extrabold text-[#17324D]">Belum ada laporan pada radius ini</h3>
                     <p class="text-xs text-[#617482] font-semibold mt-1 leading-relaxed">
-                        Perluas radius ke 5 km, buat laporan baru, atau tarik data simulasi demo ke sekitar titik GPS kamu.
+                        Perluas jangkauan radius atau buat laporan baru jika kamu menemukan masalah fasilitas umum di sekitarmu.
                     </p>
-                    <div class="mt-4 flex flex-col gap-2">
+                    <div class="mt-4">
                         <button type="button"
                                 @click="openCreateReportModal()"
                                 class="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-sm font-extrabold transition cursor-pointer">
                             ＋ Buat laporan pertama di sini
-                        </button>
-                        <button type="button"
-                                @click="relocateDemoDataToUser()"
-                                :disabled="isRelocatingDemo"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-white hover:bg-[#DFF5FC]/50 border border-[#16A6D8] text-[#0D8BB8] text-xs font-extrabold transition cursor-pointer">
-                            <span x-text="isRelocatingDemo ? 'Memindahkan data simulasi...' : '⚡ Tarik 6 Data Simulasi Demo ke Sekitar GPS Saya'"></span>
                         </button>
                     </div>
                 </div>
@@ -809,10 +844,21 @@
                     <input type="hidden" name="latitude" :value="form.latitude">
                     <input type="hidden" name="longitude" :value="form.longitude">
 
-                    <div id="mini-picker-map" class="w-full h-44 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#EAF1E8]"></div>
+                    <div id="mini-picker-map" class="w-full h-52 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
                     <p class="mt-1.5 text-xs text-[#617482] font-semibold">
-                        💡 Geser penanda sedikit di peta mini jika titik masalah berada di seberang jalan dari posisi berdiri kamu.
+                        💡 Geser penanda atau ketuk titik pada peta asli (bisa mode Satelit) jika masalah berada di seberang jalan.
                     </p>
+
+                    <div x-show="detectedStreetAddress" class="mt-2 p-2.5 rounded-xl bg-[#DFF5FC]/45 border border-[#16A6D8]/30 flex items-center justify-between gap-2 text-xs">
+                        <span class="font-bold text-[#17324D] truncate">
+                            📍 <span x-text="detectedStreetAddress"></span>
+                        </span>
+                        <button type="button"
+                                @click="form.locationLabel = detectedStreetAddress"
+                                class="px-2.5 py-1 rounded-lg bg-[#16A6D8] text-white font-extrabold shrink-0 cursor-pointer">
+                            Pakai alamat
+                        </button>
+                    </div>
 
                     <div class="mt-2.5">
                         <label for="location-label" class="block text-xs font-extrabold text-[#17324D] mb-1">
@@ -822,7 +868,7 @@
                                type="text"
                                name="location_label"
                                x-model="form.locationLabel"
-                               placeholder="Contoh: Depan Halte Transjakarta Monas arah Harmoni"
+                               placeholder="Contoh: Depan minimarket / dekat persimpangan jalan"
                                class="w-full min-h-[48px] px-4 py-2.5 rounded-2xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
                     </div>
                 </div>
@@ -846,7 +892,7 @@
                 <!-- 5. Pratinjau Laporan Sekitar -->
                 <div x-show="reports.length > 0" class="p-3.5 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5]">
                     <p class="text-xs font-extrabold text-[#17324D]">
-                        🔎 Ada <span x-text="reports.length"></span> laporan aktif di sekitar titik kamu:
+                        🔎 Ada <span x-text="reports.length"></span> laporan di sekitar titik kamu:
                     </p>
                     <div class="mt-2 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                         <template x-for="nearbyItem in reports.slice(0, 3)" :key="'modal-near-' + nearbyItem.id">
@@ -880,21 +926,52 @@
 
 <script>
     function laporTuntasMapApp() {
-        return {
-            gpsState: 'prompt',
-            gpsErrorMessage: '',
-            userLat: null,
-            userLng: null,
+        // Keep all Leaflet & MarkerCluster instances outside Alpine's reactive Proxy
+        const urlParams = new URLSearchParams(window.location.search);
+        const focusLatParam = parseFloat(urlParams.get('lat'));
+        const focusLngParam = parseFloat(urlParams.get('lng'));
+
+        const mapRefs = {
             mainMap: null,
+            mapLayers: null,
             userMarker: null,
             radiusCircle: null,
             clusterGroup: null,
             miniMap: null,
             miniMarker: null,
+            moveTimer: null,
+            suppressNextMoveFetch: false,
+            hasInitialGpsJump: false,
+            lastSearchLat: null,
+            lastSearchLng: null,
+            pendingFocusTicket: (urlParams.get('focus') || '').trim().toUpperCase() || null,
+            pendingFocusLat: Number.isFinite(focusLatParam) ? focusLatParam : null,
+            pendingFocusLng: Number.isFinite(focusLngParam) ? focusLngParam : null,
+        };
+
+        const distanceBetweenMeters = (lat1, lng1, lat2, lng2) => {
+            const R = 6371000;
+            const toRad = (deg) => (deg * Math.PI) / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        };
+
+        return {
+            gpsState: 'prompt',
+            gpsErrorMessage: '',
+            userLat: null,
+            userLng: null,
+            userAreaName: '',
+            detectedStreetAddress: '',
+            activeMapLayer: 'jalan', // 'jalan' | 'satelit' | 'terang'
             reports: [],
             selectedReport: null,
             isLoadingNearby: false,
-            isRelocatingDemo: false,
             activeMobileTab: 'peta', // 'peta' | 'sekitar'
             radiusMenuOpen: false,
             filterPopoverOpen: false,
@@ -905,7 +982,7 @@
             photoPreviews: [],
             compressedFiles: [],
             filters: {
-                radius: 1000,
+                radius: 5000,
                 status: 'all',
                 category: 'all',
             },
@@ -921,6 +998,15 @@
                 if (window.location.hash === '#sekitar') {
                     this.activeMobileTab = 'sekitar';
                 }
+
+                // Render the real base map immediately so real street tiles are visible right away
+                this.$nextTick(() => {
+                    if (window.L) {
+                        this.setupMainMap();
+                    } else {
+                        window.addEventListener('leaflet:ready', () => this.setupMainMap(), { once: true });
+                    }
+                });
 
                 if (navigator.permissions && navigator.permissions.query) {
                     navigator.permissions.query({ name: 'geolocation' }).then((result) => {
@@ -956,8 +1042,11 @@
                         this.gpsState = 'granted';
 
                         this.$nextTick(() => {
-                            this.setupMainMap();
-                            this.fetchNearbyReports();
+                            this.activateUserLocationOnMap();
+                            const initialSearchLat = mapRefs.pendingFocusLat ?? this.userLat;
+                            const initialSearchLng = mapRefs.pendingFocusLng ?? this.userLng;
+                            this.fetchNearbyReports(initialSearchLat, initialSearchLng);
+                            this.resolveUserAreaName(this.userLat, this.userLng);
                             if (window.location.hash === '#buat-laporan') {
                                 this.openCreateReportModal();
                             }
@@ -965,7 +1054,9 @@
                     },
                     (error) => {
                         this.gpsState = 'denied';
-                        if (error.code === error.PERMISSION_DENIED) {
+                        if (!window.isSecureContext) {
+                            this.gpsErrorMessage = 'Browser memblokir akses GPS pada koneksi HTTP biasa. Buka melalui https:// atau http://localhost:8000 agar GPS perangkat aktif.';
+                        } else if (error.code === error.PERMISSION_DENIED) {
                             this.gpsErrorMessage = 'Izin lokasi ditolak. Aktifkan izin lokasi di browser agar peta sekitar dan formulir laporan dapat digunakan.';
                         } else {
                             this.gpsErrorMessage = 'Sinyal GPS belum berhasil ditemukan. Pastikan layanan lokasi perangkat kamu aktif lalu coba lagi.';
@@ -980,26 +1071,95 @@
             },
 
             setupMainMap() {
-                if (this.mainMap) {
-                    this.mainMap.setView([this.userLat, this.userLng], 15);
+                const L = window.L;
+                if (!L || mapRefs.mainMap) {
                     return;
                 }
 
-                const L = window.L;
-                this.mainMap = L.map('main-map', {
+                const initialLat = mapRefs.pendingFocusLat ?? this.userLat ?? -2.5489;
+                const initialLng = mapRefs.pendingFocusLng ?? this.userLng ?? 118.0149;
+                const initialZoom = (mapRefs.pendingFocusLat || this.userLat) ? 16 : 5;
+
+                mapRefs.mapLayers = window.createRealMapLayerSet();
+
+                mapRefs.mainMap = L.map('main-map', {
                     zoomControl: false,
-                }).setView([this.userLat, this.userLng], 15);
+                    layers: [mapRefs.mapLayers.jalan],
+                }).setView([initialLat, initialLng], initialZoom);
 
                 if (window.innerWidth >= 1024) {
-                    L.control.zoom({ position: 'bottomright' }).addTo(this.mainMap);
+                    L.control.zoom({ position: 'bottomright' }).addTo(mapRefs.mainMap);
                 }
 
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap &copy; CARTO',
-                }).addTo(this.mainMap);
+                // Reload active pins around the visible map center when user pans across town
+                mapRefs.mainMap.on('moveend', () => {
+                    if (this.gpsState !== 'granted' || !mapRefs.mainMap) {
+                        return;
+                    }
+                    if (mapRefs.suppressNextMoveFetch) {
+                        mapRefs.suppressNextMoveFetch = false;
+                        return;
+                    }
+                    const center = mapRefs.mainMap.getCenter();
+                    if (
+                        mapRefs.lastSearchLat !== null &&
+                        mapRefs.lastSearchLng !== null &&
+                        distanceBetweenMeters(mapRefs.lastSearchLat, mapRefs.lastSearchLng, center.lat, center.lng) < 400
+                    ) {
+                        return;
+                    }
+                    clearTimeout(mapRefs.moveTimer);
+                    mapRefs.moveTimer = setTimeout(() => {
+                        this.fetchNearbyReports(center.lat, center.lng);
+                    }, 320);
+                });
 
-                // Radar circle + crisp blue dot matching mobile UI reference
+                const refreshMapSize = () => {
+                    if (mapRefs.mainMap) {
+                        mapRefs.mainMap.invalidateSize();
+                    }
+                };
+
+                setTimeout(refreshMapSize, 60);
+                setTimeout(refreshMapSize, 250);
+                window.addEventListener('resize', refreshMapSize);
+
+                if (typeof ResizeObserver !== 'undefined' && this.$refs.mapStage) {
+                    const observer = new ResizeObserver(refreshMapSize);
+                    observer.observe(this.$refs.mapStage);
+                }
+
+                if (this.userLat && this.userLng) {
+                    this.activateUserLocationOnMap();
+                }
+
+                if (this.reports.length > 0) {
+                    this.renderMapMarkers();
+                }
+            },
+
+            activateUserLocationOnMap() {
+                if (!mapRefs.mainMap) {
+                    this.setupMainMap();
+                }
+                const L = window.L;
+                if (!L || !mapRefs.mainMap || !this.userLat || !this.userLng) {
+                    return;
+                }
+
+                mapRefs.mainMap.invalidateSize();
+
+                const targetLat = mapRefs.pendingFocusLat ?? this.userLat;
+                const targetLng = mapRefs.pendingFocusLng ?? this.userLng;
+                const targetZoom = mapRefs.pendingFocusLat ? 16 : 15;
+
+                mapRefs.suppressNextMoveFetch = true;
+                // Jump synchronously on first activation so zoom/bounds are settled before markers render
+                mapRefs.mainMap.setView([targetLat, targetLng], targetZoom, {
+                    animate: mapRefs.hasInitialGpsJump,
+                });
+                mapRefs.hasInitialGpsJump = true;
+
                 const userIcon = L.divIcon({
                     className: '',
                     html: '<div class="lt-user-radar"><div class="lt-user-dot"></div></div>',
@@ -1007,51 +1167,100 @@
                     iconAnchor: [34, 34],
                 });
 
-                this.userMarker = L.marker([this.userLat, this.userLng], { icon: userIcon, interactive: false })
-                    .addTo(this.mainMap);
+                if (mapRefs.userMarker) {
+                    mapRefs.userMarker.setLatLng([this.userLat, this.userLng]);
+                } else {
+                    mapRefs.userMarker = L.marker([this.userLat, this.userLng], {
+                        icon: userIcon,
+                        interactive: false,
+                        zIndexOffset: 100,
+                    }).addTo(mapRefs.mainMap);
+                }
 
-                this.radiusCircle = L.circle([this.userLat, this.userLng], {
-                    radius: this.filters.radius,
-                    color: '#16A6D8',
-                    weight: 1.2,
-                    dashArray: '5, 6',
-                    fillColor: '#16A6D8',
-                    fillOpacity: 0.03,
-                }).addTo(this.mainMap);
-
-                this.clusterGroup = L.markerClusterGroup({
-                    showCoverageOnHover: false,
-                    maxClusterRadius: 40,
-                });
-                this.mainMap.addLayer(this.clusterGroup);
-
-                setTimeout(() => {
-                    if (this.mainMap) {
-                        this.mainMap.invalidateSize();
-                    }
-                }, 150);
-
-                window.addEventListener('resize', () => {
-                    if (this.mainMap) {
-                        this.mainMap.invalidateSize();
-                    }
-                });
+                if (mapRefs.radiusCircle) {
+                    mapRefs.radiusCircle.setLatLng([this.userLat, this.userLng]);
+                    mapRefs.radiusCircle.setRadius(this.filters.radius);
+                } else {
+                    mapRefs.radiusCircle = L.circle([this.userLat, this.userLng], {
+                        radius: this.filters.radius,
+                        color: '#16A6D8',
+                        weight: 1.5,
+                        dashArray: '5, 6',
+                        fillColor: '#16A6D8',
+                        fillOpacity: 0.05,
+                    }).addTo(mapRefs.mainMap);
+                }
             },
 
-            async fetchNearbyReports() {
+            setMapLayer(layerKey) {
+                if (!mapRefs.mainMap || !mapRefs.mapLayers || !mapRefs.mapLayers[layerKey]) {
+                    return;
+                }
+
+                Object.values(mapRefs.mapLayers).forEach((layer) => {
+                    if (mapRefs.mainMap.hasLayer(layer)) {
+                        mapRefs.mainMap.removeLayer(layer);
+                    }
+                });
+
+                mapRefs.mainMap.addLayer(mapRefs.mapLayers[layerKey]);
+                this.activeMapLayer = layerKey;
+            },
+
+            toggleSatelliteLayer() {
+                this.setMapLayer(this.activeMapLayer === 'satelit' ? 'jalan' : 'satelit');
+            },
+
+            async resolveUserAreaName(lat, lng) {
+                if (typeof window.reverseGeocodeLocation !== 'function') {
+                    return;
+                }
+                const info = await window.reverseGeocodeLocation(lat, lng);
+                if (info) {
+                    if (info.shortArea) {
+                        this.userAreaName = info.shortArea;
+                    }
+                    if (info.detailAddress) {
+                        this.detectedStreetAddress = info.detailAddress;
+                    }
+                }
+            },
+
+            async resolveMiniPinAddress(lat, lng) {
+                if (typeof window.reverseGeocodeLocation !== 'function') {
+                    return;
+                }
+                const info = await window.reverseGeocodeLocation(lat, lng);
+                if (info && info.detailAddress) {
+                    this.detectedStreetAddress = info.detailAddress;
+                }
+            },
+
+            async fetchNearbyReports(customLat = null, customLng = null) {
                 if (!this.userLat || !this.userLng) {
                     return;
                 }
 
+                const searchLat = customLat ?? (mapRefs.mainMap ? mapRefs.mainMap.getCenter().lat : this.userLat);
+                const searchLng = customLng ?? (mapRefs.mainMap ? mapRefs.mainMap.getCenter().lng : this.userLng);
+                mapRefs.lastSearchLat = searchLat;
+                mapRefs.lastSearchLng = searchLng;
+
                 this.isLoadingNearby = true;
                 try {
                     const params = new URLSearchParams({
-                        lat: this.userLat,
-                        lng: this.userLng,
+                        lat: searchLat,
+                        lng: searchLng,
+                        user_lat: this.userLat,
+                        user_lng: this.userLng,
                         radius: this.filters.radius,
                         status: this.filters.status,
                         category: this.filters.category,
                     });
+
+                    if (mapRefs.pendingFocusTicket) {
+                        params.set('focus_ticket', mapRefs.pendingFocusTicket);
+                    }
 
                     const response = await fetch(`/api/reports/nearby?${params.toString()}`, {
                         headers: { 'Accept': 'application/json' },
@@ -1060,13 +1269,36 @@
                     if (response.ok) {
                         const data = await response.json();
                         this.reports = data.reports || [];
-                        this.renderMapMarkers();
 
-                        if (this.reports.length > 0 && !this.selectedReport) {
-                            this.selectedReport = this.reports[0];
-                        } else if (this.reports.length === 0) {
+                        if (mapRefs.pendingFocusTicket) {
+                            const matched = this.reports.find((r) => r.ticket_id === mapRefs.pendingFocusTicket);
+                            mapRefs.pendingFocusTicket = null;
+                            mapRefs.pendingFocusLat = null;
+                            mapRefs.pendingFocusLng = null;
+
+                            if (matched) {
+                                this.selectedReport = matched;
+                                this.renderMapMarkers();
+                                this.focusReportOnMap(matched);
+                                if (window.history && window.history.replaceState) {
+                                    window.history.replaceState({}, '', window.location.pathname);
+                                }
+                                return;
+                            }
+                        }
+
+                        if (this.reports.length > 0) {
+                            if (this.selectedReport) {
+                                const updatedSelection = this.reports.find((r) => r.id === this.selectedReport.id);
+                                this.selectedReport = updatedSelection || null;
+                            }
+                        } else {
                             this.selectedReport = null;
                         }
+
+                        this.renderMapMarkers();
+                    } else {
+                        console.error('Gagal memuat laporan sekitar: HTTP', response.status);
                     }
                 } catch (e) {
                     console.error('Gagal memuat laporan sekitar:', e);
@@ -1076,34 +1308,82 @@
             },
 
             renderMapMarkers() {
-                if (!this.clusterGroup || !window.L) {
+                const L = window.L;
+                if (!L) {
+                    return;
+                }
+                if (!mapRefs.mainMap) {
+                    this.setupMainMap();
+                }
+                if (!mapRefs.mainMap) {
                     return;
                 }
 
-                const L = window.L;
-                this.clusterGroup.clearLayers();
+                mapRefs.mainMap.invalidateSize({ pan: false });
 
+                if (mapRefs.clusterGroup) {
+                    mapRefs.mainMap.removeLayer(mapRefs.clusterGroup);
+                    mapRefs.clusterGroup = null;
+                }
+
+                const group = typeof L.markerClusterGroup === 'function'
+                    ? L.markerClusterGroup({
+                        animate: false,
+                        animateAddingMarkers: false,
+                        showCoverageOnHover: false,
+                        maxClusterRadius: 36,
+                        spiderfyOnMaxZoom: true,
+                        removeOutsideVisibleBounds: false,
+                    })
+                    : L.layerGroup();
+
+                const markers = [];
                 this.reports.forEach((report) => {
+                    const lat = Number(report.latitude);
+                    const lng = Number(report.longitude);
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                        return;
+                    }
+
+                    const isSelected = this.selectedReport && this.selectedReport.id === report.id;
                     const iconSvg = this.getCategorySvgMarkup(report.category_icon);
                     const pinHtml = `
-                        <div class="lt-map-pin" style="background-color: ${report.status_color};">
+                        <div data-report-pin="${report.id}" class="lt-map-pin ${isSelected ? 'is-active' : ''}" style="background-color: ${report.status_color};">
                             ${iconSvg}
                         </div>
                     `;
 
                     const markerIcon = L.divIcon({
-                        className: '',
+                        className: 'lt-div-icon',
                         html: pinHtml,
                         iconSize: [46, 46],
                         iconAnchor: [23, 23],
                     });
 
-                    const marker = L.marker([report.latitude, report.longitude], { icon: markerIcon });
+                    const marker = L.marker([lat, lng], {
+                        icon: markerIcon,
+                        zIndexOffset: isSelected ? 900 : 700,
+                    });
                     marker.on('click', () => {
                         this.focusReportOnMap(report);
                     });
 
-                    this.clusterGroup.addLayer(marker);
+                    markers.push(marker);
+                });
+
+                if (markers.length > 0) {
+                    if (typeof group.addLayers === 'function') {
+                        group.addLayers(markers);
+                    } else {
+                        markers.forEach((m) => group.addLayer(m));
+                    }
+                }
+
+                group.addTo(mapRefs.mainMap);
+                mapRefs.clusterGroup = group;
+
+                requestAnimationFrame(() => {
+                    mapRefs.mainMap?.invalidateSize({ pan: false });
                 });
             },
 
@@ -1121,34 +1401,46 @@
 
             focusReportOnMap(report) {
                 this.selectedReport = report;
-                if (!this.mainMap) {
+                document.querySelectorAll('#main-map .lt-map-pin.is-active').forEach((el) => {
+                    el.classList.remove('is-active');
+                });
+                const activePin = document.querySelector(`#main-map [data-report-pin="${report.id}"]`);
+                if (activePin) {
+                    activePin.classList.add('is-active');
+                }
+
+                if (!mapRefs.mainMap) {
                     return;
                 }
 
-                const targetZoom = Math.max(this.mainMap.getZoom(), 16);
+                const targetZoom = Math.max(mapRefs.mainMap.getZoom(), 16);
                 // Offset upward slightly so the marker sits right below the centered callout card
-                const point = this.mainMap.project([report.latitude, report.longitude], targetZoom);
+                const point = mapRefs.mainMap.project([Number(report.latitude), Number(report.longitude)], targetZoom);
                 point.y -= window.innerWidth < 1024 ? 70 : 60;
-                const offsetLatLng = this.mainMap.unproject(point, targetZoom);
+                const offsetLatLng = mapRefs.mainMap.unproject(point, targetZoom);
 
-                this.mainMap.setView(offsetLatLng, targetZoom, { animate: true });
+                mapRefs.suppressNextMoveFetch = true;
+                mapRefs.mainMap.setView(offsetLatLng, targetZoom, { animate: true });
             },
 
             recenterToUser() {
-                if (this.mainMap && this.userLat && this.userLng) {
+                if (mapRefs.mainMap && this.userLat && this.userLng) {
                     this.selectedReport = null;
-                    this.mainMap.setView([this.userLat, this.userLng], 15, { animate: true });
+                    mapRefs.suppressNextMoveFetch = true;
+                    mapRefs.mainMap.setView([this.userLat, this.userLng], 16, { animate: true });
+                    this.fetchNearbyReports(this.userLat, this.userLng);
                 }
             },
 
             setRadius(meters) {
                 this.filters.radius = meters;
-                if (this.radiusCircle) {
-                    this.radiusCircle.setRadius(meters);
+                if (mapRefs.radiusCircle) {
+                    mapRefs.radiusCircle.setRadius(meters);
                 }
-                if (this.mainMap) {
-                    const zoomMap = { 500: 16, 1000: 15, 5000: 13 };
-                    this.mainMap.setZoom(zoomMap[meters] || 15);
+                if (mapRefs.mainMap) {
+                    const zoomMap = { 1000: 15, 5000: 14, 15000: 12 };
+                    mapRefs.suppressNextMoveFetch = true;
+                    mapRefs.mainMap.setZoom(zoomMap[meters] || 14);
                 }
                 this.fetchNearbyReports();
             },
@@ -1161,35 +1453,6 @@
             setCategoryFilter(slug) {
                 this.filters.category = slug;
                 this.fetchNearbyReports();
-            },
-
-            async relocateDemoDataToUser() {
-                if (!this.userLat || !this.userLng) {
-                    return;
-                }
-                this.isRelocatingDemo = true;
-                try {
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const response = await fetch('/api/demo/relocate', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': token,
-                        },
-                        body: JSON.stringify({
-                            lat: this.userLat,
-                            lng: this.userLng,
-                        }),
-                    });
-
-                    if (response.ok) {
-                        this.selectedReport = null;
-                        await this.fetchNearbyReports();
-                    }
-                } finally {
-                    this.isRelocatingDemo = false;
-                }
             },
 
             openCreateReportModal() {
@@ -1216,33 +1479,48 @@
                     return;
                 }
 
-                if (this.miniMap) {
-                    this.miniMap.invalidateSize();
-                    this.miniMap.setView([this.form.latitude, this.form.longitude], 17);
-                    this.miniMarker.setLatLng([this.form.latitude, this.form.longitude]);
+                if (mapRefs.miniMap) {
+                    mapRefs.miniMap.invalidateSize();
+                    mapRefs.miniMap.setView([this.form.latitude, this.form.longitude], 17);
+                    mapRefs.miniMarker.setLatLng([this.form.latitude, this.form.longitude]);
+                    setTimeout(() => mapRefs.miniMap?.invalidateSize(), 220);
                     return;
                 }
 
-                this.miniMap = L.map('mini-picker-map').setView([this.form.latitude, this.form.longitude], 17);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 19,
-                }).addTo(this.miniMap);
+                const miniLayers = window.createRealMapLayerSet();
 
-                this.miniMarker = L.marker([this.form.latitude, this.form.longitude], {
+                mapRefs.miniMap = L.map('mini-picker-map', {
+                    layers: [miniLayers.jalan],
+                }).setView([this.form.latitude, this.form.longitude], 17);
+
+                L.control.layers(
+                    {
+                        'Peta Jalan (OSM)': miniLayers.jalan,
+                        'Citra Satelit': miniLayers.satelit,
+                    },
+                    {},
+                    { position: 'topright', collapsed: true }
+                ).addTo(mapRefs.miniMap);
+
+                mapRefs.miniMarker = L.marker([this.form.latitude, this.form.longitude], {
                     draggable: true,
-                }).addTo(this.miniMap);
+                }).addTo(mapRefs.miniMap);
 
-                this.miniMarker.on('dragend', (evt) => {
+                mapRefs.miniMarker.on('dragend', (evt) => {
                     const pos = evt.target.getLatLng();
                     this.form.latitude = pos.lat;
                     this.form.longitude = pos.lng;
+                    this.resolveMiniPinAddress(pos.lat, pos.lng);
                 });
 
-                this.miniMap.on('click', (evt) => {
-                    this.miniMarker.setLatLng(evt.latlng);
+                mapRefs.miniMap.on('click', (evt) => {
+                    mapRefs.miniMarker.setLatLng(evt.latlng);
                     this.form.latitude = evt.latlng.lat;
                     this.form.longitude = evt.latlng.lng;
+                    this.resolveMiniPinAddress(evt.latlng.lat, evt.latlng.lng);
                 });
+
+                setTimeout(() => mapRefs.miniMap?.invalidateSize(), 220);
             },
 
             async handlePhotoSelection(event) {

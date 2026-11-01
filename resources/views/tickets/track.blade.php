@@ -20,14 +20,14 @@
         <form action="{{ route('tickets.index') }}" method="GET" class="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="flex-1">
                 <label for="ticket-search-input" class="block text-xs font-extrabold text-[#17324D] mb-1">
-                    ID Tiket Laporan (Contoh format: <code class="font-mono text-[#0D8BB8]">LT-7K9P-2M4X</code>)
+                    ID Tiket Laporan (Format: <code class="font-mono text-[#0D8BB8]">LT-XXXX-XXXX</code>)
                 </label>
                 <input id="ticket-search-input"
                        type="text"
                        name="ticket_id"
                        value="{{ $searchedId }}"
                        required
-                       placeholder="Masukkan ID tiket, mis. LT-7K9P-2M4X"
+                       placeholder="Masukkan ID tiket dari bukti laporan kamu"
                        class="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#D7E1E5] font-mono font-extrabold text-base text-[#17324D] uppercase placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:text-[#617482] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
             </div>
             <div class="sm:pt-5">
@@ -41,23 +41,6 @@
                 </button>
             </div>
         </form>
-
-        <!-- Quick Demo Ticket Pills -->
-        <div class="mt-4 pt-3.5 border-t border-[#D7E1E5]/70 flex flex-wrap items-center gap-2 text-xs">
-            <span class="font-bold text-[#617482]">Contoh ID simulasi untuk dicoba:</span>
-            <a href="{{ route('tickets.show', ['ticketId' => 'LT-7K9P-2M4X']) }}"
-               class="px-2.5 py-1 rounded-lg bg-[#F3F7F8] hover:bg-[#DFF5FC] font-mono font-bold text-[#17324D] border border-[#D7E1E5]">
-                LT-7K9P-2M4X (Diproses)
-            </a>
-            <a href="{{ route('tickets.show', ['ticketId' => 'LT-8F3K-92QX']) }}"
-               class="px-2.5 py-1 rounded-lg bg-[#F3F7F8] hover:bg-[#DFF5FC] font-mono font-bold text-[#17324D] border border-[#D7E1E5]">
-                LT-8F3K-92QX (Ditugaskan)
-            </a>
-            <a href="{{ route('tickets.show', ['ticketId' => 'LT-5X8Q-7N3M']) }}"
-               class="px-2.5 py-1 rounded-lg bg-[#F3F7F8] hover:bg-[#DFF5FC] font-mono font-bold text-[#185B37] border border-[#D7E1E5]">
-                LT-5X8Q-7N3M (Selesai / Riwayat)
-            </a>
-        </div>
     </section>
 
     <!-- Error / Not Found State (Style Guide 9.10 & 10) -->
@@ -72,7 +55,7 @@
             </div>
             <h2 class="text-lg sm:text-xl font-extrabold text-[#17324D]">{{ $errorMessage }}</h2>
             <p class="mt-2 text-sm text-[#617482] max-w-lg mx-auto">
-                Pastikan seluruh huruf dan tanda hubung sesuai dengan bukti tiket yang kamu simpan (contoh: <code class="font-mono font-bold text-[#17324D]">LT-7K9P-2M4X</code>).
+                Pastikan seluruh huruf dan tanda hubung sesuai dengan bukti tiket yang kamu simpan (format: <code class="font-mono font-bold text-[#17324D]">LT-XXXX-XXXX</code>).
             </p>
         </section>
     @endif
@@ -95,7 +78,7 @@
                         <x-status-badge :status="$report->status" />
                         @if(!$report->is_visible_on_map)
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#E9EEF1] text-[#617482]">
-                                Penanda sudah ditutup dari peta aktif
+                                Tidak ditampilkan di peta publik
                             </span>
                         @else
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#DFF5FC] text-[#0D8BB8]">
@@ -201,14 +184,22 @@
 
                     <!-- Location Map Preview -->
                     <div>
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                             <h3 class="text-sm font-extrabold text-[#17324D] uppercase tracking-wider">Titik Lokasi Masalah</h3>
-                            <span class="text-xs font-mono font-bold text-[#617482] tabular-nums">
-                                {{ number_format($report->latitude, 5) }}, {{ number_format($report->longitude, 5) }}
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono font-bold text-[#617482] tabular-nums">
+                                    {{ number_format($report->latitude, 5) }}, {{ number_format($report->longitude, 5) }}
+                                </span>
+                                <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="text-xs font-extrabold text-[#0D8BB8] hover:underline">
+                                    Google Maps ↗
+                                </a>
+                            </div>
                         </div>
                         <p class="text-xs font-bold text-[#0D8BB8] mb-2">📍 {{ $report->location_label }}</p>
-                        <div id="detail-report-map" class="w-full h-52 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#EAF1E8]"></div>
+                        <div id="detail-report-map" class="w-full h-60 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
                     </div>
                 </div>
 
@@ -264,18 +255,29 @@
             </div>
         </section>
 
+        @php
+            $pinMeta = \App\Models\Report::getStatusMetadata($report->status);
+        @endphp
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                if (window.L && document.getElementById('detail-report-map')) {
-                    const lat = {{ (float) $report->latitude }};
-                    const lng = {{ (float) $report->longitude }};
-                    const map = window.L.map('detail-report-map').setView([lat, lng], 16);
-                    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                        maxZoom: 19,
-                    }).addTo(map);
-                    window.L.marker([lat, lng]).addTo(map).bindPopup(@js($report->title)).openPopup();
+            (function () {
+                const mountDetailMap = function () {
+                    if (typeof window.initStaticReportMap === 'function') {
+                        window.initStaticReportMap(
+                            'detail-report-map',
+                            {{ (float) $report->latitude }},
+                            {{ (float) $report->longitude }},
+                            @js($report->title),
+                            @js($pinMeta['color'])
+                        );
+                    }
+                };
+                if (window.L && typeof window.initStaticReportMap === 'function') {
+                    mountDetailMap();
+                } else {
+                    window.addEventListener('leaflet:ready', mountDetailMap, { once: true });
+                    window.addEventListener('load', mountDetailMap, { once: true });
                 }
-            });
+            })();
         </script>
     @endif
 </div>

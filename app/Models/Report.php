@@ -87,7 +87,7 @@ class Report extends Model
     }
 
     /**
-     * Scope reports that are currently active and visible on the public map.
+     * Scope reports that are visible on the public map (all valid statuses excluding rejected).
      */
     public function scopeActiveOnMap(Builder $query): Builder
     {
@@ -97,6 +97,7 @@ class Report extends Model
                 self::STATUS_BARU,
                 self::STATUS_DITUGASKAN,
                 self::STATUS_DIPROSES,
+                self::STATUS_SELESAI,
             ]);
     }
 
@@ -173,7 +174,7 @@ class Report extends Model
     {
         return match ($status) {
             self::STATUS_BARU => [
-                'label' => 'Baru',
+                'label' => 'Belum diproses',
                 'color' => '#16A6D8',
                 'bg' => '#DFF5FC',
                 'text' => '#0B5E7C',
@@ -189,7 +190,7 @@ class Report extends Model
                 'description' => 'Laporan telah diteruskan ke instansi dan petugas lapangan.',
             ],
             self::STATUS_DIPROSES => [
-                'label' => 'Sedang diproses',
+                'label' => 'Diproses',
                 'color' => '#F5B82E',
                 'bg' => '#FEF5DC',
                 'text' => '#8A5D00',
@@ -197,12 +198,12 @@ class Report extends Model
                 'description' => 'Petugas sedang menangani perbaikan di lokasi laporan.',
             ],
             self::STATUS_SELESAI => [
-                'label' => 'Tuntas / Selesai',
+                'label' => 'Selesai',
                 'color' => '#278653',
                 'bg' => '#E1F5EA',
                 'text' => '#185B37',
                 'icon' => 'check-circle-2',
-                'description' => 'Penanganan selesai dan penanda telah ditutup dari peta aktif.',
+                'description' => 'Penanganan laporan telah selesai ditindaklanjuti hingga tuntas oleh petugas.',
             ],
             self::STATUS_DITOLAK => [
                 'label' => 'Ditolak',

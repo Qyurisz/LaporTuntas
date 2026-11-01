@@ -62,10 +62,10 @@ class ReportFlowTest extends TestCase
     }
 
     /**
-     * Test nearby API returns active reports and hides completed or rejected reports,
-     * while completed reports remain searchable by Ticket ID.
+     * Test default nearby API request (status=all, category=all) returns all valid statuses
+     * (baru, ditugaskan, diproses, selesai) immediately on load/refresh, and hides rejected reports.
      */
-    public function test_completed_report_disappears_from_nearby_map_but_remains_searchable_by_ticket_id(): void
+    public function test_nearby_map_returns_all_statuses_by_default_and_hides_rejected_reports(): void
     {
         Storage::fake('public');
 
@@ -80,25 +80,26 @@ class ReportFlowTest extends TestCase
             'agency_id' => $agency->id,
             'title' => 'Lampu jalan mati di persimpangan',
             'description' => 'Lampu PJU padam sejak kemarin malam.',
-            'latitude' => -6.1754000,
-            'longitude' => 106.8271000,
-            'location_label' => 'Simpang Monas',
+            'latitude' => -7.9553000,
+            'longitude' => 112.6280000,
+            'location_label' => 'Lowokwaru, Kota Malang',
             'status' => Report::STATUS_BARU,
             'is_visible_on_map' => true,
         ]);
 
-        // 1. Verify report appears in nearby API while active
-        $nearbyResponse = $this->getJson(route('api.reports.nearby', [
-            'lat' => -6.1753924,
-            'lng' => 106.8271528,
-            'radius' => 1000,
+        // 1. Default initial load / refresh payload (status=all & category=all) returns Baru report
+        $nearbyDefault = $this->getJson(route('api.reports.nearby', [
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'all',
+            'category' => 'all',
         ]));
 
-        $nearbyResponse->assertOk();
-        $ticketsOnMap = collect($nearbyResponse->json('reports'))->pluck('ticket_id')->all();
-        $this->assertContains('LT-99AA-88BB', $ticketsOnMap);
+        $nearbyDefault->assertOk();
+        $this->assertContains('LT-99AA-88BB', collect($nearbyDefault->json('reports'))->pluck('ticket_id')->all());
 
-        // 2. Admin assigns report to officer
+        // 2. Admin assigns report -> Ditugaskan remains visible with status=all
         $this->actingAs($admin)
             ->patch(route('staff.reports.assign', $report), [
                 'agency_id' => $agency->id,
@@ -111,7 +112,35 @@ class ReportFlowTest extends TestCase
         $this->assertSame(Report::STATUS_DITUGASKAN, $report->status);
         $this->assertTrue($report->is_visible_on_map);
 
-        // 3. Officer marks report as Selesai with after photo
+        $nearbyAssigned = $this->getJson(route('api.reports.nearby', [
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'all',
+            'category' => 'all',
+        ]));
+        $nearbyAssigned->assertOk();
+        $this->assertContains('LT-99AA-88BB', collect($nearbyAssigned->json('reports'))->pluck('ticket_id')->all());
+
+        // 3. Officer updates to Diproses -> remains visible with status=all
+        $this->actingAs($officer)
+            ->patch(route('staff.reports.status', $report), [
+                'status' => Report::STATUS_DIPROSES,
+                'note' => 'Petugas sedang berada di lokasi untuk pengecekan kabel.',
+            ])
+            ->assertRedirect();
+
+        $nearbyInProgress = $this->getJson(route('api.reports.nearby', [
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'all',
+            'category' => 'all',
+        ]));
+        $nearbyInProgress->assertOk();
+        $this->assertContains('LT-99AA-88BB', collect($nearbyInProgress->json('reports'))->pluck('ticket_id')->all());
+
+        // 4. Officer marks report as Selesai -> STILL visible on map with status=all and status=selesai
         $this->actingAs($officer)
             ->patch(route('staff.reports.status', $report), [
                 'status' => Report::STATUS_SELESAI,
@@ -122,25 +151,65 @@ class ReportFlowTest extends TestCase
 
         $report->refresh();
         $this->assertSame(Report::STATUS_SELESAI, $report->status);
-        $this->assertFalse($report->is_visible_on_map);
+        $this->assertTrue($report->is_visible_on_map);
         $this->assertNotNull($report->resolved_at);
 
-        // 4. Verify report is NO LONGER returned in nearby map API (PRD FR-12)
         $nearbyAfterComplete = $this->getJson(route('api.reports.nearby', [
-            'lat' => -6.1753924,
-            'lng' => 106.8271528,
-            'radius' => 1000,
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'all',
+            'category' => 'all',
         ]));
+        $nearbyAfterComplete->assertOk();
+        $this->assertContains('LT-99AA-88BB', collect($nearbyAfterComplete->json('reports'))->pluck('ticket_id')->all());
 
-        $ticketsAfterComplete = collect($nearbyAfterComplete->json('reports'))->pluck('ticket_id')->all();
-        $this->assertNotContains('LT-99AA-88BB', $ticketsAfterComplete);
+        $nearbyFilterSelesai = $this->getJson(route('api.reports.nearby', [
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'selesai',
+            'category' => 'all',
+        ]));
+        $nearbyFilterSelesai->assertOk();
+        $this->assertContains('LT-99AA-88BB', collect($nearbyFilterSelesai->json('reports'))->pluck('ticket_id')->all());
 
-        // 5. Verify report is STILL searchable via Ticket ID (PRD FR-19)
+        // 5. Verify report is searchable via Ticket ID
         $trackResponse = $this->get(route('tickets.show', ['ticketId' => 'LT-99AA-88BB']));
         $trackResponse->assertOk();
         $trackResponse->assertSee('LT-99AA-88BB');
         $trackResponse->assertSee('Lampu bohlam LED sudah diganti baru dan menyala normal.');
-        $trackResponse->assertSee('Tuntas / Selesai');
+        $trackResponse->assertSee('Selesai');
+
+        // 6. Admin rejects an invalid report -> hidden from public map
+        $spamReport = Report::query()->create([
+            'ticket_id' => 'LT-SPAM-0001',
+            'category_id' => $category->id,
+            'agency_id' => $agency->id,
+            'title' => 'Laporan uji coba tidak valid',
+            'description' => 'Isi laporan tidak sesuai kondisi lapangan.',
+            'latitude' => -7.9554000,
+            'longitude' => 112.6281000,
+            'location_label' => 'Lowokwaru, Kota Malang',
+            'status' => Report::STATUS_BARU,
+            'is_visible_on_map' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('staff.reports.reject', $spamReport), [
+                'rejection_reason' => 'Foto tidak menunjukkan fasilitas umum yang dilaporkan.',
+            ])
+            ->assertRedirect();
+
+        $nearbyAfterReject = $this->getJson(route('api.reports.nearby', [
+            'lat' => -7.9553000,
+            'lng' => 112.6280000,
+            'radius' => 5000,
+            'status' => 'all',
+            'category' => 'all',
+        ]));
+        $nearbyAfterReject->assertOk();
+        $this->assertNotContains('LT-SPAM-0001', collect($nearbyAfterReject->json('reports'))->pluck('ticket_id')->all());
     }
 
     /**
@@ -162,8 +231,24 @@ class ReportFlowTest extends TestCase
      */
     public function test_petugas_cannot_reject_or_assign_reports(): void
     {
+        $this->assertSame(0, Report::query()->count());
+
+        $category = Category::query()->firstOrFail();
+        $agency = Agency::query()->firstOrFail();
         $officer = User::query()->where('role', 'petugas')->firstOrFail();
-        $report = Report::query()->firstOrFail();
+
+        $report = Report::query()->create([
+            'ticket_id' => 'LT-11CC-22DD',
+            'category_id' => $category->id,
+            'agency_id' => $agency->id,
+            'title' => 'Saluran air tersumbat di bahu jalan',
+            'description' => 'Air meluap ke jalan saat hujan deras.',
+            'latitude' => -6.2000000,
+            'longitude' => 106.8166660,
+            'location_label' => 'Dekat persimpangan utama',
+            'status' => Report::STATUS_BARU,
+            'is_visible_on_map' => true,
+        ]);
 
         $this->actingAs($officer)
             ->patch(route('staff.reports.reject', $report), [

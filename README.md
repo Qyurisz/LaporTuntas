@@ -1,58 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Lapor Tuntas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Lapor Tuntas** adalah aplikasi web pelaporan masalah fasilitas umum berbasis peta interaktif (*map-first*) dan *mobile-first* yang memudahkan warga melapor secara cepat tanpa perlu registrasi atau login. Setiap laporan menghasilkan ID tiket unik lengkap dengan QR Code sehingga warga dapat memantau progres penanganan oleh instansi terkait secara transparan dari awal hingga tuntas.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend:** PHP 8.3, Laravel 13
+- **Frontend:** Blade Templates, Tailwind CSS v4, Alpine.js 3, Vite 8
+- **Peta & Geospasial:** Leaflet.js, Leaflet.MarkerCluster, OpenStreetMap / Esri World Imagery / CARTO Tile Layers, Nominatim Reverse Geocoding, HTML5 Geolocation API
+- **Database:** MySQL 8.0 (serta SQLite *in-memory* untuk pengujian otomatis)
+- **Utilitas & Pengujian:** `qrcode` (unduh kartu tiket PNG ber-QR), HTML5 Canvas (kompresi foto otomatis di browser), PHPUnit 12
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Cara Menjalankan Project Ini
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Prasyarat
+- PHP >= 8.3 & Composer
+- MySQL >= 8.0 (misalnya melalui Laragon)
+- Node.js & NPM
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Langkah Instalasi
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+1. **Clone repositori dan masuk ke folder project**
+   ```bash
+   git clone https://github.com/Qyurisz/LaporTuntas.git
+   cd LaporTuntas
+   ```
 
-## Agentic Development
+2. **Install dependensi PHP dan JavaScript**
+   ```bash
+   composer install
+   npm install
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+3. **Salin file konfigurasi `.env` dan buat *application key***
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-```bash
-composer require laravel/boost --dev
+4. **Konfigurasi koneksi database MySQL di file `.env`**
+   Buat database bernama `lapor_tuntas` di MySQL, lalu sesuaikan bagian berikut pada `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=lapor_tuntas
+   DB_USERNAME=root
+   DB_PASSWORD=password_mysql_anda
+   ```
 
-php artisan boost:install
-```
+5. **Jalankan migrasi tabel dan *seeder* data master**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+6. **Build aset frontend dan jalankan server lokal**
+   ```bash
+   npm run build
+   php artisan serve
+   ```
+   *(Atau jalankan `composer run dev` untuk menyalakan server Laravel dan Vite secara bersamaan.)*
 
-## Contributing
+7. **Akses aplikasi di browser**
+   - Halaman Utama Peta Warga: `http://localhost:8000`
+   - Panel Petugas & Admin: `http://localhost:8000/petugas/login`
+     - **Admin / Moderator:** `admin@laportuntas.id` | Password: `password`
+     - **Petugas Lapangan:** `petugas.pu@laportuntas.id` | Password: `password`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Progress Saat Ini
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- [x] **Halaman Utama Peta Interaktif (*Map-First Landing Page*):** Tampilan peta jalan asli, citra satelit, dan mode terang berbasis titik GPS pengguna, filter jangkauan radius (`1 km`, `5 km`, `15 km`), filter kategori & semua status laporan (`Belum diproses`, `Ditugaskan`, `Diproses`, `Selesai`), *marker clustering*, kartu *callout* detail singkat, serta daftar laporan responsif di *desktop sidebar* dan *mobile drawer*.
+- [x] **Formulir Pelaporan Warga Tanpa Login:** Modal pembuatan laporan cepat dengan fitur unggah 1–5 foto bukti (dikompresi otomatis di sisi klien), pemilihan kategori masalah, penentuan titik koordinat GPS presisi melalui peta mini (*draggable marker* & deteksi nama jalan otomatis), serta pembatasan pengiriman (*rate limiting*).
+- [x] **Halaman Bukti Tiket & Kartu QR Code:** Pembuatan ID tiket unik non-sekuensial (`LT-XXXX-XXXX`), tombol salin tiket, cetak/PDF, serta unduh kartu tiket berformat PNG lengkap dengan QR Code pelacakan.
+- [x] **Halaman Lacak Tiket Publik:** Pencarian progres laporan menggunakan ID tiket tanpa login, informasi instansi & petugas penangan, perbandingan foto bukti *Sebelum* dan *Sesudah* perbaikan, peta titik lokasi masalah, serta linimasa (*timeline*) riwayat penanganan secara transparan.
+- [x] **Panel Operasional Admin & Petugas (RBAC):** Halaman autentikasi khusus staf, *dashboard* metrik ringkasan laporan, penugasan laporan ke instansi dan petugas lapangan (khusus Admin), pembaruan status penanganan beserta unggah foto bukti penyelesaian, serta fitur moderasi penolakan laporan tidak valid/spam.
+- [x] **Integrasi Database MySQL & Pengujian Otomatis:** Struktur migrasi database relasional bersih tanpa data simulasi *hardcode*, *seeder* data master (instansi, kategori, akun RBAC), serta *feature test* alur pelaporan hingga tuntas (`php artisan test`).

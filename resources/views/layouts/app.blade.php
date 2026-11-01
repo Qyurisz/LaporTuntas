@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Lapor Tuntas — Bukan Sekadar Lapor, Tapi Lacak Sampai Selesai' }}</title>
+    <title>{{ $title ?? 'Lapor Tuntas — Lacak sampai tuntas' }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-laportuntas.png') }}?v=hd">
 
     <!-- Google Fonts: Nunito Sans & JetBrains Mono with graceful system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,20 +23,11 @@
     <header class="{{ $isFullBleedMobile ? 'hidden lg:block' : 'block' }} sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#D7E1E5] shadow-[0_2px_10px_rgba(23,50,77,0.05)]">
         <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 group focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/40 rounded-xl p-1">
-                <div class="w-10 h-10 rounded-2xl bg-[#16A6D8] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(22,166,216,0.35)] group-hover:bg-[#0D8BB8] transition-colors">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/>
-                        <path d="m9 10 2 2 4-4"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="font-extrabold text-lg sm:text-xl tracking-tight text-[#17324D] leading-none">Lapor Tuntas</span>
-                        <span class="hidden sm:inline-block px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-[#C5E84A] text-[#17324D] rounded-full">Warga</span>
-                    </div>
-                    <p class="hidden md:block text-xs text-[#617482] font-semibold mt-0.5">Bukan sekadar lapor, tapi lacak sampai selesai</p>
-                </div>
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
+                <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
+                     alt="LaporTuntas — Lacak sampai tuntas"
+                     class="h-9 sm:h-10 w-auto object-contain">
+                <span class="sr-only">Lapor Tuntas</span>
             </a>
 
             <!-- Desktop Primary Actions -->

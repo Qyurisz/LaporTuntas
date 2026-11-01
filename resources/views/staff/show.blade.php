@@ -14,8 +14,8 @@
                     {{ $report->ticket_id }}
                 </span>
                 <x-status-badge :status="$report->status" />
-                <span class="text-xs font-bold {{ $report->is_visible_on_map ? 'text-[#0D8BB8]' : 'text-[#278653]' }}">
-                    {{ $report->is_visible_on_map ? '● Penanda Aktif di Peta Publik' : '✓ Penanda Sudah Ditutup dari Peta Publik' }}
+                <span class="text-xs font-bold {{ $report->is_visible_on_map ? 'text-[#0D8BB8]' : 'text-[#617482]' }}">
+                    {{ $report->is_visible_on_map ? '● Tampil di Peta Publik' : '○ Disembunyikan dari Peta Publik' }}
                 </span>
             </div>
             <h1 class="mt-2 text-xl sm:text-2xl font-extrabold text-[#17324D]">{{ $report->title }}</h1>
@@ -65,11 +65,19 @@
                 </div>
 
                 <div>
-                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#617482] mb-2">Titik GPS Lokasi Masalah</h2>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#617482]">Titik GPS Lokasi Masalah</h2>
+                        <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
+                           target="_blank"
+                           rel="noopener"
+                           class="text-xs font-extrabold text-[#0D8BB8] hover:underline">
+                            Buka Navigasi Google Maps ↗
+                        </a>
+                    </div>
                     <p class="text-xs font-bold text-[#0D8BB8] mb-2">
                         📍 {{ $report->location_label }} ({{ number_format($report->latitude, 6) }}, {{ number_format($report->longitude, 6) }})
                     </p>
-                    <div id="staff-report-map" class="w-full h-52 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#EAF1E8]"></div>
+                    <div id="staff-report-map" class="w-full h-60 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
                 </div>
 
                 <!-- Media Evidence -->
@@ -111,7 +119,7 @@
                 <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0D8BB8]">Tindakan Petugas &amp; Admin</span>
                 <h2 class="text-lg font-extrabold text-[#17324D] mt-0.5">Perbarui Status &amp; Tandai Selesai</h2>
                 <p class="text-xs text-[#617482] font-semibold mt-1">
-                    Saat ditandai <strong>Selesai</strong>, penanda otomatis hilang dari peta beranda publik namun tetap dapat dilacak lewat ID tiket.
+                    Saat ditandai <strong>Selesai</strong>, penanda pada peta publik tetap tampil berwarna hijau (Selesai) beserta bukti tindak lanjut.
                 </p>
 
                 <form action="{{ route('staff.reports.status', $report) }}"
@@ -128,8 +136,8 @@
                                 required
                                 class="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-[#D7E1E5] text-sm font-extrabold text-[#17324D] bg-white">
                             <option value="ditugaskan" @selected($report->status === 'ditugaskan')>Ditugaskan ke Petugas</option>
-                            <option value="diproses" @selected($report->status === 'diproses' || $report->status === 'baru')>Sedang Diproses di Lapangan</option>
-                            <option value="selesai" @selected($report->status === 'selesai')>✓ Selesai / Tuntas (Sembunyikan dari Peta)</option>
+                            <option value="diproses" @selected($report->status === 'diproses' || $report->status === 'baru')>Diproses di Lapangan</option>
+                            <option value="selesai" @selected($report->status === 'selesai')>✓ Selesai / Tuntas</option>
                         </select>
                     </div>
 
@@ -278,18 +286,29 @@
     </div>
 </div>
 
+@php
+    $staffPinMeta = \App\Models\Report::getStatusMetadata($report->status);
+@endphp
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (window.L && document.getElementById('staff-report-map')) {
-            const lat = {{ (float) $report->latitude }};
-            const lng = {{ (float) $report->longitude }};
-            const map = window.L.map('staff-report-map').setView([lat, lng], 16);
-            window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19,
-            }).addTo(map);
-            window.L.marker([lat, lng]).addTo(map);
+    (function () {
+        const mountStaffMap = function () {
+            if (typeof window.initStaticReportMap === 'function') {
+                window.initStaticReportMap(
+                    'staff-report-map',
+                    {{ (float) $report->latitude }},
+                    {{ (float) $report->longitude }},
+                    @js($report->title),
+                    @js($staffPinMeta['color'])
+                );
+            }
+        };
+        if (window.L && typeof window.initStaticReportMap === 'function') {
+            mountStaffMap();
+        } else {
+            window.addEventListener('leaflet:ready', mountStaffMap, { once: true });
+            window.addEventListener('load', mountStaffMap, { once: true });
         }
-    });
+    })();
 </script>
 @endsection
 

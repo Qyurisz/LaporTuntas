@@ -23,7 +23,7 @@ class TicketController extends Controller
                 return view('tickets.track', [
                     'searchedId' => $rawTicketId,
                     'report' => null,
-                    'errorMessage' => 'Format ID tiket tidak sesuai. Gunakan format seperti LT-7K9P-2M4X.',
+                    'errorMessage' => 'Format ID tiket tidak sesuai. Gunakan format seperti LT-XXXX-XXXX.',
                 ]);
             }
 
@@ -48,7 +48,7 @@ class TicketController extends Controller
             return view('tickets.track', [
                 'searchedId' => $ticketId,
                 'report' => null,
-                'errorMessage' => 'Format ID tiket tidak sesuai. Pastikan menggunakan format seperti LT-7K9P-2M4X.',
+                'errorMessage' => 'Format ID tiket tidak sesuai. Pastikan menggunakan format seperti LT-XXXX-XXXX.',
             ]);
         }
 

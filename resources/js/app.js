@@ -1,11 +1,12 @@
-import Alpine from 'alpinejs';
-import L from 'leaflet';
+import L from './leaflet-setup';
 import 'leaflet.markercluster';
+import Alpine from 'alpinejs';
 import QRCode from 'qrcode';
 
 window.Alpine = Alpine;
 window.L = L;
 window.QRCode = QRCode;
+window.dispatchEvent(new CustomEvent('leaflet:ready'));
 
 /**
  * Compress an image file client-side using HTMLCanvasElement before upload.

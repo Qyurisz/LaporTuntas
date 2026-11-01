@@ -9,26 +9,34 @@ use Illuminate\Http\Request;
 class ReportApiController extends Controller
 {
     /**
-     * Return active nearby reports based on GPS coordinates, radius, category, and status.
+     * Return public nearby reports based on search coordinates, radius, category, and status.
      */
     public function nearby(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'lat' => ['required', 'numeric', 'between:-90,90'],
             'lng' => ['required', 'numeric', 'between:-180,180'],
-            'radius' => ['nullable', 'integer', 'min:100', 'max:25000'],
+            'user_lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'user_lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'radius' => ['nullable', 'integer', 'min:100', 'max:50000'],
             'category' => ['nullable', 'string', 'max:60'],
-            'status' => ['nullable', 'string', 'in:baru,ditugaskan,diproses'],
+            'status' => ['nullable', 'string', 'in:all,baru,ditugaskan,diproses,selesai'],
+            'focus_ticket' => ['nullable', 'string', 'max:25'],
         ]);
 
-        $lat = (float) $validated['lat'];
-        $lng = (float) $validated['lng'];
-        $radiusMeters = (int) ($validated['radius'] ?? 1000);
+        $searchLat = (float) $validated['lat'];
+        $searchLng = (float) $validated['lng'];
+        $originLat = isset($validated['user_lat']) ? (float) $validated['user_lat'] : $searchLat;
+        $originLng = isset($validated['user_lng']) ? (float) $validated['user_lng'] : $searchLng;
+        $radiusMeters = (int) ($validated['radius'] ?? 5000);
+        $focusTicket = ! empty($validated['focus_ticket'])
+            ? strtoupper(trim((string) $validated['focus_ticket']))
+            : null;
 
         $query = Report::query()
             ->with(['category', 'agency', 'media'])
             ->activeOnMap()
-            ->withinBoundingBox($lat, $lng, $radiusMeters);
+            ->withinBoundingBox($searchLat, $searchLng, $radiusMeters);
 
         if (! empty($validated['category']) && $validated['category'] !== 'all') {
             $categorySlug = $validated['category'];
@@ -41,23 +49,48 @@ class ReportApiController extends Controller
             $query->where('status', $validated['status']);
         }
 
-        $candidates = $query->latest()->get();
+        $candidates = $query->latest()->get()->keyBy('id');
+
+        if ($focusTicket !== null) {
+            $focusedReport = Report::query()
+                ->with(['category', 'agency', 'media'])
+                ->activeOnMap()
+                ->where('ticket_id', $focusTicket)
+                ->first();
+
+            if ($focusedReport && ! $candidates->has($focusedReport->id)) {
+                $candidates->put($focusedReport->id, $focusedReport);
+            }
+        }
 
         $results = [];
         foreach ($candidates as $report) {
-            $distanceMeters = Report::calculateDistanceMeters(
-                $lat,
-                $lng,
+            $searchDistanceMeters = Report::calculateDistanceMeters(
+                $searchLat,
+                $searchLng,
                 (float) $report->latitude,
                 (float) $report->longitude
             );
 
-            if ($distanceMeters > $radiusMeters) {
+            $isFocused = $focusTicket !== null && $report->ticket_id === $focusTicket;
+
+            if (! $isFocused && $searchDistanceMeters > $radiusMeters) {
                 continue;
             }
 
+            $userDistanceMeters = Report::calculateDistanceMeters(
+                $originLat,
+                $originLng,
+                (float) $report->latitude,
+                (float) $report->longitude
+            );
+
             $meta = $report->statusMeta();
             $beforeMedia = $report->media->firstWhere('type', 'before');
+            $afterMedia = $report->media->firstWhere('type', 'after');
+            $primaryMedia = $report->status === Report::STATUS_SELESAI
+                ? ($afterMedia ?? $beforeMedia)
+                : $beforeMedia;
 
             $results[] = [
                 'id' => $report->id,
@@ -67,10 +100,10 @@ class ReportApiController extends Controller
                 'latitude' => (float) $report->latitude,
                 'longitude' => (float) $report->longitude,
                 'location_label' => $report->location_label ?: 'Titik koordinat GPS warga',
-                'distance_meters' => $distanceMeters,
-                'distance_label' => $distanceMeters < 1000
-                    ? "{$distanceMeters} m"
-                    : number_format($distanceMeters / 1000, 1, ',', '.').' km',
+                'distance_meters' => $userDistanceMeters,
+                'distance_label' => $userDistanceMeters < 1000
+                    ? "{$userDistanceMeters} m"
+                    : number_format($userDistanceMeters / 1000, 1, ',', '.').' km',
                 'status' => $report->status,
                 'status_label' => $meta['label'],
                 'status_color' => $meta['color'],
@@ -83,7 +116,7 @@ class ReportApiController extends Controller
                 'category_icon' => $report->category?->icon ?? 'map-pin',
                 'agency_name' => $report->agency?->name ?? 'Menunggu Penugasan Instansi',
                 'agency_code' => $report->agency?->code ?? '-',
-                'photo_url' => $beforeMedia ? $beforeMedia->publicUrl() : null,
+                'photo_url' => $primaryMedia ? $primaryMedia->publicUrl() : null,
                 'updated_human' => $report->updated_at?->diffForHumans() ?? 'Baru saja',
                 'created_human' => $report->created_at?->diffForHumans() ?? 'Baru saja',
                 'track_url' => route('tickets.show', ['ticketId' => $report->ticket_id]),
@@ -98,45 +131,4 @@ class ReportApiController extends Controller
             'reports' => $results,
         ]);
     }
-
-    /**
-     * Relocate seeded demo reports around the user's live GPS coordinates for demo convenience.
-     */
-    public function relocateDemoData(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'lat' => ['required', 'numeric', 'between:-90,90'],
-            'lng' => ['required', 'numeric', 'between:-180,180'],
-        ]);
-
-        $baseLat = (float) $validated['lat'];
-        $baseLng = (float) $validated['lng'];
-
-        $offsets = [
-            ['dLat' => 0.0016, 'dLng' => -0.0012, 'label' => 'Sekitar 210m arah Utara-Barat'],
-            ['dLat' => -0.0021, 'dLng' => 0.0018, 'label' => 'Sekitar 290m arah Selatan-Timur'],
-            ['dLat' => 0.0029, 'dLng' => 0.0022, 'label' => 'Sekitar 380m arah Timur Laut'],
-            ['dLat' => -0.0014, 'dLng' => -0.0026, 'label' => 'Sekitar 320m arah Barat Daya'],
-            ['dLat' => 0.0009, 'dLng' => 0.0031, 'label' => 'Sekitar 350m arah Timur'],
-            ['dLat' => -0.0033, 'dLng' => -0.0008, 'label' => 'Sekitar 370m arah Selatan'],
-            ['dLat' => 0.0012, 'dLng' => 0.0011, 'label' => 'Sekitar 180m dari lokasi Anda (Selesai)'],
-        ];
-
-        $reports = Report::query()->orderBy('id')->limit(count($offsets))->get();
-
-        foreach ($reports as $index => $report) {
-            $offset = $offsets[$index];
-            $report->update([
-                'latitude' => round($baseLat + $offset['dLat'], 7),
-                'longitude' => round($baseLng + $offset['dLng'], 7),
-                'location_label' => $offset['label'],
-            ]);
-        }
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => 'Data simulasi demo berhasil dipindahkan ke sekitar titik GPS Anda.',
-        ]);
-    }
 }
-

@@ -24,7 +24,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::prefix('api')->group(function (): void {
     Route::get('/reports/nearby', [ReportApiController::class, 'nearby'])->name('api.reports.nearby');
-    Route::post('/demo/relocate', [ReportApiController::class, 'relocateDemoData'])->name('api.demo.relocate');
 });
 
 Route::post('/lapor', [ReportController::class, 'store'])
