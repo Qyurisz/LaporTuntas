@@ -18,7 +18,7 @@
 
 ### Prasyarat
 - PHP >= 8.3 & Composer
-- MySQL >= 8.0 (misalnya melalui Laragon)
+- MySQL >= 8.0 (tahap pengembangan awal)
 - Node.js & NPM
 
 ### Langkah Instalasi
