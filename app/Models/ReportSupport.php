@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['report_id', 'ip_hash', 'user_agent_hash'])]
+#[Fillable(['report_id', 'device_token', 'ip_hash', 'user_agent_hash', 'photo_path', 'comment'])]
 class ReportSupport extends Model
 {
     public $timestamps = false;
@@ -21,6 +21,22 @@ class ReportSupport extends Model
         return [
             'created_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the public URL of the uploaded supporter evidence photo.
+     */
+    public function photoUrl(): ?string
+    {
+        if (empty($this->photo_path)) {
+            return null;
+        }
+
+        if (str_starts_with($this->photo_path, 'data:') || str_starts_with($this->photo_path, 'http') || str_starts_with($this->photo_path, '/')) {
+            return $this->photo_path;
+        }
+
+        return '/media/' . ltrim($this->photo_path, '/');
     }
 
     /**

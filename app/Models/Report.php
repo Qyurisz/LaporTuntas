@@ -206,6 +206,22 @@ class Report extends Model
     }
 
     /**
+     * Get citizen community supports that include uploaded photo evidence.
+     */
+    public function supportsWithPhotos(): HasMany
+    {
+        return $this->hasMany(ReportSupport::class)->whereNotNull('photo_path')->latest('id');
+    }
+
+    /**
+     * Get citizen community supports that include witness notes/comments.
+     */
+    public function supportsWithComments(): HasMany
+    {
+        return $this->hasMany(ReportSupport::class)->whereNotNull('comment')->latest('id');
+    }
+
+    /**
      * Get the status change timeline histories ordered chronologically.
      */
     public function statusHistories(): HasMany
@@ -388,9 +404,9 @@ class Report extends Model
         return match ($status) {
             self::STATUS_BARU => [
                 'label' => 'Belum diproses',
-                'color' => '#16A6D8',
+                'color' => '#0A7B9D',
                 'bg' => '#DFF5FC',
-                'text' => '#0B5E7C',
+                'text' => '#075F79',
                 'icon' => 'sparkles',
                 'description' => 'Laporan baru masuk dan menunggu penugasan ke instansi terkait.',
             ],
@@ -428,7 +444,7 @@ class Report extends Model
             ],
             default => [
                 'label' => ucfirst($status),
-                'color' => '#16A6D8',
+                'color' => '#0A7B9D',
                 'bg' => '#DFF5FC',
                 'text' => '#17324D',
                 'icon' => 'info',

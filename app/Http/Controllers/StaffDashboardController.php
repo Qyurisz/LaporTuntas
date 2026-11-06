@@ -191,7 +191,7 @@ class StaffDashboardController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $report->load(['category', 'agency', 'assignedOfficer', 'media', 'statusHistories.actor']);
+        $report->load(['category', 'agency', 'assignedOfficer', 'media', 'statusHistories.actor', 'supportsWithPhotos', 'supportsWithComments']);
 
         $agencies = Agency::query()->orderBy('name')->get();
         $officers = User::query()

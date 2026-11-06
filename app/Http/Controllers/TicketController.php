@@ -53,7 +53,7 @@ class TicketController extends Controller
         }
 
         $report = Report::query()
-            ->with(['category', 'agency', 'assignedOfficer', 'media', 'statusHistories.actor'])
+            ->with(['category', 'agency', 'assignedOfficer', 'media', 'statusHistories.actor', 'supportsWithPhotos', 'supportsWithComments'])
             ->where('ticket_id', $normalized)
             ->first();
 

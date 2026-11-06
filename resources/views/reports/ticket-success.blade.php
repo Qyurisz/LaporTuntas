@@ -13,23 +13,40 @@
                     <x-icon name="check-circle" class="w-7 h-7 text-white" stroke-width="2.5" />
                 </div>
                 <div>
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-primary-soft">Laporan Berhasil Terkirim</span>
-                    <h1 class="text-xl sm:text-2xl font-extrabold leading-tight">Simpan ID tiket untuk melacak laporanmu</h1>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-primary-soft">
+                        {{ ($isSupporter ?? false) ? 'Dukungan Warga Berhasil Dicatat' : 'Laporan Berhasil Terkirim' }}
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold leading-tight">
+                        {{ ($isSupporter ?? false) ? 'Kamu terdaftar mendukung penanganan masalah ini' : 'Simpan ID tiket untuk melacak laporanmu' }}
+                    </h1>
                 </div>
             </div>
             <x-status-badge :status="$report->status" />
         </div>
 
         <div class="p-6 sm:p-8 space-y-6">
+            @if(session('info'))
+                <div class="p-4 rounded-xl bg-primary-soft border border-primary/30 text-primary-hover text-xs sm:text-sm font-bold flex items-start gap-2.5">
+                    <x-icon name="info" class="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <p class="leading-relaxed">{{ session('info') }}</p>
+                </div>
+            @endif
+
             <!-- Ticket ID Highlight & QR Box (Style Guide 9.5) -->
             <div class="p-5 sm:p-6 rounded-2xl bg-primary-soft/60 border-2 border-primary flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="text-center md:text-left flex-1">
-                    <p class="text-xs font-extrabold uppercase tracking-wider text-primary-hover">ID Tiket Unik Kamu</p>
+                    <p class="text-xs font-extrabold uppercase tracking-wider text-primary-hover">
+                        {{ ($isSupporter ?? false) ? 'ID Tiket Masalah yang Kamu Dukung' : 'ID Tiket Unik Kamu' }}
+                    </p>
                     <p class="mt-1 text-3xl sm:text-4xl font-mono font-extrabold tracking-wider text-navy tabular-nums select-all">
                         {{ $report->ticket_id }}
                     </p>
                     <p class="mt-2 text-xs sm:text-sm text-text-muted font-semibold">
-                        Gunakan ID ini kapan saja di menu <strong>Lacak tiket</strong> tanpa perlu login.
+                        @if($isSupporter ?? false)
+                            Kamu tidak perlu membuat laporan ganda. Gunakan ID ini kapan saja di menu <strong>Lacak tiket</strong> untuk memantau pengerjaan oleh dinas terkait.
+                        @else
+                            Gunakan ID ini kapan saja di menu <strong>Lacak tiket</strong> tanpa perlu login.
+                        @endif
                     </p>
 
                     <div class="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2">
@@ -121,6 +138,34 @@
     function ticketSuccessPage() {
         return {
             copied: false,
+            init() {
+                try {
+                    const ticketId = this.ticketData.ticketId;
+                    const isSupporter = @js($isSupporter ?? false);
+
+                    let savedList = JSON.parse(localStorage.getItem('laportuntas_saved_tickets') || '[]');
+                    if (!savedList.includes(ticketId)) {
+                        savedList.push(ticketId);
+                        localStorage.setItem('laportuntas_saved_tickets', JSON.stringify(savedList));
+                    }
+
+                    let supportedList = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
+                    if (!supportedList.includes(ticketId)) {
+                        supportedList.push(ticketId);
+                        localStorage.setItem('laportuntas_supported_tickets', JSON.stringify(supportedList));
+                    }
+
+                    if (!isSupporter) {
+                        let myReports = JSON.parse(localStorage.getItem('laportuntas_my_reports') || '[]');
+                        if (!myReports.includes(ticketId)) {
+                            myReports.push(ticketId);
+                            localStorage.setItem('laportuntas_my_reports', JSON.stringify(myReports));
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to sync ticket storage:', e);
+                }
+            },
             ticketData: {
                 ticketId: @js($report->ticket_id),
                 category: @js($report->category?->name ?? 'Masalah Publik'),

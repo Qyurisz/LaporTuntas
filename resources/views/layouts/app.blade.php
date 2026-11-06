@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Lapor Tuntas — Lacak sampai tuntas' }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon-laportuntas.png') }}?v=hd">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-laportuntas.png') }}?v=v2">
 
     <!-- PWA Manifest & Mobile Standalone Meta -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#16A6D8">
+    <meta name="theme-color" content="#0A7B9D">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="LaporTuntas">
-    <link rel="apple-touch-icon" href="{{ asset('images/favicon-laportuntas.png') }}?v=hd">
+    <link rel="apple-touch-icon" href="{{ asset('images/favicon-laportuntas.png') }}?v=v2">
 
     <!-- Google Fonts: Nunito Sans & JetBrains Mono with graceful system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +30,10 @@
 
     <!-- Top Navigation Header (Hidden on Mobile Map Home for Full-Bleed Map Experience) -->
     <header class="{{ $isFullBleedMobile ? 'hidden lg:block' : 'block' }} sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-border shadow-[0_2px_10px_rgba(23,50,77,0.05)]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+        <div class="{{ request()->routeIs('home') ? 'w-full px-4 sm:px-6' : 'max-w-[1280px] mx-auto px-4 sm:px-6' }} h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
-                <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
+                <img src="{{ asset('images/logo-laportuntas.png') }}?v=v2"
                      alt="LaporTuntas — Lacak sampai tuntas"
                      class="h-9 sm:h-10 w-auto object-contain">
                 <span class="sr-only">Lapor Tuntas</span>

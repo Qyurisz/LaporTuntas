@@ -142,6 +142,50 @@
                         @endforelse
                     </div>
                 </div>
+
+                <!-- Supporter Additional Photos Evidence Gallery -->
+                @if($report->supportsWithPhotos->isNotEmpty())
+                    <div class="mt-4 pt-4 border-t border-border-soft">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold mb-2">
+                            <x-icon name="camera" class="w-3.5 h-3.5" />
+                            <span>Foto Bukti Tambahan dari Warga ({{ $report->supportsWithPhotos->count() }})</span>
+                        </span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                            @foreach($report->supportsWithPhotos as $supporterMedia)
+                                <div class="rounded-xl overflow-hidden border border-border bg-canvas">
+                                    <img src="{{ $supporterMedia->photoUrl() }}"
+                                         alt="Foto bukti tambahan warga"
+                                         class="w-full h-32 object-cover">
+                                    @if($supporterMedia->comment)
+                                        <div class="p-2 text-[11px] font-medium text-navy bg-surface border-t border-border-soft line-clamp-2">
+                                            "{{ $supporterMedia->comment }}"
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Supporter Comments & Field Notes -->
+                @if($report->supportsWithComments->isNotEmpty())
+                    <div class="mt-4 pt-4 border-t border-border-soft">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold mb-2">
+                            <x-icon name="message-square" class="w-3.5 h-3.5" />
+                            <span>Suara & Catatan Warga ({{ $report->supportsWithComments->count() }})</span>
+                        </span>
+                        <div class="space-y-2 mt-1 max-h-48 overflow-y-auto pr-1">
+                            @foreach($report->supportsWithComments as $supporterNote)
+                                <div class="p-3 rounded-xl bg-canvas border border-border-soft text-xs text-navy">
+                                    <p class="font-medium">"{{ $supporterNote->comment }}"</p>
+                                    <span class="text-[10px] text-text-muted mt-1 block font-semibold">
+                                        {{ $supporterNote->created_at ? $supporterNote->created_at->diffForHumans() : 'Baru saja' }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 

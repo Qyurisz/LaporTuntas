@@ -6,7 +6,7 @@
   "id": "/",
   "display": "standalone",
   "background_color": "#F3F7F8",
-  "theme_color": "#16A6D8",
+  "theme_color": "#0A7B9D",
   "orientation": "portrait",
   "description": "Platform pelaporan masalah fasilitas publik cepat dan transparan tanpa login.",
   "categories": ["utilities", "government"],

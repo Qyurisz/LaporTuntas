@@ -30,7 +30,7 @@
     </div>
 
     <!-- Metric Summary Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3.5">
         <a href="{{ route('staff.dashboard', ['status' => 'all']) }}"
            class="p-4 rounded-2xl border {{ $statusFilter === 'all' ? 'border-navy bg-surface ring-2 ring-navy/20' : 'border-border bg-surface' }}">
             <p class="text-xs font-bold text-text-muted">Total Laporan</p>
@@ -156,29 +156,11 @@
                                 @endif
                             </td>
                             <td class="py-4 px-4 align-top">
-                                <x-status-badge :status="$report->status" size="sm" />
-                                <p class="text-[11px] font-bold mt-1">
-                                    @if($report->isVisibleOnPublicMap())
-                                        <span class="inline-flex items-center gap-1.5 text-primary-hover">
-                                            <span class="inline-block w-2 h-2 rounded-full bg-primary-hover"></span>
-                                            <span>Tampil di Peta</span>
-                                        </span>
-                                    @elseif($report->status === \App\Models\Report::STATUS_SELESAI)
-                                        <span class="inline-flex items-center gap-1.5 text-text-muted">
-                                            <span class="inline-block w-2 h-2 rounded-full border border-current"></span>
-                                            <span>Diarsipkan (> 7 hari)</span>
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5 text-text-muted">
-                                            <span class="inline-block w-2 h-2 rounded-full border border-current"></span>
-                                            <span>Hilang dari Peta</span>
-                                        </span>
-                                    @endif
-                                </p>
-                                @php
-                                    $sla = $report->getSlaMeta();
-                                @endphp
-                                <div class="mt-1">
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <x-status-badge :status="$report->status" size="sm" />
+                                    @php
+                                        $sla = $report->getSlaMeta();
+                                    @endphp
                                     @if($sla['is_overdue'])
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FDE8E8] text-danger border border-danger/30"
                                               title="Target SLA: {{ $sla['target_label'] }} (Batas: {{ $sla['deadline_label'] }})">
@@ -190,6 +172,24 @@
                                               title="Target SLA: {{ $sla['target_label'] }} (Batas: {{ $sla['deadline_label'] }})">
                                             <x-icon name="clock" class="w-3 h-3 shrink-0 text-text-muted" stroke-width="2" />
                                             <span>{{ $sla['badge_label'] }}</span>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-text-muted">
+                                    @if($report->isVisibleOnPublicMap())
+                                        <span class="inline-flex items-center gap-1 text-primary-hover font-bold">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-hover"></span>
+                                            <span>Peta Publik</span>
+                                        </span>
+                                    @elseif($report->status === \App\Models\Report::STATUS_SELESAI)
+                                        <span class="inline-flex items-center gap-1 text-text-muted">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-text-muted/40"></span>
+                                            <span>Arsip (> 7 hari)</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-text-muted">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-text-muted/40"></span>
+                                            <span>Nonaktif</span>
                                         </span>
                                     @endif
                                 </div>

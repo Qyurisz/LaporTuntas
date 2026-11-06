@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->encryptCookies(except: [
+            'lt_device_token',
+        ]);
         $middleware->redirectGuestsTo(fn () => route('staff.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {

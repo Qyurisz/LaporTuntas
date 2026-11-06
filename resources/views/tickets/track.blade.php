@@ -161,81 +161,34 @@
                         </div>
                     </div>
 
-                    <!-- Citizen Community Support ("Saya Juga Mengalami Ini") -->
-                    <div x-data="{
-                            ticketId: '{{ $report->ticket_id }}',
-                            supportsCount: {{ (int) ($report->supports_count ?? 0) }},
-                            isSupported: false,
-                            isLoading: false,
-                            init() {
-                                const stored = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
-                                this.isSupported = stored.includes(this.ticketId);
-                            },
-                            async toggleSupport() {
-                                if (this.isLoading) return;
-                                this.isLoading = true;
-                                const token = document.querySelector('meta[name=\'csrf-token\']')?.getAttribute('content');
-                                try {
-                                    const res = await fetch(`/api/reports/${this.ticketId}/support`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json',
-                                            'X-CSRF-TOKEN': token || '',
-                                        },
-                                    });
-                                    const data = await res.json();
-                                    if (data.success) {
-                                        this.supportsCount = data.supports_count;
-                                        this.isSupported = data.supported;
-                                        let stored = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
-                                        if (data.supported) {
-                                            if (!stored.includes(this.ticketId)) stored.push(this.ticketId);
-                                        } else {
-                                            stored = stored.filter(t => t !== this.ticketId);
-                                        }
-                                        localStorage.setItem('laportuntas_supported_tickets', JSON.stringify(stored));
-                                    }
-                                } catch (e) {
-                                    console.error('Gagal mendukung laporan:', e);
-                                } finally {
-                                    this.isLoading = false;
-                                }
-                            }
-                         }"
-                         class="p-4 sm:p-5 rounded-2xl bg-canvas border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="space-y-1.5 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2.5">
-                                <h3 class="text-sm font-extrabold text-navy">Dukungan Warga</h3>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold whitespace-nowrap transition tabular-nums"
-                                      :class="supportsCount > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-surface text-text-muted border border-border'"
-                                      x-text="supportsCount + ' Warga Mengalami Ini'">{{ (int) ($report->supports_count ?? 0) }} Warga Mengalami Ini</span>
+                    <!-- Citizen Community Support Impact Summary (Static) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                            <!-- Left Rounded Icon Box -->
+                            <div class="w-12 h-12 rounded-2xl bg-warning-soft border border-warning/30 flex items-center justify-center shrink-0 text-warning">
+                                <x-icon name="thumbs-up" class="w-6 h-6 text-warning" stroke-width="2" />
                             </div>
-                            <p class="text-xs text-text-muted font-normal leading-relaxed">
-                                Alami masalah serupa di lokasi ini? Beri dukungan agar tidak perlu membuat laporan duplikat dan membantu diprioritaskan petugas.
-                            </p>
+
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="text-sm font-extrabold text-navy">Dukungan Warga</h3>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold whitespace-nowrap tabular-nums {{ ((int) ($report->supports_count ?? 0)) > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-canvas text-text-muted border border-border' }}">
+                                        {{ (int) ($report->supports_count ?? 0) }} Warga Mengalami Ini
+                                    </span>
+                                </div>
+                                <p class="text-xs text-text-muted font-normal leading-relaxed">
+                                    Laporan ini didukung oleh warga sekitar agar cepat diprioritaskan oleh dinas terkait tanpa perlu membuat laporan ganda.
+                                </p>
+                            </div>
                         </div>
 
-                        <button type="button"
-                                @click="toggleSupport()"
-                                :disabled="isLoading"
-                                :class="isSupported
-                                    ? 'bg-success-soft text-success border-success/35 hover:bg-[#d2f3e0]'
-                                    : 'bg-primary hover:bg-primary-hover text-white border-transparent shadow-[0_4px_14px_rgba(22,166,216,0.30)]'"
-                                class="min-h-[44px] px-5 py-2.5 rounded-xl border text-xs sm:text-sm font-extrabold inline-flex items-center justify-center gap-2 shrink-0 transition cursor-pointer active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap">
-                            <template x-if="isSupported">
-                                <span class="inline-flex items-center gap-1.5">
-                                    <x-icon name="check" class="w-4 h-4 text-success" stroke-width="2.5" />
-                                    <span>Didukung</span>
-                                </span>
-                            </template>
-                            <template x-if="!isSupported">
-                                <span class="inline-flex items-center gap-1.5">
-                                    <x-icon name="thumbs-up" class="w-4 h-4 text-white" stroke-width="2.2" />
-                                    <span>Saya Juga Mengalami Ini</span>
-                                </span>
-                            </template>
-                        </button>
+                        <!-- Right Static Indicator Badge -->
+                        <div class="shrink-0 flex items-center">
+                            <span class="min-h-[44px] px-4 sm:px-5 py-2.5 rounded-xl border border-warning/30 bg-warning-soft/70 text-warning text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 select-none shadow-xs">
+                                <x-icon name="thumbs-up" class="w-4 h-4 text-warning" stroke-width="2.2" />
+                                <span>Terdata {{ (int) ($report->supports_count ?? 0) }} Dukungan</span>
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Description -->
@@ -294,6 +247,32 @@
                                 </div>
                             @endif
                         </div>
+
+                        <!-- Supporter Additional Photos Gallery -->
+                        @if($report->supportsWithPhotos->isNotEmpty())
+                            <div class="mt-4 pt-4 border-t border-border-soft">
+                                <div class="flex items-center gap-2 mb-2.5">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold">
+                                        <x-icon name="camera" class="w-3.5 h-3.5" />
+                                        <span>Foto Bukti Tambahan dari Warga ({{ $report->supportsWithPhotos->count() }})</span>
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                    @foreach($report->supportsWithPhotos as $supporterMedia)
+                                        <div class="group relative rounded-xl overflow-hidden border border-border bg-canvas shadow-2xs">
+                                            <img src="{{ $supporterMedia->photoUrl() }}"
+                                                 alt="Foto bukti tambahan warga"
+                                                 class="w-full h-32 sm:h-36 object-cover transition-transform duration-200 group-hover:scale-105">
+                                            @if($supporterMedia->comment)
+                                                <div class="p-2 bg-surface text-[11px] font-medium text-navy border-t border-border-soft line-clamp-2">
+                                                    "{{ $supporterMedia->comment }}"
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Location Map Preview -->
@@ -368,6 +347,35 @@
                                 </li>
                             @endforeach
                         </ol>
+
+                        @if($report->supportsWithComments->isNotEmpty())
+                            <div class="mt-8 pt-6 border-t border-border">
+                                <h4 class="text-sm font-extrabold text-navy uppercase tracking-wider flex items-center gap-2">
+                                    <x-icon name="message-square" class="w-4 h-4 text-primary" stroke-width="2.2" />
+                                    <span>Suara & Catatan Warga ({{ $report->supportsWithComments->count() }})</span>
+                                </h4>
+                                <p class="text-xs text-text-muted font-semibold mt-1">
+                                    Catatan kondisi lapangan dari warga sekitar yang ikut mendukung penanganan laporan ini.
+                                </p>
+                                <div class="mt-4 space-y-2.5">
+                                    @foreach($report->supportsWithComments as $supporterNote)
+                                        <div class="p-3.5 rounded-xl bg-canvas border border-border-soft text-xs text-navy flex items-start gap-3">
+                                            <div class="w-7 h-7 rounded-lg bg-primary-soft text-primary flex items-center justify-center shrink-0 mt-0.5">
+                                                <x-icon name="user" class="w-4 h-4" />
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium text-navy leading-relaxed">
+                                                    "{{ $supporterNote->comment }}"
+                                                </p>
+                                                <span class="text-[10px] text-text-muted font-semibold mt-1 block">
+                                                    {{ $supporterNote->created_at ? $supporterNote->created_at->diffForHumans() : 'Baru saja' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

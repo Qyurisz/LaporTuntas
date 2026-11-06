@@ -402,7 +402,7 @@ class ReportFlowTest extends TestCase
         $manifestContent = json_decode((string) file_get_contents($manifestPath), true);
         $this->assertIsArray($manifestContent);
         $this->assertSame('standalone', $manifestContent['display']);
-        $this->assertSame('#16A6D8', $manifestContent['theme_color']);
+        $this->assertSame('#0A7B9D', $manifestContent['theme_color']);
         $this->assertNotEmpty($manifestContent['icons']);
 
         $homeResponse = $this->get(route('home'));
@@ -471,6 +471,29 @@ class ReportFlowTest extends TestCase
         $track = $this->get(route('tickets.show', ['ticketId' => 'LT-SUP1-0001']));
         $track->assertOk();
         $track->assertSee('1 Warga Mengalami Ini');
+        $track->assertSee('Terdata 1 Dukungan');
+
+        // Test support from modal creation flow (with from_form = true)
+        $formSupportResponse = $this->postJson(route('api.reports.support', ['ticketId' => $report->ticket_id]), [
+            'from_form' => true,
+            'support_only' => true,
+        ]);
+        $formSupportResponse->assertOk();
+        $formSupportResponse->assertJson([
+            'success' => true,
+            'supported' => true,
+            'ticket_id' => 'LT-SUP1-0001',
+        ]);
+        $this->assertStringContainsString('mode=supported', (string) $formSupportResponse->json('redirect_url'));
+
+        // Supporter success screen check
+        $successScreen = $this->get(route('reports.success', [
+            'ticketId' => $report->ticket_id,
+            'mode' => 'supported',
+        ]));
+        $successScreen->assertOk();
+        $successScreen->assertSee('Dukungan Warga Berhasil Dicatat');
+        $successScreen->assertSee('Kamu terdaftar mendukung penanganan masalah ini');
     }
 
     public function test_sla_target_calculation_and_overdue_filtering(): void

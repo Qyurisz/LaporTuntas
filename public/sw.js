@@ -1,4 +1,4 @@
-const CACHE_NAME = 'laportuntas-v1';
+const CACHE_NAME = 'laportuntas-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

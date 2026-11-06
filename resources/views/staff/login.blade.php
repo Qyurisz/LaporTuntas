@@ -4,7 +4,7 @@
 <div class="max-w-[460px] w-full mx-auto px-4 py-10 sm:py-16">
     <div class="bg-surface rounded-2xl border border-border shadow-[0_8px_24px_rgba(23,50,77,0.08)] p-6 sm:p-8">
         <div class="text-center">
-            <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
+            <img src="{{ asset('images/logo-laportuntas.png') }}?v=v2"
                  alt="LaporTuntas — Lacak sampai tuntas"
                  class="h-10 w-auto mx-auto mb-4 object-contain">
             <span class="inline-block px-3 py-0.5 rounded-full text-xs font-extrabold bg-primary-soft text-primary-hover">
