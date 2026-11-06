@@ -14,43 +14,43 @@
     <!-- ===================================================================== -->
     <div x-show="gpsState !== 'granted'"
          x-transition.opacity
-         class="absolute inset-0 z-40 bg-[#17324D]/30 backdrop-blur-[3px] flex items-center justify-center p-4 sm:p-6 pb-24 lg:pb-6 overflow-y-auto">
-        <div class="max-w-md w-full bg-white rounded-[28px] border border-[#E6EEF2] shadow-[0_14px_36px_rgba(23,50,77,0.12)] p-6 sm:p-8 text-center">
+         class="absolute inset-0 z-40 bg-[#17324D]/30 backdrop-blur-[3px] flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="my-auto max-w-md w-full bg-white rounded-2xl border border-[#E6EEF2] shadow-[0_14px_36px_rgba(23,50,77,0.12)] p-4 sm:p-7 text-center">
             <!-- Brand Logo -->
             <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
                  alt="LaporTuntas — Lacak sampai tuntas"
-                 class="h-10 w-auto mx-auto mb-5 object-contain">
+                 class="h-7 sm:h-9 w-auto mx-auto mb-2.5 sm:mb-4 object-contain">
 
             <!-- Vector Illustration -->
-            <div class="mx-auto w-20 h-20 rounded-full bg-[#DFF5FC] border-4 border-white shadow-md flex items-center justify-center mb-4 relative">
-                <svg class="w-10 h-10 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <div class="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#DFF5FC] border-3 sm:border-4 border-white shadow-md flex items-center justify-center mb-2.5 sm:mb-3.5 relative">
+                <svg class="w-6 h-6 sm:w-8 sm:h-8 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                     <circle cx="12" cy="10" r="3"/>
                 </svg>
-                <span class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#C5E84A] text-[#17324D] font-extrabold flex items-center justify-center text-[10px] border-2 border-white">
+                <span class="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#C5E84A] text-[#17324D] font-extrabold flex items-center justify-center text-[9px] sm:text-[10px] border-2 border-white">
                     GPS
                 </span>
             </div>
 
             <template x-if="gpsState === 'prompt' || gpsState === 'loading'">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] mb-2.5">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8] mb-1.5 sm:mb-2">
                         Lapor Tuntas • Peta Warga
                     </span>
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-[#17324D] leading-snug">
+                    <h1 class="text-base sm:text-xl font-extrabold text-[#17324D] leading-snug">
                         Aktifkan lokasi untuk membuka peta laporan di sekitarmu
                     </h1>
-                    <p class="mt-2.5 text-xs sm:text-sm text-[#617482] leading-relaxed">
+                    <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-[#617482] leading-relaxed">
                         Kami menggunakan titik GPS perangkatmu untuk menampilkan masalah publik terdekat dan memastikan lokasi laporan akurat.
                     </p>
 
-                    <div class="mt-4 p-3.5 rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1.5">
+                    <div class="mt-2.5 sm:mt-3.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1 sm:space-y-1.5">
                         <div class="flex items-start gap-2">
-                            <span class="text-[#278653] font-extrabold">✓</span>
+                            <x-icon name="check" class="w-3.5 h-3.5 text-[#278653] shrink-0 mt-0.5" stroke-width="2.5" />
                             <span><strong>Privasi aman:</strong> Posisi kamu tidak disimpan saat menjelajahi peta.</span>
                         </div>
                         <div class="flex items-start gap-2">
-                            <span class="text-[#278653] font-extrabold">✓</span>
+                            <x-icon name="check" class="w-3.5 h-3.5 text-[#278653] shrink-0 mt-0.5" stroke-width="2.5" />
                             <span><strong>Tanpa login:</strong> Langsung lapor dan simpan tiket ber-QR.</span>
                         </div>
                     </div>
@@ -58,8 +58,8 @@
                     <button type="button"
                             @click="requestGpsLocation()"
                             :disabled="gpsState === 'loading'"
-                            class="mt-5 w-full min-h-[48px] px-6 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-sm sm:text-base shadow-[0_8px_20px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
-                        <svg x-show="gpsState !== 'loading'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            class="mt-4 w-full min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-extrabold text-xs sm:text-sm shadow-[0_6px_18px_rgba(22,166,216,0.32)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
+                        <svg x-show="gpsState !== 'loading'" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                         </svg>
                         <span x-text="gpsState === 'loading' ? 'Mendeteksi titik GPS...' : 'Aktifkan Izin Lokasi'"></span>
@@ -70,15 +70,15 @@
             <!-- State when GPS permission is denied (PRD FR-15) -->
             <template x-if="gpsState === 'denied'">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#FF6B5C]/15 text-[#D94343] mb-2.5">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-extrabold bg-[#FF6B5C]/15 text-[#D94343] mb-1.5 sm:mb-2">
                         Izin Lokasi Belum Aktif
                     </span>
-                    <h1 class="text-xl font-extrabold text-[#17324D]">
+                    <h1 class="text-base sm:text-xl font-extrabold text-[#17324D]">
                         Peta &amp; form lapor memerlukan akses lokasi
                     </h1>
-                    <p class="mt-2 text-xs sm:text-sm text-[#617482] leading-relaxed" x-text="gpsErrorMessage || 'Izin lokasi ditolak oleh browser perangkat kamu.'"></p>
+                    <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-[#617482] leading-relaxed" x-text="gpsErrorMessage || 'Izin lokasi ditolak oleh browser perangkat kamu.'"></p>
 
-                    <div class="mt-4 p-3.5 rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1.5">
+                    <div class="mt-2.5 sm:mt-3.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#F3F7F8] text-left text-xs text-[#17324D] space-y-1.5">
                         <p class="font-extrabold">Cara mengaktifkan kembali:</p>
                         <ol class="list-decimal list-inside space-y-1 text-[#617482] font-semibold">
                             <li>Ketuk ikon <strong>Pengaturan Situs / Gembok</strong> di bilah alamat browser.</li>
@@ -89,16 +89,17 @@
 
                     <button type="button"
                             @click="requestGpsLocation()"
-                            class="mt-5 w-full min-h-[48px] px-6 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
+                            class="mt-4 w-full min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-xs sm:text-sm shadow-[0_6px_18px_rgba(22,166,216,0.32)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
                         <span>Coba Aktifkan Lagi</span>
                     </button>
                 </div>
             </template>
 
-            <div class="mt-5 pt-4 border-t border-[#E6EEF2] flex items-center justify-between gap-2 text-xs">
-                <span class="text-[#617482] font-semibold">Sudah punya ID tiket?</span>
-                <a href="{{ route('tickets.index') }}" class="font-extrabold text-[#0D8BB8] hover:underline">
-                    Lacak tiket →
+            <div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-border-soft flex items-center justify-between gap-2 text-xs">
+                <span class="text-text-muted font-semibold">Sudah punya ID tiket?</span>
+                <a href="{{ route('tickets.index') }}" class="font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
+                    <span>Lacak tiket</span>
+                    <x-icon name="arrow-right" class="w-3.5 h-3.5" />
                 </a>
             </div>
         </div>
@@ -116,7 +117,7 @@
             <div class="pointer-events-auto relative min-w-0" @click.outside="radiusMenuOpen = false">
                 <button type="button"
                         @click="radiusMenuOpen = !radiusMenuOpen; filterPopoverOpen = false"
-                        class="min-h-[46px] max-w-full pl-3.5 pr-4 py-2 rounded-full bg-white shadow-[0_8px_24px_rgba(23,50,77,0.14)] hover:bg-[#F3F7F8]/95 flex items-center gap-2 text-[#17324D] transition cursor-pointer">
+                        class="min-h-[48px] sm:min-h-[44px] max-w-full px-4 py-2 rounded-full bg-white shadow-[0_8px_24px_rgba(23,50,77,0.14)] hover:bg-[#F3F7F8]/95 flex items-center gap-2 text-[#17324D] transition cursor-pointer">
                     <svg class="w-5 h-5 text-[#16A6D8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                         <circle cx="12" cy="10" r="3"/>
@@ -124,7 +125,7 @@
                     <span class="font-extrabold text-sm tracking-tight flex items-center gap-1 min-w-0">
                         <span class="truncate max-w-[130px] sm:max-w-[210px]" x-text="userAreaName || 'Sekitarmu'"></span>
                         <span class="text-[#0D8BB8] font-extrabold tabular-nums shrink-0"
-                              x-text="'• ' + (filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km')"></span>
+                              x-text="'• ' + formatRadius(filters.radius)"></span>
                     </span>
                     <svg class="w-4 h-4 text-[#617482] shrink-0 transition-transform duration-150"
                          :class="radiusMenuOpen ? 'rotate-180' : ''"
@@ -136,26 +137,26 @@
                 <!-- Radius & Map Style Dropdown Card -->
                 <div x-show="radiusMenuOpen"
                      x-transition
-                     class="mt-2.5 w-72 bg-white rounded-[24px] p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
+                     class="mt-2.5 w-72 bg-white rounded-2xl p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
                     <div>
                         <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Mode Tampilan Peta</p>
-                        <div class="grid grid-cols-3 gap-1.5 bg-[#F3F7F8] p-1 rounded-2xl">
+                        <div class="grid grid-cols-3 gap-2 bg-[#F3F7F8] p-1 rounded-2xl">
                             <button type="button"
                                     @click="setMapLayer('jalan')"
                                     :class="activeMapLayer === 'jalan' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
-                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                    class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Jalan
                             </button>
                             <button type="button"
                                     @click="setMapLayer('satelit')"
                                     :class="activeMapLayer === 'satelit' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
-                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                    class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Satelit
                             </button>
                             <button type="button"
                                     @click="setMapLayer('terang')"
                                     :class="activeMapLayer === 'terang' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
-                                    class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
+                                    class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Terang
                             </button>
                         </div>
@@ -163,12 +164,12 @@
 
                     <div class="pt-2.5 border-t border-[#E6EEF2]">
                         <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Jangkauan Radius Peta</p>
-                        <div class="grid grid-cols-3 gap-1.5 bg-[#F3F7F8] p-1 rounded-2xl">
-                            <template x-for="r in [1000, 5000, 15000]" :key="r">
+                        <div class="grid grid-cols-3 gap-2 bg-[#F3F7F8] p-1 rounded-2xl">
+                            <template x-for="r in [500, 1000, 5000]" :key="r">
                                 <button type="button"
-                                        @click="setRadius(r); radiusMenuOpen = false"
+                                        @click="setRadius(r)"
                                         :class="filters.radius === r ? 'bg-[#16A6D8] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
-                                        class="min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer tabular-nums"
+                                        class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer tabular-nums"
                                         x-text="r < 1000 ? r + ' m' : (r / 1000) + ' km'"></button>
                             </template>
                         </div>
@@ -194,7 +195,7 @@
                         :title="activeMapLayer === 'satelit' ? 'Ganti ke Peta Jalan' : 'Ganti ke Citra Satelit'"
                         :aria-label="activeMapLayer === 'satelit' ? 'Ganti ke Peta Jalan' : 'Ganti ke Citra Satelit'"
                         :class="activeMapLayer === 'satelit' ? 'bg-[#17324D] text-white' : 'bg-white text-[#17324D] hover:bg-[#F3F7F8] hover:text-[#16A6D8]'"
-                        class="w-[46px] h-[46px] rounded-full shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center transition cursor-pointer active:scale-95">
+                        class="w-12 h-12 rounded-full shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center transition cursor-pointer active:scale-95">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="12 2 2 7 12 12 22 7 12 2"/>
                         <polyline points="2 17 12 22 22 17"/>
@@ -207,7 +208,7 @@
                         @click="recenterToUser()"
                         title="Pusatkan ke posisi GPS saya"
                         aria-label="Pusatkan ke posisi GPS saya"
-                        class="w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                        class="w-12 h-12 rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="7"/>
                         <circle cx="12" cy="12" r="2"/>
@@ -220,10 +221,10 @@
 
                 <!-- 3. Filter Sliders Button -->
                 <button type="button"
-                        @click="filterPopoverOpen = !filterPopoverOpen; radiusMenuOpen = false"
+                        @click.stop="filterPopoverOpen = !filterPopoverOpen; radiusMenuOpen = false"
                         title="Filter laporan sekitar"
                         aria-label="Filter laporan sekitar"
-                        class="relative w-[46px] h-[46px] rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
+                        class="relative w-12 h-12 rounded-full bg-white hover:bg-[#F3F7F8] shadow-[0_8px_24px_rgba(23,50,77,0.14)] flex items-center justify-center text-[#17324D] hover:text-[#16A6D8] transition cursor-pointer active:scale-95">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="4" x2="10" y1="8" y2="8"/>
                         <line x1="14" x2="20" y1="8" y2="8"/>
@@ -233,7 +234,7 @@
                         <circle cx="16" cy="16" r="2"/>
                     </svg>
                     <span x-show="filters.status !== 'all' || filters.category !== 'all'"
-                          class="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-[#16A6D8] ring-2 ring-white"></span>
+                          class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-[#16A6D8] ring-2 ring-white"></span>
                 </button>
             </div>
         </div>
@@ -242,7 +243,7 @@
         <div x-show="filterPopoverOpen"
              x-transition
              @click.outside="filterPopoverOpen = false"
-             class="absolute top-[70px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[350px] z-30 bg-white rounded-[26px] p-4 sm:p-5 shadow-[0_16px_40px_rgba(23,50,77,0.18)] border border-[#E6EEF2] space-y-4">
+             class="absolute top-[70px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[350px] z-30 bg-white rounded-2xl p-4 sm:p-5 shadow-[0_16px_40px_rgba(23,50,77,0.18)] border border-[#E6EEF2] space-y-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-extrabold text-[#17324D]">Filter Laporan Peta</h3>
                 <button type="button"
@@ -256,35 +257,35 @@
             <!-- Status Chips -->
             <div>
                 <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Status Laporan</p>
-                <div class="flex flex-wrap gap-1.5">
+                <div class="flex flex-wrap gap-2">
                     <button type="button"
                             @click="setStatusFilter('all')"
                             :class="filters.status === 'all' ? 'bg-[#17324D] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Semua
                     </button>
                     <button type="button"
                             @click="setStatusFilter('baru')"
                             :class="filters.status === 'baru' ? 'bg-[#16A6D8] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Belum diproses
                     </button>
                     <button type="button"
                             @click="setStatusFilter('ditugaskan')"
                             :class="filters.status === 'ditugaskan' ? 'bg-[#7966D9] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Ditugaskan
                     </button>
                     <button type="button"
                             @click="setStatusFilter('diproses')"
                             :class="filters.status === 'diproses' ? 'bg-[#F5B82E] text-[#17324D]' : 'bg-[#F3F7F8] text-[#17324D]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Diproses
                     </button>
                     <button type="button"
                             @click="setStatusFilter('selesai')"
                             :class="filters.status === 'selesai' ? 'bg-[#278653] text-white' : 'bg-[#F3F7F8] text-[#17324D]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Selesai
                     </button>
                 </div>
@@ -293,18 +294,18 @@
             <!-- Category Chips -->
             <div>
                 <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Kategori Masalah</p>
-                <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                     <button type="button"
                             @click="setCategoryFilter('all')"
                             :class="filters.category === 'all' ? 'bg-[#DFF5FC] text-[#0D8BB8] ring-1 ring-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482]'"
-                            class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                            class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                         Semua Kategori
                     </button>
                     @foreach($categories as $category)
                         <button type="button"
                                 @click="setCategoryFilter('{{ $category->slug }}')"
                                 :class="filters.category === '{{ $category->slug }}' ? 'bg-[#DFF5FC] text-[#0D8BB8] ring-1 ring-[#16A6D8]' : 'bg-[#F3F7F8] text-[#617482]'"
-                                class="px-3 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer">
+                                class="min-h-[32px] px-3 py-1 rounded-full text-xs font-extrabold transition cursor-pointer">
                             {{ $category->name }}
                         </button>
                     @endforeach
@@ -313,10 +314,16 @@
 
             <button type="button"
                     @click="filterPopoverOpen = false"
-                    class="w-full min-h-[42px] rounded-full bg-[#16A6D8] text-white text-xs font-extrabold cursor-pointer">
+                    class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold cursor-pointer transition active:scale-[0.99]">
                 Terapkan Filter
             </button>
         </div>
+
+        <!-- Transparent Backdrop to close callout when clicking outside on the map -->
+        <div x-show="selectedReport && activeMobileTab === 'peta'"
+             @click="closeSelectedReport()"
+             class="absolute inset-0 z-[15] bg-transparent"
+             aria-hidden="true"></div>
 
         <!-- ================================================================= -->
         <!-- CENTER FLOATING CALLOUT POPOVER CARD (Matches Reference Image!)   -->
@@ -327,17 +334,17 @@
              x-transition:enter-end="opacity-100 translate-y-0 scale-100"
              class="absolute top-[16%] sm:top-[18%] inset-x-4 max-w-[348px] mx-auto z-20 pointer-events-auto">
             <template x-if="selectedReport">
-                <div class="bg-white rounded-[26px] p-4 shadow-[0_16px_40px_rgba(23,50,77,0.16)] border border-white relative lt-callout-card">
+                <div class="bg-white rounded-2xl p-4 shadow-[0_16px_40px_rgba(23,50,77,0.16)] border border-white relative lt-callout-card">
                     <!-- Top Content: Left Square Photo + Right Metadata -->
                     <div class="flex items-center gap-3.5">
                         <template x-if="selectedReport.photo_url">
                             <img :src="selectedReport.photo_url"
                                  x-on:error="selectedReport.photo_url = null"
                                  :alt="selectedReport.title"
-                                 class="w-[72px] h-[72px] rounded-[18px] object-cover shrink-0 bg-[#F3F7F8]">
+                                 class="w-[72px] h-[72px] rounded-xl object-cover shrink-0 bg-[#F3F7F8]">
                         </template>
                         <template x-if="!selectedReport.photo_url">
-                            <div class="w-[72px] h-[72px] rounded-[18px] flex items-center justify-center text-white font-extrabold text-lg shrink-0"
+                            <div class="w-[72px] h-[72px] rounded-xl flex items-center justify-center text-white font-extrabold text-lg shrink-0"
                                  :style="`background-color: ${selectedReport.status_color}`"
                                  x-text="selectedReport.category_name.slice(0, 2)"></div>
                         </template>
@@ -362,24 +369,64 @@
 
                             <!-- Location Pin Row -->
                             <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#617482]">
-                                <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                                    <circle cx="12" cy="10" r="3"/>
-                                </svg>
+                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-[#617482]" />
                                 <span class="truncate" x-text="selectedReport.location_label"></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bottom Dual Pill Action Buttons (Matches "Next time" & "Going" in Reference) -->
-                    <div class="mt-4 grid grid-cols-2 gap-2.5">
+                    <!-- SLA & Community Support Row -->
+                    <div class="mt-2.5 pt-2.5 border-t border-[#F3F7F8] flex items-center justify-between text-xs font-bold text-[#617482]">
+                        <span class="inline-flex items-center gap-1.5"
+                              :class="selectedReport.is_overdue ? 'text-[#9B1C1C]' : 'text-[#617482]'">
+                            <template x-if="selectedReport.is_overdue">
+                                <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-[#9B1C1C]" stroke-width="2.2" />
+                            </template>
+                            <template x-if="!selectedReport.is_overdue">
+                                <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-[#617482]" stroke-width="2" />
+                            </template>
+                            <span x-text="selectedReport.sla_badge_label"></span>
+                        </span>
+                        <template x-if="selectedReport.supports_count > 0">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/30">
+                                <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2" />
+                                <span class="tabular-nums" x-text="selectedReport.supports_count + ' Warga'"></span>
+                            </span>
+                        </template>
+                    </div>
+
+                    <!-- Tombol "Saya Juga Mengalami Ini" -->
+                    <div class="mt-2.5">
                         <button type="button"
-                                @click="selectedReport = null"
-                                class="min-h-[44px] px-4 py-2 rounded-full border border-[#D7E1E5] bg-white hover:bg-[#F3F7F8] text-[#17324D] text-xs sm:text-sm font-bold transition cursor-pointer">
+                                @click.stop="toggleSupport(selectedReport)"
+                                :class="isReportSupported(selectedReport.ticket_id)
+                                    ? 'bg-[#E1F5EA] text-[#185B37] border-[#278653]/40'
+                                    : 'bg-[#DFF5FC]/70 hover:bg-[#DFF5FC] text-[#0B5E7C] border-[#16A6D8]/30'"
+                                class="w-full min-h-[40px] px-3.5 py-2 rounded-xl border text-xs font-extrabold flex items-center justify-between gap-2 transition cursor-pointer active:scale-98">
+                            <div class="flex items-center gap-1.5">
+                                <template x-if="isReportSupported(selectedReport.ticket_id)">
+                                    <x-icon name="check-circle" class="w-4 h-4 shrink-0 text-[#185B37]" stroke-width="2.2" />
+                                </template>
+                                <template x-if="!isReportSupported(selectedReport.ticket_id)">
+                                    <x-icon name="thumbs-up" class="w-4 h-4 shrink-0 text-[#0B5E7C]" stroke-width="2.2" />
+                                </template>
+                                <span x-text="isReportSupported(selectedReport.ticket_id) ? 'Didukung' : 'Saya Juga Mengalami Ini'"></span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold tabular-nums whitespace-nowrap"
+                                  :class="isReportSupported(selectedReport.ticket_id) ? 'bg-[#278653]/15 text-[#185B37]' : 'bg-[#16A6D8]/15 text-[#0B5E7C]'"
+                                  x-text="(selectedReport.supports_count || 0)"></span>
+                        </button>
+                    </div>
+
+                    <!-- Bottom Dual Action Buttons -->
+                    <div class="mt-3.5 grid grid-cols-2 gap-2.5">
+                        <button type="button"
+                                @click="closeSelectedReport()"
+                                class="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-surface hover:bg-canvas text-navy text-xs sm:text-sm font-bold transition cursor-pointer active:scale-[0.99]">
                             Tutup
                         </button>
                         <a :href="selectedReport.track_url"
-                           class="min-h-[44px] px-4 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs sm:text-sm font-extrabold shadow-[0_6px_16px_rgba(22,166,216,0.34)] flex items-center justify-center transition">
+                           class="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-extrabold shadow-[0_4px_14px_rgba(22,166,216,0.3)] flex items-center justify-center transition active:scale-[0.99]">
                             Lihat detail
                         </a>
                     </div>
@@ -396,8 +443,8 @@
             <!-- Loading Skeleton Card -->
             <template x-if="isLoadingNearby">
                 <div class="px-4 pointer-events-auto">
-                    <div class="w-[85%] bg-white rounded-[22px] p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 animate-pulse">
-                        <div class="w-16 h-16 rounded-2xl bg-[#D7E1E5] shrink-0"></div>
+                    <div class="w-[85%] bg-white rounded-2xl p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 animate-pulse">
+                        <div class="w-16 h-16 rounded-xl bg-[#D7E1E5] shrink-0"></div>
                         <div class="flex-1 space-y-2">
                             <div class="h-4 w-3/4 bg-[#D7E1E5] rounded"></div>
                             <div class="h-3 w-1/2 bg-[#F3F7F8] rounded"></div>
@@ -410,15 +457,16 @@
             <!-- Empty State Compact Floating Card -->
             <template x-if="!isLoadingNearby && reports.length === 0">
                 <div class="px-4 pointer-events-auto">
-                    <div class="bg-white rounded-[22px] p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center justify-between gap-3">
+                    <div class="bg-white rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <p class="text-sm font-extrabold text-[#17324D] truncate">Belum ada laporan di radius ini</p>
                             <p class="text-xs text-[#617482] font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
                         </div>
                         <button type="button"
                                 @click="openCreateReportModal()"
-                                class="min-h-[40px] px-3.5 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs font-extrabold shrink-0 cursor-pointer transition">
-                            ＋ Lapor
+                                class="min-h-[40px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold shrink-0 cursor-pointer inline-flex items-center gap-1 transition active:scale-[0.99]">
+                            <x-icon name="plus" class="w-3.5 h-3.5" stroke-width="2.2" />
+                            <span>Lapor</span>
                         </button>
                     </div>
                 </div>
@@ -430,16 +478,16 @@
                     <template x-for="report in reports" :key="'mob-card-' + report.id">
                         <article @click="focusReportOnMap(report)"
                                  :class="selectedReport && selectedReport.id === report.id ? 'ring-2 ring-[#16A6D8]' : ''"
-                                 class="w-[84%] max-w-[330px] shrink-0 snap-start bg-white rounded-[22px] p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 cursor-pointer transition active:scale-[0.99]">
+                                 class="lt-report-card w-[84%] max-w-[330px] shrink-0 snap-start bg-white rounded-2xl p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 cursor-pointer transition active:scale-[0.99]">
                             <!-- Square Rounded Photo Thumbnail -->
                             <template x-if="report.photo_url">
                                 <img :src="report.photo_url"
                                      x-on:error="report.photo_url = null"
                                      :alt="report.title"
-                                     class="w-16 h-16 rounded-[16px] object-cover shrink-0 bg-[#F3F7F8]">
+                                     class="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#F3F7F8]">
                             </template>
                             <template x-if="!report.photo_url">
-                                <div class="w-16 h-16 rounded-[16px] flex items-center justify-center text-white font-extrabold shrink-0"
+                                <div class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-extrabold shrink-0"
                                      :style="`background-color: ${report.status_color}`"
                                      x-text="report.category_name.slice(0, 2)"></div>
                             </template>
@@ -449,10 +497,7 @@
                                 <h3 class="text-[15px] font-extrabold text-[#17324D] truncate" x-text="report.title"></h3>
 
                                 <p class="mt-0.5 flex items-center gap-1 text-xs text-[#617482] font-semibold truncate">
-                                    <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                                        <circle cx="12" cy="10" r="3"/>
-                                    </svg>
+                                    <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-[#617482]" />
                                     <span class="truncate" x-text="report.location_label"></span>
                                 </p>
 
@@ -461,6 +506,12 @@
                                     <span class="font-extrabold text-[#17324D]" x-text="report.status_label"></span>
                                     <span>•</span>
                                     <span class="font-extrabold text-[#0D8BB8] tabular-nums" x-text="report.distance_label"></span>
+                                    <template x-if="report.supports_count > 0">
+                                        <span class="ml-auto inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FEF5DC] text-[#8A5D00] shrink-0 border border-[#F5B82E]/30">
+                                            <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2" />
+                                            <span class="tabular-nums" x-text="report.supports_count"></span>
+                                        </span>
+                                    </template>
                                 </div>
                             </div>
                         </article>
@@ -480,7 +531,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="translate-y-0"
          x-transition:leave-end="translate-y-full"
-         class="lg:hidden fixed inset-x-0 top-12 bottom-[74px] z-30 bg-white rounded-t-[28px] shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-[#E6EEF2] flex flex-col overflow-hidden">
+         class="lg:hidden fixed inset-x-0 top-12 bottom-[72px] z-30 bg-white rounded-t-2xl shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-[#E6EEF2] flex flex-col overflow-hidden">
         <div class="p-4 border-b border-[#E6EEF2] flex items-center justify-between">
             <div>
                 <h2 class="text-lg font-extrabold text-[#17324D] flex items-center gap-2">
@@ -489,20 +540,21 @@
                           x-text="reports.length"></span>
                 </h2>
                 <p class="text-xs text-[#617482] font-semibold">
-                    Radius <span class="font-extrabold text-[#17324D] tabular-nums" x-text="filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km'"></span> • Ketuk kartu untuk lihat di peta
+                    Radius <span class="font-extrabold text-[#17324D] tabular-nums" x-text="formatRadius(filters.radius)"></span> • Ketuk kartu untuk lihat di peta
                 </p>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button"
                         x-show="filters.status !== 'all' || filters.category !== 'all'"
                         @click="setStatusFilter('all'); setCategoryFilter('all')"
-                        class="min-h-[38px] px-3 py-1.5 rounded-full bg-[#DFF5FC] text-xs font-extrabold text-[#0D8BB8] cursor-pointer">
+                        class="min-h-[40px] sm:min-h-[36px] px-3 py-2 rounded-full bg-[#DFF5FC] text-xs font-extrabold text-[#0D8BB8] cursor-pointer">
                     Reset Filter
                 </button>
                 <button type="button"
                         @click="activeMobileTab = 'peta'"
-                        class="min-h-[38px] px-3.5 py-1.5 rounded-full bg-[#F3F7F8] text-xs font-extrabold text-[#17324D] cursor-pointer">
-                    Tutup ✕
+                        class="min-h-[40px] sm:min-h-[36px] px-4 py-2 rounded-full bg-[#F3F7F8] text-xs font-extrabold text-[#17324D] cursor-pointer inline-flex items-center gap-1">
+                    <span>Tutup</span>
+                    <x-icon name="x" class="w-3.5 h-3.5" />
                 </button>
             </div>
         </div>
@@ -514,23 +566,24 @@
                     <p class="mt-1 text-xs text-[#617482] font-semibold">Temukan masalah fasilitas umum? Kirim laporan pertamamu sekarang.</p>
                     <button type="button"
                             @click="activeMobileTab = 'peta'; openCreateReportModal()"
-                            class="mt-3 min-h-[42px] px-4 py-2 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-xs font-extrabold cursor-pointer transition">
-                        ＋ Buat Laporan Baru
+                            class="mt-3 min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold cursor-pointer inline-flex items-center justify-center gap-1.5 transition active:scale-[0.99]">
+                        <x-icon name="plus" class="w-3.5 h-3.5" stroke-width="2.2" />
+                        <span>Buat Laporan Baru</span>
                     </button>
                 </div>
             </template>
 
             <template x-for="report in reports" :key="'drawer-item-' + report.id">
                 <article @click="activeMobileTab = 'peta'; focusReportOnMap(report)"
-                         class="p-3.5 rounded-[20px] border border-[#E6EEF2] bg-white shadow-2xs flex items-center gap-3.5 cursor-pointer">
+                         class="lt-report-card p-3.5 rounded-2xl border border-[#E6EEF2] bg-white shadow-2xs flex items-center gap-3.5 cursor-pointer">
                     <template x-if="report.photo_url">
                         <img :src="report.photo_url"
                              x-on:error="report.photo_url = null"
                              :alt="report.title"
-                             class="w-16 h-16 rounded-2xl object-cover shrink-0 bg-[#F3F7F8]">
+                             class="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#F3F7F8]">
                     </template>
                     <template x-if="!report.photo_url">
-                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-white font-extrabold"
+                        <div class="w-16 h-16 rounded-xl flex items-center justify-center shrink-0 text-white font-extrabold"
                              :style="`background-color: ${report.status_color}`"
                              x-text="report.category_name.slice(0, 2)"></div>
                     </template>
@@ -542,8 +595,16 @@
                                   x-text="report.status_label"></span>
                         </div>
                         <h3 class="text-sm font-extrabold text-[#17324D] truncate mt-0.5" x-text="report.title"></h3>
-                        <p class="text-xs text-[#617482] font-semibold mt-0.5 truncate"
-                           x-text="report.distance_label + ' • ' + report.location_label"></p>
+                        <div class="flex items-center justify-between gap-2 mt-0.5">
+                            <p class="text-xs text-[#617482] font-semibold truncate"
+                               x-text="report.distance_label + ' • ' + report.location_label"></p>
+                            <template x-if="report.supports_count > 0">
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FEF5DC] text-[#8A5D00] shrink-0 border border-[#F5B82E]/30">
+                                    <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2" />
+                                    <span class="tabular-nums" x-text="report.supports_count"></span>
+                                </span>
+                            </template>
+                        </div>
                     </div>
                 </article>
             </template>
@@ -554,15 +615,15 @@
     <!-- MOBILE BOTTOM NAVIGATION BAR + RAISED "+" BUTTON (Matches Reference!) -->
     <!-- ===================================================================== -->
     <nav aria-label="Navigasi Bawah Mobile"
-         class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white rounded-t-[26px] shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-[#E6EEF2] px-3 pb-[env(safe-area-inset-bottom)]">
-        <div class="h-[74px] max-w-md mx-auto grid grid-cols-5 items-center relative">
+         class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white rounded-t-2xl shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-[#E6EEF2] px-3 pb-[env(safe-area-inset-bottom)]">
+        <div class="h-[72px] max-w-md mx-auto grid grid-cols-5 items-center relative">
             <!-- 1. Peta (Home) -->
             <button type="button"
                     @click="activeMobileTab = 'peta'"
                     :class="activeMobileTab === 'peta'
                         ? 'bg-gradient-to-b from-[#DFF5FC]/35 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold'
                         : 'text-[#617482] hover:text-[#17324D] font-bold'"
-                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition cursor-pointer">
+                    class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl transition cursor-pointer">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     <polyline points="9 22 9 12 15 12 15 22"/>
@@ -576,7 +637,7 @@
                     :class="activeMobileTab === 'sekitar'
                         ? 'bg-gradient-to-b from-[#DFF5FC]/35 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold'
                         : 'text-[#617482] hover:text-[#17324D] font-bold'"
-                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition cursor-pointer">
+                    class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl transition cursor-pointer">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.3-4.3"/>
@@ -600,7 +661,7 @@
 
             <!-- 3. Lacak Tiket -->
             <a href="{{ route('tickets.index') }}"
-               class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
+               class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     <path d="M8 10h.01"/>
@@ -612,7 +673,7 @@
 
             <!-- 4. Petugas / Admin -->
             <a href="{{ auth()->check() ? route('staff.dashboard') : route('staff.login') }}"
-               class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
+               class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl text-[#617482] hover:text-[#17324D] font-bold transition">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
@@ -637,15 +698,16 @@
                 <p class="text-xs text-[#617482] font-semibold mt-0.5">
                     <span x-text="filters.status === 'all' && filters.category === 'all' ? 'Menampilkan semua laporan dalam radius' : 'Menampilkan laporan terfilter dalam radius'"></span>
                     <span class="font-extrabold text-[#17324D] tabular-nums"
-                          x-text="filters.radius < 1000 ? filters.radius + ' m' : (filters.radius / 1000) + ' km'"></span>
+                          x-text="formatRadius(filters.radius)"></span>
                 </p>
             </div>
 
             <button type="button"
                     x-show="filters.status !== 'all' || filters.category !== 'all'"
                     @click="setStatusFilter('all'); setCategoryFilter('all')"
-                    class="min-h-[36px] px-3 py-1.5 rounded-full bg-[#DFF5FC] hover:bg-[#16A6D8] text-[#0D8BB8] hover:text-white text-xs font-extrabold transition cursor-pointer shrink-0">
-                Reset Filter ✕
+                    class="min-h-[36px] px-3 py-2 rounded-full bg-[#DFF5FC] hover:bg-[#16A6D8] text-[#0D8BB8] hover:text-white text-xs font-extrabold transition cursor-pointer shrink-0 inline-flex items-center gap-1">
+                <span>Reset Filter</span>
+                <x-icon name="x" class="w-3.5 h-3.5" />
             </button>
         </div>
 
@@ -654,7 +716,7 @@
             <template x-if="isLoadingNearby">
                 <div class="space-y-3">
                     <template x-for="i in [1, 2, 3]" :key="'desk-skel-' + i">
-                        <div class="p-4 rounded-[20px] border border-[#D7E1E5] bg-white animate-pulse space-y-2.5">
+                        <div class="p-4 rounded-2xl border border-[#D7E1E5] bg-white animate-pulse space-y-2.5">
                             <div class="flex justify-between">
                                 <div class="h-4 w-28 bg-[#D7E1E5] rounded"></div>
                                 <div class="h-5 w-20 bg-[#D7E1E5] rounded-full"></div>
@@ -667,7 +729,7 @@
             </template>
 
             <template x-if="!isLoadingNearby && reports.length === 0">
-                <div class="p-6 rounded-[20px] border border-dashed border-[#D7E1E5] bg-[#F3F7F8]/60 text-center">
+                <div class="p-6 rounded-2xl border border-dashed border-[#D7E1E5] bg-[#F3F7F8]/60 text-center">
                     <h3 class="text-base font-extrabold text-[#17324D]">Belum ada laporan pada radius ini</h3>
                     <p class="text-xs text-[#617482] font-semibold mt-1 leading-relaxed">
                         Perluas jangkauan radius atau buat laporan baru jika kamu menemukan masalah fasilitas umum di sekitarmu.
@@ -675,8 +737,9 @@
                     <div class="mt-4">
                         <button type="button"
                                 @click="openCreateReportModal()"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] text-white text-sm font-extrabold transition cursor-pointer">
-                            ＋ Buat laporan pertama di sini
+                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-sm font-extrabold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.99]">
+                            <x-icon name="plus" class="w-4 h-4" stroke-width="2.2" />
+                            <span>Buat laporan pertama di sini</span>
                         </button>
                     </div>
                 </div>
@@ -685,15 +748,15 @@
             <template x-for="report in reports" :key="'desk-card-' + report.id">
                 <article @click="focusReportOnMap(report)"
                          :class="selectedReport && selectedReport.id === report.id ? 'border-[#16A6D8] bg-[#DFF5FC]/25 ring-2 ring-[#16A6D8]/30' : 'border-[#E6EEF2] bg-white hover:border-[#16A6D8]/60'"
-                         class="p-3.5 rounded-[22px] border shadow-[0_4px_14px_rgba(23,50,77,0.05)] transition cursor-pointer flex items-center gap-3.5">
+                         class="lt-report-card p-3.5 rounded-2xl border border-[#E6EEF2] shadow-[0_4px_14px_rgba(23,50,77,0.05)] transition cursor-pointer flex items-center gap-3.5">
                     <template x-if="report.photo_url">
                         <img :src="report.photo_url"
                              x-on:error="report.photo_url = null"
                              :alt="report.title"
-                             class="w-16 h-16 rounded-[16px] object-cover shrink-0 bg-[#F3F7F8]">
+                             class="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#F3F7F8]">
                     </template>
                     <template x-if="!report.photo_url">
-                        <div class="w-16 h-16 rounded-[16px] flex items-center justify-center shrink-0 text-white font-extrabold"
+                        <div class="w-16 h-16 rounded-xl flex items-center justify-center shrink-0 text-white font-extrabold"
                              :style="`background-color: ${report.status_color}`"
                              x-text="report.category_name.slice(0, 2)"></div>
                     </template>
@@ -702,7 +765,7 @@
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-xs font-extrabold text-[#0D8BB8] truncate" x-text="report.category_name"></span>
                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0"
-                                  :style="`background-color: ${report.status_bg}; color: ${report.status_text}`"
+                                  :style="`background-color: ${report.status_color}; color: ${report.status_text}`"
                                   x-text="report.status_label"></span>
                         </div>
 
@@ -716,10 +779,17 @@
 
                         <div class="mt-2 flex items-center justify-between text-xs">
                             <span class="font-mono font-bold text-[#617482]" x-text="report.ticket_id"></span>
+                            <template x-if="report.supports_count > 0">
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/30"
+                                      title="Dukungan warga">
+                                    <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2" />
+                                    <span class="tabular-nums" x-text="report.supports_count"></span>
+                                </span>
+                            </template>
                             <a :href="report.track_url"
                                @click.stop
                                class="font-extrabold text-[#0D8BB8] hover:underline">
-                                Detail →
+                                Detail  
                             </a>
                         </div>
                     </div>
@@ -732,15 +802,16 @@
     <!-- MODAL FORMULIR PELAPORAN TANPA AKUN (Style Guide 9.4 & PRD FR-01..03) -->
     <!-- ===================================================================== -->
     <div x-show="reportModalOpen"
+         style="display: none;"
          x-transition.opacity
+         @click.self="closeCreateReportModal()"
          @keydown.escape.window="closeCreateReportModal()"
          class="fixed inset-0 z-50 bg-[#17324D]/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
          role="dialog"
          aria-modal="true"
          aria-labelledby="modal-report-title">
 
-        <div @click.outside="closeCreateReportModal()"
-             class="w-full max-w-2xl bg-white rounded-t-[28px] sm:rounded-[28px] border border-[#E6EEF2] shadow-[0_14px_40px_rgba(23,50,77,0.25)] max-h-[92dvh] flex flex-col overflow-hidden">
+        <div class="w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl border border-[#E6EEF2] shadow-[0_14px_40px_rgba(23,50,77,0.25)] max-h-[92dvh] flex flex-col overflow-hidden">
 
             <!-- Modal Header -->
             <div class="px-5 py-4 border-b border-[#E6EEF2] flex items-center justify-between bg-[#F3F7F8]">
@@ -750,9 +821,9 @@
                 </div>
                 <button type="button"
                         @click="closeCreateReportModal()"
-                        class="min-w-[44px] min-h-[44px] rounded-full hover:bg-white text-[#617482] hover:text-[#17324D] font-extrabold flex items-center justify-center cursor-pointer"
+                        class="min-w-[44px] min-h-[44px] rounded-full hover:bg-white text-[#617482] hover:text-[#17324D] font-extrabold flex items-center justify-center cursor-pointer transition"
                         aria-label="Tutup formulir laporan">
-                    ✕
+                    <x-icon name="x" class="w-5 h-5" />
                 </button>
             </div>
 
@@ -790,10 +861,11 @@
                            multiple
                            required
                            @change="handlePhotoSelection($event)"
-                           class="w-full min-h-[48px] px-3.5 py-2.5 rounded-2xl border border-dashed border-[#16A6D8] bg-[#DFF5FC]/35 text-sm font-bold text-[#17324D] file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:bg-[#16A6D8] file:text-white file:font-extrabold hover:bg-[#DFF5FC]/60 cursor-pointer">
+                           class="w-full min-h-[48px] px-4 py-2 rounded-2xl border border-dashed border-[#16A6D8] bg-[#DFF5FC]/35 text-sm font-bold text-[#17324D] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-[#16A6D8] file:text-white file:font-extrabold hover:bg-[#DFF5FC]/60 cursor-pointer">
 
-                    <p x-show="isCompressingPhotos" class="mt-2 text-xs font-bold text-[#0D8BB8]">
-                        ⏳ Mengoptimalkan ukuran foto agar cepat diunggah...
+                    <p x-show="isCompressingPhotos" class="mt-2 text-xs font-bold text-[#0D8BB8] inline-flex items-center gap-1.5">
+                        <x-icon name="clock" class="w-3.5 h-3.5 animate-spin" />
+                        <span>Mengoptimalkan ukuran foto agar cepat diunggah...</span>
                     </p>
                     <p x-show="photoError" x-text="photoError" class="mt-2 text-xs font-bold text-[#D94343]"></p>
 
@@ -821,7 +893,7 @@
                                     :class="form.categoryId === {{ $category->id }}
                                         ? 'border-2 border-[#16A6D8] bg-[#DFF5FC]/60 text-[#17324D]'
                                         : 'border border-[#D7E1E5] bg-white text-[#17324D] hover:bg-[#F3F7F8]'"
-                                    class="min-h-[54px] p-3 rounded-2xl text-left flex items-center gap-2.5 transition cursor-pointer">
+                                    class="min-h-[56px] p-3 rounded-2xl text-left flex items-center gap-2.5 transition cursor-pointer">
                                 <div class="w-9 h-9 rounded-xl bg-[#16A6D8]/15 text-[#0D8BB8] flex items-center justify-center shrink-0">
                                     <x-category-icon :icon="$category->icon" class="w-5 h-5" />
                                 </div>
@@ -845,17 +917,19 @@
                     <input type="hidden" name="longitude" :value="form.longitude">
 
                     <div id="mini-picker-map" class="w-full h-52 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
-                    <p class="mt-1.5 text-xs text-[#617482] font-semibold">
-                        💡 Geser penanda atau ketuk titik pada peta asli (bisa mode Satelit) jika masalah berada di seberang jalan.
+                    <p class="mt-1.5 text-xs text-[#617482] font-semibold inline-flex items-center gap-1.5">
+                        <x-icon name="info" class="w-3.5 h-3.5 text-[#0D8BB8] shrink-0" />
+                        <span>Geser penanda atau ketuk titik pada peta asli (bisa mode Satelit) jika masalah berada di seberang jalan.</span>
                     </p>
 
                     <div x-show="detectedStreetAddress" class="mt-2 p-2.5 rounded-xl bg-[#DFF5FC]/45 border border-[#16A6D8]/30 flex items-center justify-between gap-2 text-xs">
-                        <span class="font-bold text-[#17324D] truncate">
-                            📍 <span x-text="detectedStreetAddress"></span>
+                        <span class="font-bold text-[#17324D] truncate inline-flex items-center gap-1.5">
+                            <x-icon name="map-pin" class="w-3.5 h-3.5 text-[#0D8BB8] shrink-0" />
+                            <span x-text="detectedStreetAddress"></span>
                         </span>
                         <button type="button"
                                 @click="form.locationLabel = detectedStreetAddress"
-                                class="px-2.5 py-1 rounded-lg bg-[#16A6D8] text-white font-extrabold shrink-0 cursor-pointer">
+                                class="min-h-[32px] px-3 py-1 rounded-lg bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold shrink-0 cursor-pointer transition">
                             Pakai alamat
                         </button>
                     </div>
@@ -869,7 +943,7 @@
                                name="location_label"
                                x-model="form.locationLabel"
                                placeholder="Contoh: Depan minimarket / dekat persimpangan jalan"
-                               class="w-full min-h-[48px] px-4 py-2.5 rounded-2xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
+                               class="w-full min-h-[48px] px-4 py-2 rounded-2xl border border-[#D7E1E5] text-sm text-[#17324D] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
                     </div>
                 </div>
 
@@ -891,8 +965,9 @@
 
                 <!-- 5. Pratinjau Laporan Sekitar -->
                 <div x-show="reports.length > 0" class="p-3.5 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5]">
-                    <p class="text-xs font-extrabold text-[#17324D]">
-                        🔎 Ada <span x-text="reports.length"></span> laporan di sekitar titik kamu:
+                    <p class="text-xs font-extrabold text-[#17324D] inline-flex items-center gap-1.5">
+                        <x-icon name="search" class="w-3.5 h-3.5 text-[#0D8BB8] shrink-0" />
+                        <span>Ada <span x-text="reports.length"></span> laporan di sekitar titik kamu:</span>
                     </p>
                     <div class="mt-2 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                         <template x-for="nearbyItem in reports.slice(0, 3)" :key="'modal-near-' + nearbyItem.id">
@@ -907,15 +982,15 @@
                 </div>
 
                 <!-- 6. Tombol Kirim Laporan -->
-                <div class="pt-2 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
                     <button type="button"
                             @click="closeCreateReportModal()"
-                            class="w-full sm:w-auto min-h-[48px] px-6 py-2.5 rounded-full bg-white border border-[#D7E1E5] text-[#17324D] font-extrabold text-sm hover:bg-[#F3F7F8] cursor-pointer">
+                            class="w-full sm:w-auto min-h-[48px] px-6 py-2.5 rounded-xl bg-surface border border-border text-navy font-extrabold text-sm hover:bg-canvas cursor-pointer transition active:scale-[0.99]">
                         Batal
                     </button>
                     <button type="submit"
                             :disabled="isSubmitting || isCompressingPhotos"
-                            class="w-full sm:w-auto min-h-[48px] px-7 py-3 rounded-full bg-[#16A6D8] hover:bg-[#0D8BB8] disabled:opacity-60 text-white font-extrabold text-[15px] shadow-[0_6px_18px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
+                            class="w-full sm:w-auto min-h-[48px] px-8 py-2.5 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
                         <span x-text="isSubmitting ? 'Sedang mengirim...' : 'Kirim laporan'"></span>
                     </button>
                 </div>
@@ -944,9 +1019,12 @@
             hasInitialGpsJump: false,
             lastSearchLat: null,
             lastSearchLng: null,
+            lastSearchZoom: null,
+            lastSearchRadius: null,
             pendingFocusTicket: (urlParams.get('focus') || '').trim().toUpperCase() || null,
             pendingFocusLat: Number.isFinite(focusLatParam) ? focusLatParam : null,
             pendingFocusLng: Number.isFinite(focusLngParam) ? focusLngParam : null,
+            pendingOpenModal: window.location.hash === '#buat-laporan',
         };
 
         const distanceBetweenMeters = (lat1, lng1, lat2, lng2) => {
@@ -971,6 +1049,7 @@
             activeMapLayer: 'jalan', // 'jalan' | 'satelit' | 'terang'
             reports: [],
             selectedReport: null,
+            supportedTickets: JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]'),
             isLoadingNearby: false,
             activeMobileTab: 'peta', // 'peta' | 'sekitar'
             radiusMenuOpen: false,
@@ -982,7 +1061,7 @@
             photoPreviews: [],
             compressedFiles: [],
             filters: {
-                radius: 5000,
+                radius: 1000,
                 status: 'all',
                 category: 'all',
             },
@@ -1047,7 +1126,11 @@
                             const initialSearchLng = mapRefs.pendingFocusLng ?? this.userLng;
                             this.fetchNearbyReports(initialSearchLat, initialSearchLng);
                             this.resolveUserAreaName(this.userLat, this.userLng);
-                            if (window.location.hash === '#buat-laporan') {
+                            if (mapRefs.pendingOpenModal || window.location.hash === '#buat-laporan' || this.reportModalOpen) {
+                                mapRefs.pendingOpenModal = false;
+                                if (window.location.hash === '#buat-laporan' && window.history && window.history.replaceState) {
+                                    window.history.replaceState({}, '', window.location.pathname + window.location.search);
+                                }
                                 this.openCreateReportModal();
                             }
                         });
@@ -1078,7 +1161,7 @@
 
                 const initialLat = mapRefs.pendingFocusLat ?? this.userLat ?? -2.5489;
                 const initialLng = mapRefs.pendingFocusLng ?? this.userLng ?? 118.0149;
-                const initialZoom = (mapRefs.pendingFocusLat || this.userLat) ? 16 : 5;
+                const initialZoom = (mapRefs.pendingFocusLat || this.userLat) ? 15 : 5;
 
                 mapRefs.mapLayers = window.createRealMapLayerSet();
 
@@ -1091,8 +1174,18 @@
                     L.control.zoom({ position: 'bottomright' }).addTo(mapRefs.mainMap);
                 }
 
-                // Reload active pins around the visible map center when user pans across town
-                mapRefs.mainMap.on('moveend', () => {
+                const zoomToRadiusPreset = (zoom) => {
+                    if (zoom >= 16) {
+                        return 500;
+                    }
+                    if (zoom <= 13) {
+                        return 5000;
+                    }
+                    return 1000;
+                };
+
+                // Automatically reload active pins when panning or zooming across the map
+                const handleMapViewportChange = () => {
                     if (this.gpsState !== 'granted' || !mapRefs.mainMap) {
                         return;
                     }
@@ -1100,19 +1193,36 @@
                         mapRefs.suppressNextMoveFetch = false;
                         return;
                     }
+
                     const center = mapRefs.mainMap.getCenter();
-                    if (
-                        mapRefs.lastSearchLat !== null &&
-                        mapRefs.lastSearchLng !== null &&
-                        distanceBetweenMeters(mapRefs.lastSearchLat, mapRefs.lastSearchLng, center.lat, center.lng) < 400
-                    ) {
+                    const currentZoom = mapRefs.mainMap.getZoom();
+                    const newRadius = zoomToRadiusPreset(currentZoom);
+
+                    const zoomChanged = mapRefs.lastSearchZoom !== null && mapRefs.lastSearchZoom !== currentZoom;
+                    const thresholdMeters = Math.max(300, newRadius * 0.25);
+                    const centerMovedSignificantly = (
+                        mapRefs.lastSearchLat === null ||
+                        mapRefs.lastSearchLng === null ||
+                        distanceBetweenMeters(mapRefs.lastSearchLat, mapRefs.lastSearchLng, center.lat, center.lng) >= thresholdMeters
+                    );
+
+                    if (!zoomChanged && !centerMovedSignificantly) {
                         return;
                     }
+
+                    this.filters.radius = newRadius;
+                    if (mapRefs.radiusCircle) {
+                        mapRefs.radiusCircle.setRadius(newRadius);
+                    }
+
                     clearTimeout(mapRefs.moveTimer);
                     mapRefs.moveTimer = setTimeout(() => {
-                        this.fetchNearbyReports(center.lat, center.lng);
-                    }, 320);
-                });
+                        this.fetchNearbyReports(center.lat, center.lng, newRadius);
+                    }, 300);
+                };
+
+                mapRefs.mainMap.on('moveend', handleMapViewportChange);
+                mapRefs.mainMap.on('zoomend', handleMapViewportChange);
 
                 const refreshMapSize = () => {
                     if (mapRefs.mainMap) {
@@ -1236,15 +1346,20 @@
                 }
             },
 
-            async fetchNearbyReports(customLat = null, customLng = null) {
+            async fetchNearbyReports(customLat = null, customLng = null, customRadius = null) {
                 if (!this.userLat || !this.userLng) {
                     return;
                 }
 
                 const searchLat = customLat ?? (mapRefs.mainMap ? mapRefs.mainMap.getCenter().lat : this.userLat);
                 const searchLng = customLng ?? (mapRefs.mainMap ? mapRefs.mainMap.getCenter().lng : this.userLng);
+                const searchRadius = customRadius ?? this.filters.radius ?? 5000;
                 mapRefs.lastSearchLat = searchLat;
                 mapRefs.lastSearchLng = searchLng;
+                mapRefs.lastSearchRadius = searchRadius;
+                if (mapRefs.mainMap) {
+                    mapRefs.lastSearchZoom = mapRefs.mainMap.getZoom();
+                }
 
                 this.isLoadingNearby = true;
                 try {
@@ -1253,7 +1368,7 @@
                         lng: searchLng,
                         user_lat: this.userLat,
                         user_lng: this.userLng,
-                        radius: this.filters.radius,
+                        radius: searchRadius,
                         status: this.filters.status,
                         category: this.filters.category,
                     });
@@ -1290,7 +1405,7 @@
                         if (this.reports.length > 0) {
                             if (this.selectedReport) {
                                 const updatedSelection = this.reports.find((r) => r.id === this.selectedReport.id);
-                                this.selectedReport = updatedSelection || null;
+                                this.selectedReport = updatedSelection || this.selectedReport;
                             }
                         } else {
                             this.selectedReport = null;
@@ -1423,12 +1538,83 @@
                 mapRefs.mainMap.setView(offsetLatLng, targetZoom, { animate: true });
             },
 
+            closeSelectedReport() {
+                this.selectedReport = null;
+                document.querySelectorAll('#main-map .lt-map-pin.is-active').forEach((el) => {
+                    el.classList.remove('is-active');
+                });
+            },
+
+            isReportSupported(ticketId) {
+                return Array.isArray(this.supportedTickets) && this.supportedTickets.includes(ticketId);
+            },
+
+            async toggleSupport(report) {
+                if (!report || !report.ticket_id) {
+                    return;
+                }
+                const ticketId = report.ticket_id;
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                try {
+                    const res = await fetch(`/api/reports/${ticketId}/support`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token || '',
+                        },
+                    });
+                    const data = await res.json();
+                    if (data && data.success) {
+                        report.supports_count = data.supports_count;
+                        const inList = this.reports.find((r) => r.ticket_id === ticketId);
+                        if (inList) {
+                            inList.supports_count = data.supports_count;
+                        }
+
+                        let stored = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
+                        if (data.supported) {
+                            if (!stored.includes(ticketId)) {
+                                stored.push(ticketId);
+                            }
+                        } else {
+                            stored = stored.filter((t) => t !== ticketId);
+                        }
+                        this.supportedTickets = stored;
+                        localStorage.setItem('laportuntas_supported_tickets', JSON.stringify(stored));
+                    }
+                } catch (e) {
+                    console.error('Gagal mendukung laporan:', e);
+                }
+            },
+
+            formatRadius(meters) {
+                if (!meters) {
+                    return '1 km';
+                }
+                if (meters < 1000) {
+                    return meters + ' m';
+                }
+                return (meters / 1000) + ' km';
+            },
+
+            isRadiusMatching(r) {
+                return this.filters.radius === r;
+            },
+
             recenterToUser() {
                 if (mapRefs.mainMap && this.userLat && this.userLng) {
-                    this.selectedReport = null;
+                    this.closeSelectedReport();
                     mapRefs.suppressNextMoveFetch = true;
-                    mapRefs.mainMap.setView([this.userLat, this.userLng], 16, { animate: true });
-                    this.fetchNearbyReports(this.userLat, this.userLng);
+                    mapRefs.mainMap.setView([this.userLat, this.userLng], 15, { animate: true });
+                    const defaultRadius = 1000;
+                    this.filters.radius = defaultRadius;
+                    if (mapRefs.radiusCircle) {
+                        mapRefs.radiusCircle.setLatLng([this.userLat, this.userLng]);
+                        mapRefs.radiusCircle.setRadius(defaultRadius);
+                    }
+                    this.fetchNearbyReports(this.userLat, this.userLng, defaultRadius);
                 }
             },
 
@@ -1438,11 +1624,11 @@
                     mapRefs.radiusCircle.setRadius(meters);
                 }
                 if (mapRefs.mainMap) {
-                    const zoomMap = { 1000: 15, 5000: 14, 15000: 12 };
+                    const zoomMap = { 500: 16, 1000: 15, 5000: 13 };
                     mapRefs.suppressNextMoveFetch = true;
-                    mapRefs.mainMap.setZoom(zoomMap[meters] || 14);
+                    mapRefs.mainMap.setZoom(zoomMap[meters] || 15);
                 }
-                this.fetchNearbyReports();
+                this.fetchNearbyReports(null, null, meters);
             },
 
             setStatusFilter(status) {
@@ -1456,13 +1642,22 @@
             },
 
             openCreateReportModal() {
+                this.filterPopoverOpen = false;
+                this.radiusMenuOpen = false;
+
                 if (this.gpsState !== 'granted') {
+                    mapRefs.pendingOpenModal = true;
                     this.requestGpsLocation();
                     return;
                 }
+
                 this.reportModalOpen = true;
                 this.form.latitude = this.userLat;
                 this.form.longitude = this.userLng;
+
+                if (!this.detectedStreetAddress && this.form.latitude && this.form.longitude) {
+                    this.resolveMiniPinAddress(this.form.latitude, this.form.longitude);
+                }
 
                 this.$nextTick(() => {
                     this.initMiniPickerMap();

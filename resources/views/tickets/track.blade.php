@@ -4,23 +4,23 @@
 <div class="max-w-[960px] w-full mx-auto px-4 py-6 sm:py-10 space-y-6">
 
     <!-- Search Card (Style Guide 9.5 & PRD FR-17..20) -->
-    <section class="bg-white rounded-[24px] border border-[#D7E1E5] shadow-[0_4px_14px_rgba(23,50,77,0.08)] p-5 sm:p-7">
+    <section class="bg-surface rounded-2xl border border-border shadow-[0_4px_14px_rgba(23,50,77,0.08)] p-5 sm:p-7">
         <div class="max-w-2xl">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#DFF5FC] text-[#0D8BB8]">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-primary-soft text-primary-hover">
                 Transparansi Tanpa Login
             </span>
-            <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-[#17324D]">
+            <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-navy">
                 Lacak Status &amp; Riwayat Laporan
             </h1>
-            <p class="mt-1 text-sm text-[#617482] font-semibold">
+            <p class="mt-1 text-sm text-text-muted font-semibold">
                 Masukkan ID tiket unik yang kamu terima saat mengirim laporan. Laporan yang sudah selesai tetap tersimpan sebagai riwayat publik.
             </p>
         </div>
 
         <form action="{{ route('tickets.index') }}" method="GET" class="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="flex-1">
-                <label for="ticket-search-input" class="block text-xs font-extrabold text-[#17324D] mb-1">
-                    ID Tiket Laporan (Format: <code class="font-mono text-[#0D8BB8]">LT-XXXX-XXXX</code>)
+                <label for="ticket-search-input" class="block text-xs font-extrabold text-navy mb-1">
+                    ID Tiket Laporan (Format: <code class="font-mono text-primary-hover">LT-XXXX-XXXX</code>)
                 </label>
                 <input id="ticket-search-input"
                        type="text"
@@ -28,15 +28,12 @@
                        value="{{ $searchedId }}"
                        required
                        placeholder="Masukkan ID tiket dari bukti laporan kamu"
-                       class="w-full min-h-[48px] px-4 py-3 rounded-xl border border-[#D7E1E5] font-mono font-extrabold text-base text-[#17324D] uppercase placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:text-[#617482] focus:outline-none focus:ring-3 focus:ring-[#16A6D8]/35 focus:border-[#16A6D8]">
+                       class="w-full min-h-[48px] px-4 py-3 rounded-xl border border-border font-mono font-extrabold text-base text-navy uppercase placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:text-text-muted focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
             </div>
             <div class="sm:pt-5">
                 <button type="submit"
-                        class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.3-4.3"/>
-                    </svg>
+                        class="w-full sm:w-auto min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(22,166,216,0.35)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
+                    <x-icon name="search" class="w-5 h-5" stroke-width="2.3" />
                     <span>Cari laporan</span>
                 </button>
             </div>
@@ -45,17 +42,13 @@
 
     <!-- Error / Not Found State (Style Guide 9.10 & 10) -->
     @if($errorMessage)
-        <section class="bg-white rounded-[24px] border-2 border-[#FF6B5C] p-6 sm:p-8 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-[#FF6B5C]/15 text-[#D94343] mx-auto flex items-center justify-center mb-3">
-                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" x2="12" y1="8" y2="12"/>
-                    <line x1="12" x2="12.01" y1="16" y2="16"/>
-                </svg>
+        <section class="bg-surface rounded-2xl border-2 border-coral p-6 sm:p-8 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-coral/15 text-danger mx-auto flex items-center justify-center mb-3">
+                <x-icon name="alert-triangle" class="w-7 h-7" stroke-width="2.2" />
             </div>
-            <h2 class="text-lg sm:text-xl font-extrabold text-[#17324D]">{{ $errorMessage }}</h2>
-            <p class="mt-2 text-sm text-[#617482] max-w-lg mx-auto">
-                Pastikan seluruh huruf dan tanda hubung sesuai dengan bukti tiket yang kamu simpan (format: <code class="font-mono font-bold text-[#17324D]">LT-XXXX-XXXX</code>).
+            <h2 class="text-lg sm:text-xl font-extrabold text-navy">{{ $errorMessage }}</h2>
+            <p class="mt-2 text-sm text-text-muted max-w-lg mx-auto">
+                Pastikan seluruh huruf dan tanda hubung sesuai dengan bukti tiket yang kamu simpan (format: <code class="font-mono font-bold text-navy">LT-XXXX-XXXX</code>).
             </p>
         </section>
     @endif
@@ -67,38 +60,40 @@
             $afterPhotos = $report->media->where('type', 'after');
         @endphp
 
-        <section class="bg-white rounded-[24px] border border-[#D7E1E5] shadow-[0_4px_14px_rgba(23,50,77,0.08)] overflow-hidden">
+        <section class="bg-surface rounded-2xl border border-border shadow-[0_4px_14px_rgba(23,50,77,0.08)] overflow-hidden">
             <!-- Header Bar -->
-            <div class="p-5 sm:p-7 border-b border-[#D7E1E5] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#F3F7F8]/60">
+            <div class="p-5 sm:p-7 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-canvas/60">
                 <div>
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <span class="px-3 py-1 rounded-lg bg-[#17324D] text-white font-mono font-extrabold text-sm tabular-nums">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-navy text-white font-mono font-extrabold text-xs sm:text-sm tracking-wide shadow-xs">
                             {{ $report->ticket_id }}
                         </span>
-                        <x-status-badge :status="$report->status" />
+                        <x-status-badge :status="$report->status" size="md" />
                         @if(!$report->is_visible_on_map)
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#E9EEF1] text-[#617482]">
-                                Tidak ditampilkan di peta publik
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-[#E9EEF1] text-text-muted border border-border">
+                                <x-icon name="info" class="w-3.5 h-3.5 shrink-0" stroke-width="2.2" />
+                                <span>Tidak tampil di peta publik</span>
                             </span>
                         @else
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#DFF5FC] text-[#0D8BB8]">
-                                Tampil di peta sekitar
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-extrabold bg-primary-soft text-primary-hover border border-primary-hover/20">
+                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" stroke-width="2.2" />
+                                <span>Tampil di peta sekitar</span>
                             </span>
                         @endif
                     </div>
-                    <h2 class="mt-3 text-xl sm:text-2xl font-extrabold text-[#17324D]">
+                    <h2 class="mt-3 text-xl sm:text-2xl font-extrabold text-navy">
                         {{ $report->title }}
                     </h2>
-                    <p class="mt-1 text-xs sm:text-sm text-[#617482] font-semibold">
+                    <p class="mt-1 text-xs sm:text-sm text-text-muted font-semibold">
                         Dilaporkan {{ $report->created_at?->format('d M Y, H:i') }} WIB ({{ $report->created_at?->diffForHumans() }})
                     </p>
                 </div>
 
                 @auth
                     <a href="{{ route('staff.reports.show', $report) }}"
-                       class="min-h-[44px] px-4 py-2.5 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs font-extrabold inline-flex items-center gap-2 shrink-0">
+                       class="min-h-[44px] px-4 py-2 rounded-xl bg-navy hover:bg-primary-hover text-white text-xs font-extrabold inline-flex items-center gap-2 shrink-0 transition">
                         <span>Kelola di Panel Petugas</span>
-                        <span>→</span>
+                        <x-icon name="arrow-right" class="w-4 h-4" />
                     </a>
                 @endauth
             </div>
@@ -108,58 +103,176 @@
                 <div class="lg:col-span-7 space-y-6">
                     <!-- Metadata Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                        <div class="p-4 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5]">
-                            <p class="text-xs font-bold text-[#617482]">Kategori Masalah</p>
-                            <div class="mt-1 flex items-center gap-2 font-extrabold text-[#17324D]">
-                                <x-category-icon :icon="$report->category?->icon ?? 'map-pin'" class="w-5 h-5 text-[#0D8BB8]" />
+                        <div class="p-4 rounded-2xl bg-canvas border border-border">
+                            <p class="text-xs font-bold text-text-muted">Kategori Masalah</p>
+                            <div class="mt-1 flex items-center gap-2 font-extrabold text-navy">
+                                <x-category-icon :icon="$report->category?->icon ?? 'map-pin'" class="w-5 h-5 text-primary-hover" />
                                 <span>{{ $report->category?->name }}</span>
                             </div>
                         </div>
-                        <div class="p-4 rounded-2xl bg-[#F3F7F8] border border-[#D7E1E5]">
-                            <p class="text-xs font-bold text-[#617482]">Instansi Penangan</p>
-                            <p class="mt-1 font-extrabold text-[#17324D]">
+                        <div class="p-4 rounded-2xl bg-canvas border border-border">
+                            <p class="text-xs font-bold text-text-muted">Instansi Penangan</p>
+                            <p class="mt-1 font-extrabold text-navy">
                                 {{ $report->agency?->name ?? 'Menunggu Penugasan Instansi' }}
                             </p>
                             @if($report->assignedOfficer)
-                                <p class="text-xs text-[#0D8BB8] font-bold mt-0.5">
+                                <p class="text-xs text-primary-hover font-bold mt-0.5">
                                     Petugas: {{ $report->assignedOfficer->name }}
                                 </p>
                             @endif
                         </div>
                     </div>
 
+                    <!-- SLA Target Card -->
+                    @php
+                        $sla = $report->getSlaMeta();
+                    @endphp
+                    <div class="p-4 sm:p-5 rounded-2xl border {{ $sla['is_overdue'] ? 'bg-[#FDE8E8]/60 border-[#F98080]' : 'bg-canvas border-border' }} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="space-y-1">
+                            <p class="text-xs font-bold {{ $sla['is_overdue'] ? 'text-[#9B1C1C]' : 'text-text-muted' }}">
+                                Target Standar Waktu Penanganan (SLA)
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-extrabold text-navy text-sm">
+                                    {{ $sla['target_label'] }}
+                                </span>
+                                <span class="text-xs text-text-muted font-semibold">
+                                    (Batas target: {{ $sla['deadline_label'] }} WIB)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            @if($sla['is_overdue'])
+                                <span class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#FDE8E8] text-[#9B1C1C] border border-[#F98080] inline-flex items-center gap-1.5 whitespace-nowrap">
+                                    <x-icon name="alert-triangle" class="w-4 h-4 text-[#9B1C1C]" stroke-width="2.2" />
+                                    <span>{{ $sla['badge_label'] }}</span>
+                                </span>
+                            @else
+                                <span class="px-3 py-1.5 rounded-full text-xs font-extrabold {{ $sla['badge_type'] === 'success' ? 'bg-success-soft text-success border border-success/30' : 'bg-surface text-navy border border-border' }} inline-flex items-center gap-1.5 whitespace-nowrap">
+                                    @if($sla['badge_type'] === 'success')
+                                        <x-icon name="check-circle" class="w-4 h-4 text-success" stroke-width="2.2" />
+                                    @else
+                                        <x-icon name="clock" class="w-4 h-4 text-text-muted" stroke-width="2.2" />
+                                    @endif
+                                    <span>{{ $sla['badge_label'] }}</span>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Citizen Community Support ("Saya Juga Mengalami Ini") -->
+                    <div x-data="{
+                            ticketId: '{{ $report->ticket_id }}',
+                            supportsCount: {{ (int) ($report->supports_count ?? 0) }},
+                            isSupported: false,
+                            isLoading: false,
+                            init() {
+                                const stored = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
+                                this.isSupported = stored.includes(this.ticketId);
+                            },
+                            async toggleSupport() {
+                                if (this.isLoading) return;
+                                this.isLoading = true;
+                                const token = document.querySelector('meta[name=\'csrf-token\']')?.getAttribute('content');
+                                try {
+                                    const res = await fetch(`/api/reports/${this.ticketId}/support`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-CSRF-TOKEN': token || '',
+                                        },
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        this.supportsCount = data.supports_count;
+                                        this.isSupported = data.supported;
+                                        let stored = JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]');
+                                        if (data.supported) {
+                                            if (!stored.includes(this.ticketId)) stored.push(this.ticketId);
+                                        } else {
+                                            stored = stored.filter(t => t !== this.ticketId);
+                                        }
+                                        localStorage.setItem('laportuntas_supported_tickets', JSON.stringify(stored));
+                                    }
+                                } catch (e) {
+                                    console.error('Gagal mendukung laporan:', e);
+                                } finally {
+                                    this.isLoading = false;
+                                }
+                            }
+                         }"
+                         class="p-4 sm:p-5 rounded-2xl bg-canvas border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1.5 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <h3 class="text-sm font-extrabold text-navy">Dukungan Warga</h3>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold whitespace-nowrap transition tabular-nums"
+                                      :class="supportsCount > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-surface text-text-muted border border-border'"
+                                      x-text="supportsCount + ' Warga Mengalami Ini'">{{ (int) ($report->supports_count ?? 0) }} Warga Mengalami Ini</span>
+                            </div>
+                            <p class="text-xs text-text-muted font-normal leading-relaxed">
+                                Alami masalah serupa di lokasi ini? Beri dukungan agar tidak perlu membuat laporan duplikat dan membantu diprioritaskan petugas.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                                @click="toggleSupport()"
+                                :disabled="isLoading"
+                                :class="isSupported
+                                    ? 'bg-success-soft text-success border-success/35 hover:bg-[#d2f3e0]'
+                                    : 'bg-primary hover:bg-primary-hover text-white border-transparent shadow-[0_4px_14px_rgba(22,166,216,0.30)]'"
+                                class="min-h-[44px] px-5 py-2.5 rounded-xl border text-xs sm:text-sm font-extrabold inline-flex items-center justify-center gap-2 shrink-0 transition cursor-pointer active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap">
+                            <template x-if="isSupported">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <x-icon name="check" class="w-4 h-4 text-success" stroke-width="2.5" />
+                                    <span>Didukung</span>
+                                </span>
+                            </template>
+                            <template x-if="!isSupported">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <x-icon name="thumbs-up" class="w-4 h-4 text-white" stroke-width="2.2" />
+                                    <span>Saya Juga Mengalami Ini</span>
+                                </span>
+                            </template>
+                        </button>
+                    </div>
+
                     <!-- Description -->
                     <div>
-                        <h3 class="text-sm font-extrabold text-[#17324D] uppercase tracking-wider">Deskripsi Laporan Warga</h3>
-                        <p class="mt-2 p-4 rounded-2xl bg-[#F3F7F8] text-sm sm:text-base text-[#17324D] leading-relaxed">
+                        <h3 class="text-xs font-extrabold text-text-muted uppercase tracking-wider">Deskripsi Laporan Warga</h3>
+                        <p class="mt-2 p-4 rounded-2xl bg-canvas text-sm sm:text-base text-navy leading-relaxed">
                             {{ $report->description }}
                         </p>
                     </div>
 
                     @if($report->status === 'ditolak' && $report->rejection_reason)
-                        <div class="p-4 rounded-2xl bg-[#E9EEF1] border border-[#697782] text-sm text-[#17324D]">
-                            <p class="font-extrabold text-[#D94343]">Alasan Penolakan Laporan:</p>
+                        <div class="p-4 rounded-2xl bg-[#E9EEF1] border border-[#697782] text-sm text-navy">
+                            <p class="font-extrabold text-danger flex items-center gap-1.5">
+                                <x-icon name="x-circle" class="w-4 h-4" />
+                                <span>Alasan Penolakan Laporan:</span>
+                            </p>
                             <p class="mt-1 font-semibold">{{ $report->rejection_reason }}</p>
                         </div>
                     @endif
 
                     <!-- Before & After Photo Evidence Comparison (Style Guide 9.7) -->
                     <div class="space-y-4">
-                        <h3 class="text-sm font-extrabold text-[#17324D] uppercase tracking-wider">
+                        <h3 class="text-xs font-extrabold text-text-muted uppercase tracking-wider">
                             Dokumentasi Bukti Lapangan
                         </h3>
 
                         <div class="grid grid-cols-1 {{ $afterPhotos->isNotEmpty() ? 'sm:grid-cols-2' : '' }} gap-4">
                             <!-- Before Photos -->
                             <div class="space-y-2">
-                                <span class="inline-block px-2.5 py-1 rounded-lg bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold">
                                     Foto Sebelum (Laporan Warga)
                                 </span>
                                 <div class="grid grid-cols-1 gap-2.5">
                                     @foreach($beforePhotos as $media)
                                         <img src="{{ $media->publicUrl() }}"
                                              alt="Foto bukti laporan warga"
-                                             class="w-full h-52 object-cover rounded-2xl border border-[#D7E1E5] bg-[#F3F7F8]">
+                                             class="w-full h-52 object-cover rounded-xl border border-border bg-canvas">
                                     @endforeach
                                 </div>
                             </div>
@@ -167,14 +280,15 @@
                             <!-- After Photos (When completed by officer) -->
                             @if($afterPhotos->isNotEmpty())
                                 <div class="space-y-2">
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-[#E1F5EA] text-[#185B37] text-xs font-extrabold">
-                                        ✓ Foto Sesudah Perbaikan (Petugas)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-soft text-success text-xs font-extrabold">
+                                        <x-icon name="check-circle" class="w-3.5 h-3.5" />
+                                        <span>Foto Sesudah Perbaikan (Petugas)</span>
                                     </span>
                                     <div class="grid grid-cols-1 gap-2.5">
                                         @foreach($afterPhotos as $media)
                                             <img src="{{ $media->publicUrl() }}"
                                                  alt="Foto bukti setelah perbaikan"
-                                                 class="w-full h-52 object-cover rounded-2xl border-2 border-[#278653] bg-[#F3F7F8]">
+                                                 class="w-full h-52 object-cover rounded-xl border-2 border-[#278653] bg-canvas">
                                         @endforeach
                                     </div>
                                 </div>
@@ -185,39 +299,43 @@
                     <!-- Location Map Preview -->
                     <div>
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                            <h3 class="text-sm font-extrabold text-[#17324D] uppercase tracking-wider">Titik Lokasi Masalah</h3>
+                            <h3 class="text-xs font-extrabold text-text-muted uppercase tracking-wider">Titik Lokasi Masalah</h3>
                             <div class="flex items-center gap-3">
-                                <span class="text-xs font-mono font-bold text-[#617482] tabular-nums">
+                                <span class="text-xs font-mono font-bold text-text-muted tabular-nums">
                                     {{ number_format($report->latitude, 5) }}, {{ number_format($report->longitude, 5) }}
                                 </span>
                                 <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
                                    target="_blank"
                                    rel="noopener"
-                                   class="text-xs font-extrabold text-[#0D8BB8] hover:underline">
-                                    Google Maps ↗
+                                   class="text-xs font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
+                                    <span>Google Maps</span>
+                                    <x-icon name="external-link" class="w-3.5 h-3.5" />
                                 </a>
                             </div>
                         </div>
-                        <p class="text-xs font-bold text-[#0D8BB8] mb-2">📍 {{ $report->location_label }}</p>
-                        <div id="detail-report-map" class="w-full h-60 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-primary-hover mb-2">
+                            <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" />
+                            <span>{{ $report->location_label }}</span>
+                        </div>
+                        <div id="detail-report-map" class="w-full h-60 rounded-2xl border border-border overflow-hidden bg-[#DCE8EE]"></div>
                     </div>
                 </div>
 
                 <!-- Right Column: Vertical Status History Timeline (Style Guide 9.6) -->
                 <div class="lg:col-span-5">
-                    <div class="p-5 rounded-[20px] bg-[#F3F7F8] border border-[#D7E1E5]">
-                        <h3 class="text-base font-extrabold text-[#17324D] flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#16A6D8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="p-5 rounded-2xl bg-canvas border border-border">
+                        <h3 class="text-base font-extrabold text-navy flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                             </svg>
                             <span>Linimasa Penanganan</span>
                         </h3>
-                        <p class="text-xs text-[#617482] font-semibold mt-1">
+                        <p class="text-xs text-text-muted font-semibold mt-1">
                             Setiap perubahan status tercatat secara transparan beserta waktu dan tindak lanjutnya.
                         </p>
 
-                        <ol class="mt-5 relative border-l-2 border-[#D7E1E5] ml-3 space-y-6">
+                        <ol class="mt-5 relative border-l-2 border-border ml-3 space-y-6">
                             @foreach($report->statusHistories as $history)
                                 @php
                                     $stepMeta = \App\Models\Report::getStatusMetadata($history->to_status);
@@ -226,23 +344,23 @@
                                     <span class="absolute -left-[11px] w-5 h-5 rounded-full border-2 border-white shadow-xs flex items-center justify-center"
                                           style="background-color: {{ $stepMeta['color'] }};"></span>
 
-                                    <div class="bg-white p-3.5 rounded-2xl border border-[#D7E1E5] shadow-2xs">
+                                    <div class="bg-surface p-3.5 rounded-2xl border border-border shadow-2xs">
                                         <div class="flex items-center justify-between gap-2">
                                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold"
                                                   style="background-color: {{ $stepMeta['bg'] }}; color: {{ $stepMeta['text'] }};">
                                                 {{ $stepMeta['label'] }}
                                             </span>
-                                            <time class="text-[11px] font-bold text-[#617482] tabular-nums">
+                                            <time class="text-[11px] font-bold text-text-muted tabular-nums">
                                                 {{ $history->created_at?->format('d M Y, H:i') }}
                                             </time>
                                         </div>
 
-                                        <p class="mt-2 text-xs sm:text-sm font-bold text-[#17324D] leading-relaxed">
+                                        <p class="mt-2 text-xs sm:text-sm font-bold text-navy leading-relaxed">
                                             {{ $history->note ?: $stepMeta['description'] }}
                                         </p>
 
                                         @if($history->actor)
-                                            <p class="mt-1.5 text-[11px] font-semibold text-[#617482]">
+                                            <p class="mt-1.5 text-[11px] font-semibold text-text-muted">
                                                 Oleh: {{ $history->actor->name }}
                                             </p>
                                         @endif

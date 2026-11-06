@@ -22,8 +22,22 @@
     --color-canvas: #F3F7F8;
     --color-map: #EAF1E8;
     --color-border: #D7E1E5;
+    --color-border-soft: #E6EEF2;
     --color-text-main: #17324D;
     --color-text-muted: #617482;
+    --color-danger: #D94343;
+    --color-success: #185B37;
+    --color-success-soft: #E1F5EA;
+    --color-warning: #8A5D00;
+    --color-warning-soft: #FEF5DC;
+
+    --radius-control: 12px;
+    --radius-card: 24px;
+
+    --text-caption: 11px;
+    --text-label: 12px;
+    --text-body: 14px;
+    --text-card-title: 15px;
 
     --color-status-new: #16A6D8;
     --color-status-verified: #7966D9;

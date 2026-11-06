@@ -18,7 +18,7 @@ class ReportApiController extends Controller
             'lng' => ['required', 'numeric', 'between:-180,180'],
             'user_lat' => ['nullable', 'numeric', 'between:-90,90'],
             'user_lng' => ['nullable', 'numeric', 'between:-180,180'],
-            'radius' => ['nullable', 'integer', 'min:100', 'max:50000'],
+            'radius' => ['nullable', 'integer', 'min:100', 'max:100000'],
             'category' => ['nullable', 'string', 'max:60'],
             'status' => ['nullable', 'string', 'in:all,baru,ditugaskan,diproses,selesai'],
             'focus_ticket' => ['nullable', 'string', 'max:25'],
@@ -86,6 +86,7 @@ class ReportApiController extends Controller
             );
 
             $meta = $report->statusMeta();
+            $slaMeta = $report->getSlaMeta();
             $beforeMedia = $report->media->firstWhere('type', 'before');
             $afterMedia = $report->media->firstWhere('type', 'after');
             $primaryMedia = $report->status === Report::STATUS_SELESAI
@@ -117,6 +118,12 @@ class ReportApiController extends Controller
                 'agency_name' => $report->agency?->name ?? 'Menunggu Penugasan Instansi',
                 'agency_code' => $report->agency?->code ?? '-',
                 'photo_url' => $primaryMedia ? $primaryMedia->publicUrl() : null,
+                'supports_count' => (int) ($report->supports_count ?? 0),
+                'sla_target_label' => $slaMeta['target_label'],
+                'sla_deadline_label' => $slaMeta['deadline_label'],
+                'sla_badge_label' => $slaMeta['badge_label'],
+                'sla_badge_type' => $slaMeta['badge_type'],
+                'is_overdue' => (bool) $slaMeta['is_overdue'],
                 'updated_human' => $report->updated_at?->diffForHumans() ?? 'Baru saja',
                 'created_human' => $report->created_at?->diffForHumans() ?? 'Baru saja',
                 'track_url' => route('tickets.show', ['ticketId' => $report->ticket_id]),

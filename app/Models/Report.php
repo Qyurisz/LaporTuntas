@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'location_label',
     'status',
     'rejection_reason',
+    'supports_count',
     'is_visible_on_map',
     'reporter_ip_hash',
     'resolved_at',
@@ -33,6 +34,13 @@ class Report extends Model
     public const STATUS_DITOLAK = 'ditolak';
 
     /**
+     * Number of days a completed ('selesai') report remains visible on the public map
+     * before being automatically hidden to prevent marker clutter.
+     * The report remains permanently archived in the database and searchable via Ticket ID.
+     */
+    public const RESOLVED_MAP_RETENTION_DAYS = 7;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -42,6 +50,7 @@ class Report extends Model
         return [
             'latitude' => 'float',
             'longitude' => 'float',
+            'supports_count' => 'integer',
             'is_visible_on_map' => 'boolean',
             'resolved_at' => 'datetime',
         ];
@@ -87,18 +96,59 @@ class Report extends Model
     }
 
     /**
-     * Scope reports that are visible on the public map (all valid statuses excluding rejected).
+     * Check whether this report should be visible on the public map.
+     * Active reports (baru, ditugaskan, diproses) are visible as long as is_visible_on_map is true.
+     * Completed reports ('selesai') are only visible within the 7-day retention grace period.
+     */
+    public function isVisibleOnPublicMap(): bool
+    {
+        if (! $this->is_visible_on_map) {
+            return false;
+        }
+
+        if ($this->status === self::STATUS_DITOLAK) {
+            return false;
+        }
+
+        if ($this->status === self::STATUS_SELESAI) {
+            $resolvedDate = $this->resolved_at ?? $this->updated_at;
+            if ($resolvedDate === null) {
+                return false;
+            }
+
+            return $resolvedDate->isAfter(now()->subDays(self::RESOLVED_MAP_RETENTION_DAYS));
+        }
+
+        return true;
+    }
+
+    /**
+     * Scope reports that are visible on the public map.
+     * Reports with 'selesai' status are auto-hidden after 7 days from completion
+     * to prevent map clutter, while remaining permanently archived in the DB.
      */
     public function scopeActiveOnMap(Builder $query): Builder
     {
+        $cutoff = now()->subDays(self::RESOLVED_MAP_RETENTION_DAYS);
+
         return $query
             ->where('is_visible_on_map', true)
-            ->whereIn('status', [
-                self::STATUS_BARU,
-                self::STATUS_DITUGASKAN,
-                self::STATUS_DIPROSES,
-                self::STATUS_SELESAI,
-            ]);
+            ->where(function (Builder $q) use ($cutoff): void {
+                $q->whereIn('status', [
+                    self::STATUS_BARU,
+                    self::STATUS_DITUGASKAN,
+                    self::STATUS_DIPROSES,
+                ])->orWhere(function (Builder $sub) use ($cutoff): void {
+                    $sub->where('status', self::STATUS_SELESAI)
+                        ->where(function (Builder $dateQuery) use ($cutoff): void {
+                            $dateQuery->where('resolved_at', '>=', $cutoff)
+                                ->orWhere(function (Builder $nullResolved) use ($cutoff): void {
+                                    $nullResolved->whereNull('resolved_at')
+                                        ->where('updated_at', '>=', $cutoff);
+                                });
+                        });
+                });
+            });
     }
 
     /**
@@ -148,11 +198,174 @@ class Report extends Model
     }
 
     /**
+     * Get citizen community supports for this report.
+     */
+    public function supports(): HasMany
+    {
+        return $this->hasMany(ReportSupport::class);
+    }
+
+    /**
      * Get the status change timeline histories ordered chronologically.
      */
     public function statusHistories(): HasMany
     {
         return $this->hasMany(StatusHistory::class)->orderBy('created_at')->orderBy('id');
+    }
+
+    /**
+     * Get SLA target hours for this report based on its category (fallback 72 hours).
+     */
+    public function getSlaHours(): int
+    {
+        return (int) ($this->category?->sla_hours ?? 72);
+    }
+
+    /**
+     * Get the SLA completion deadline datetime.
+     */
+    public function getSlaDeadline(): \Carbon\CarbonInterface
+    {
+        return $this->created_at ? $this->created_at->copy()->addHours($this->getSlaHours()) : now();
+    }
+
+    /**
+     * Determine whether an active report has exceeded its SLA resolution deadline.
+     * Resolved or rejected reports are not actively overdue.
+     */
+    public function isOverdue(): bool
+    {
+        if (in_array($this->status, [self::STATUS_SELESAI, self::STATUS_DITOLAK], true)) {
+            return false;
+        }
+
+        return now()->isAfter($this->getSlaDeadline());
+    }
+
+    /**
+     * For resolved reports, check whether it was resolved overdue.
+     */
+    public function wasResolvedOverdue(): ?bool
+    {
+        if ($this->status !== self::STATUS_SELESAI) {
+            return null;
+        }
+
+        $resolvedAt = $this->resolved_at ?? $this->updated_at;
+        if (! $resolvedAt) {
+            return false;
+        }
+
+        return $resolvedAt->isAfter($this->getSlaDeadline());
+    }
+
+    /**
+     * Get SLA metadata including remaining time, deadline, and human labels.
+     *
+     * @return array{target_hours: int, target_label: string, deadline: \Carbon\CarbonInterface, deadline_label: string, is_overdue: bool, badge_label: string, badge_type: string}
+     */
+    public function getSlaMeta(): array
+    {
+        $targetHours = $this->getSlaHours();
+        $targetDays = $targetHours >= 24 && $targetHours % 24 === 0 ? ($targetHours / 24) . ' hari' : "{$targetHours} jam";
+        $deadline = $this->getSlaDeadline();
+        $deadlineLabel = $deadline->translatedFormat('d M Y, H:i');
+
+        if ($this->status === self::STATUS_SELESAI) {
+            $overdue = $this->wasResolvedOverdue();
+            return [
+                'target_hours' => $targetHours,
+                'target_label' => $targetDays,
+                'deadline' => $deadline,
+                'deadline_label' => $deadlineLabel,
+                'is_overdue' => false,
+                'badge_label' => $overdue ? 'Selesai (Terlambat SLA)' : 'Selesai tepat waktu',
+                'badge_type' => $overdue ? 'warning' : 'success',
+            ];
+        }
+
+        if ($this->status === self::STATUS_DITOLAK) {
+            return [
+                'target_hours' => $targetHours,
+                'target_label' => $targetDays,
+                'deadline' => $deadline,
+                'deadline_label' => $deadlineLabel,
+                'is_overdue' => false,
+                'badge_label' => 'Ditolak',
+                'badge_type' => 'neutral',
+            ];
+        }
+
+        $now = now();
+        $isOverdue = $now->isAfter($deadline);
+
+        if ($isOverdue) {
+            $diffHours = (int) $deadline->diffInHours($now);
+            $diffDays = (int) $deadline->diffInDays($now);
+            $lateText = $diffDays >= 1 ? "Terlambat {$diffDays} hari" : "Terlambat {$diffHours} jam";
+
+            return [
+                'target_hours' => $targetHours,
+                'target_label' => $targetDays,
+                'deadline' => $deadline,
+                'deadline_label' => $deadlineLabel,
+                'is_overdue' => true,
+                'badge_label' => $lateText,
+                'badge_type' => 'danger',
+            ];
+        }
+
+        $remainingHours = (int) $now->diffInHours($deadline, false);
+        $remainingDays = (int) $now->diffInDays($deadline, false);
+        $remainingText = $remainingDays >= 1 ? "Sisa {$remainingDays} hari" : "Sisa {$remainingHours} jam";
+
+        return [
+            'target_hours' => $targetHours,
+            'target_label' => $targetDays,
+            'deadline' => $deadline,
+            'deadline_label' => $deadlineLabel,
+            'is_overdue' => false,
+            'badge_label' => $remainingText,
+            'badge_type' => $remainingHours <= 12 ? 'warning' : 'info',
+        ];
+    }
+
+    /**
+     * Scope query to find active reports that have exceeded their SLA resolution deadline.
+     */
+    public function scopeOverdue(Builder $query): Builder
+    {
+        static $cachedCategories = null;
+        if ($cachedCategories === null || app()->runningUnitTests()) {
+            $cachedCategories = Category::query()->get(['id', 'sla_hours']);
+        }
+
+        return $query
+            ->whereIn('status', [
+                self::STATUS_BARU,
+                self::STATUS_DITUGASKAN,
+                self::STATUS_DIPROSES,
+            ])
+            ->where(function (Builder $q) use ($cachedCategories): void {
+                if ($cachedCategories->isEmpty()) {
+                    $q->where('created_at', '<', now()->subHours(72));
+                    return;
+                }
+
+                foreach ($cachedCategories as $index => $cat) {
+                    $cutoff = now()->subHours((int) ($cat->sla_hours ?? 72));
+                    $closure = function (Builder $sub) use ($cat, $cutoff): void {
+                        $sub->where('category_id', $cat->id)
+                            ->where('created_at', '<', $cutoff);
+                    };
+
+                    if ($index === 0) {
+                        $q->where($closure);
+                    } else {
+                        $q->orWhere($closure);
+                    }
+                }
+            });
     }
 
     /**

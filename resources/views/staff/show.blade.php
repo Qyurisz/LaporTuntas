@@ -6,31 +6,41 @@
     <!-- Breadcrumb & Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <a href="{{ route('staff.dashboard') }}" class="text-xs font-extrabold text-[#0D8BB8] hover:underline inline-flex items-center gap-1">
-                <span>← Kembali ke Daftar Tugas</span>
+            <a href="{{ route('staff.dashboard') }}" class="text-xs font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1.5">
+                <x-icon name="arrow-left" class="w-3.5 h-3.5" />
+                <span>Kembali ke Daftar Tugas</span>
             </a>
             <div class="mt-2 flex flex-wrap items-center gap-2.5">
-                <span class="px-3 py-1 rounded-lg bg-[#17324D] text-white font-mono font-extrabold text-sm tabular-nums">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-navy text-white font-mono font-extrabold text-xs sm:text-sm tracking-wide shadow-xs">
                     {{ $report->ticket_id }}
                 </span>
-                <x-status-badge :status="$report->status" />
-                <span class="text-xs font-bold {{ $report->is_visible_on_map ? 'text-[#0D8BB8]' : 'text-[#617482]' }}">
-                    {{ $report->is_visible_on_map ? '● Tampil di Peta Publik' : '○ Disembunyikan dari Peta Publik' }}
+                <x-status-badge :status="$report->status" size="md" />
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $report->isVisibleOnPublicMap() ? 'bg-primary-soft text-primary-hover border border-primary-hover/20' : 'bg-canvas text-text-muted border border-border' }}">
+                    @if($report->isVisibleOnPublicMap())
+                        <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" stroke-width="2.2" />
+                        <span>Tampil di Peta Publik</span>
+                    @elseif($report->status === \App\Models\Report::STATUS_SELESAI)
+                        <x-icon name="clock" class="w-3.5 h-3.5 shrink-0" stroke-width="2" />
+                        <span>Diarsipkan dari Peta (> 7 hari)</span>
+                    @else
+                        <x-icon name="info" class="w-3.5 h-3.5 shrink-0" stroke-width="2" />
+                        <span>Disembunyikan dari Peta Publik</span>
+                    @endif
                 </span>
             </div>
-            <h1 class="mt-2 text-xl sm:text-2xl font-extrabold text-[#17324D]">{{ $report->title }}</h1>
+            <h1 class="mt-2 text-xl sm:text-2xl font-extrabold text-navy">{{ $report->title }}</h1>
         </div>
 
         <a href="{{ route('tickets.show', ['ticketId' => $report->ticket_id]) }}"
            target="_blank"
-           class="min-h-[44px] px-4 py-2.5 rounded-xl bg-white border border-[#D7E1E5] hover:bg-[#F3F7F8] text-[#17324D] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0">
+           class="min-h-[44px] px-4 py-2 rounded-xl bg-surface border border-border hover:bg-canvas text-navy text-xs font-extrabold inline-flex items-center gap-2 shrink-0 transition">
             <span>Lihat Halaman Publik Warga</span>
-            <span>↗</span>
+            <x-icon name="external-link" class="w-4 h-4 text-text-muted" />
         </a>
     </div>
 
     @if($errors->any())
-        <div class="p-4 rounded-2xl bg-[#FF6B5C]/15 border border-[#D94343] text-[#D94343] text-xs sm:text-sm font-bold">
+        <div class="p-4 rounded-2xl bg-danger/15 border border-danger text-danger text-xs sm:text-sm font-bold">
             <ul class="list-disc list-inside space-y-1">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -42,67 +52,91 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Left Column: Report Details & Photos -->
         <div class="lg:col-span-7 space-y-6">
-            <div class="bg-white rounded-[24px] border border-[#D7E1E5] p-5 sm:p-6 space-y-5">
+            <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6 space-y-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm">
-                    <div class="p-3.5 rounded-xl bg-[#F3F7F8]">
-                        <p class="text-xs font-bold text-[#617482]">Kategori</p>
-                        <p class="font-extrabold text-[#17324D] mt-0.5">{{ $report->category?->name }}</p>
+                    <div class="p-3.5 rounded-xl bg-canvas border border-border">
+                        <p class="text-xs font-bold text-text-muted">Kategori &amp; Target SLA</p>
+                        <p class="font-extrabold text-navy mt-0.5">{{ $report->category?->name }}</p>
+                        @php
+                            $sla = $report->getSlaMeta();
+                        @endphp
+                        <div class="mt-1.5 flex items-center gap-1.5">
+                            @if($sla['is_overdue'])
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FDE8E8] text-[#9B1C1C] border border-[#F98080]/50">
+                                    <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-[#9B1C1C]" stroke-width="2.2" />
+                                    <span>{{ $sla['badge_label'] }} (Batas: {{ $sla['deadline_label'] }})</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-surface text-text-muted border border-border">
+                                    <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
+                                    <span>{{ $sla['badge_label'] }} (Target: {{ $sla['target_label'] }})</span>
+                                </span>
+                            @endif
+                        </div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-[#F3F7F8]">
-                        <p class="text-xs font-bold text-[#617482]">Instansi &amp; Petugas</p>
-                        <p class="font-extrabold text-[#17324D] mt-0.5">{{ $report->agency?->name ?? 'Belum ditugaskan' }}</p>
-                        @if($report->assignedOfficer)
-                            <p class="text-xs font-bold text-[#0D8BB8]">{{ $report->assignedOfficer->name }}</p>
-                        @endif
+                    <div class="p-3.5 rounded-xl bg-canvas border border-border">
+                        <p class="text-xs font-bold text-text-muted">Instansi &amp; Dukungan Warga</p>
+                        <p class="font-extrabold text-navy mt-0.5">{{ $report->agency?->name ?? 'Belum ditugaskan' }}</p>
+                        <div class="mt-1.5 flex items-center gap-2">
+                            @if($report->assignedOfficer)
+                                <p class="text-xs font-bold text-primary-hover">{{ $report->assignedOfficer->name }}</p>
+                            @endif
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $report->supports_count > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-surface text-text-muted border border-border' }}">
+                                <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2.2" />
+                                <span>{{ $report->supports_count ?? 0 }} Dukungan Warga</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#617482]">Deskripsi Masalah</h2>
-                    <p class="mt-1.5 p-4 rounded-2xl bg-[#F3F7F8] text-sm font-semibold text-[#17324D] leading-relaxed">
+                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-text-muted">Deskripsi Masalah</h2>
+                    <p class="mt-1.5 p-4 rounded-2xl bg-canvas text-sm font-semibold text-navy leading-relaxed">
                         {{ $report->description }}
                     </p>
                 </div>
 
                 <div>
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#617482]">Titik GPS Lokasi Masalah</h2>
+                        <h2 class="text-xs font-extrabold uppercase tracking-wider text-text-muted">Titik GPS Lokasi Masalah</h2>
                         <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
                            target="_blank"
                            rel="noopener"
-                           class="text-xs font-extrabold text-[#0D8BB8] hover:underline">
-                            Buka Navigasi Google Maps ↗
+                           class="text-xs font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
+                            <span>Buka Navigasi Google Maps</span>
+                            <x-icon name="external-link" class="w-3 h-3" />
                         </a>
                     </div>
-                    <p class="text-xs font-bold text-[#0D8BB8] mb-2">
-                        📍 {{ $report->location_label }} ({{ number_format($report->latitude, 6) }}, {{ number_format($report->longitude, 6) }})
+                    <p class="text-xs font-bold text-primary-hover mb-2 inline-flex items-center gap-1">
+                        <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" />
+                        <span>{{ $report->location_label }} ({{ number_format($report->latitude, 6) }}, {{ number_format($report->longitude, 6) }})</span>
                     </p>
-                    <div id="staff-report-map" class="w-full h-60 rounded-2xl border border-[#D7E1E5] overflow-hidden bg-[#DCE8EE]"></div>
+                    <div id="staff-report-map" class="w-full h-60 rounded-2xl border border-border overflow-hidden bg-canvas"></div>
                 </div>
 
                 <!-- Media Evidence -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <span class="inline-block px-2.5 py-1 rounded-lg bg-[#DFF5FC] text-[#0D8BB8] text-xs font-extrabold mb-2">
+                        <span class="inline-block px-2.5 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold mb-2">
                             Foto Sebelum (Warga)
                         </span>
                         @foreach($report->media->where('type', 'before') as $media)
                             <img src="{{ $media->publicUrl() }}"
                                  alt="Foto bukti sebelum perbaikan"
-                                 class="w-full h-48 object-cover rounded-2xl border border-[#D7E1E5] mb-2">
+                                 class="w-full h-48 object-cover rounded-2xl border border-border mb-2">
                         @endforeach
                     </div>
 
                     <div>
-                        <span class="inline-block px-2.5 py-1 rounded-lg bg-[#E1F5EA] text-[#185B37] text-xs font-extrabold mb-2">
+                        <span class="inline-block px-2.5 py-1 rounded-full bg-success-soft text-success text-xs font-extrabold mb-2">
                             Foto Sesudah Perbaikan (Petugas)
                         </span>
                         @forelse($report->media->where('type', 'after') as $media)
                             <img src="{{ $media->publicUrl() }}"
                                  alt="Foto setelah perbaikan"
-                                 class="w-full h-48 object-cover rounded-2xl border-2 border-[#278653] mb-2">
+                                 class="w-full h-48 object-cover rounded-2xl border-2 border-success mb-2">
                         @empty
-                            <div class="h-48 rounded-2xl border border-dashed border-[#D7E1E5] bg-[#F3F7F8] flex items-center justify-center p-4 text-center text-xs font-semibold text-[#617482]">
+                            <div class="h-48 rounded-2xl border border-dashed border-border bg-canvas flex items-center justify-center p-4 text-center text-xs font-semibold text-text-muted">
                                 Belum ada foto bukti perbaikan yang diunggah petugas.
                             </div>
                         @endforelse
@@ -115,11 +149,11 @@
         <div class="lg:col-span-5 space-y-5">
 
             <!-- 1. Officer & Admin Operational Status Update Form (FR-22 & FR-23) -->
-            <div class="bg-white rounded-[24px] border-2 border-[#16A6D8] p-5 sm:p-6 shadow-[0_4px_14px_rgba(23,50,77,0.08)]">
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0D8BB8]">Tindakan Petugas &amp; Admin</span>
-                <h2 class="text-lg font-extrabold text-[#17324D] mt-0.5">Perbarui Status &amp; Tandai Selesai</h2>
-                <p class="text-xs text-[#617482] font-semibold mt-1">
-                    Saat ditandai <strong>Selesai</strong>, penanda pada peta publik tetap tampil berwarna hijau (Selesai) beserta bukti tindak lanjut.
+            <div class="bg-surface rounded-2xl border-2 border-primary p-5 sm:p-6 shadow-[0_4px_14px_rgba(23,50,77,0.08)]">
+                <span class="text-caption font-extrabold uppercase tracking-wider text-primary-hover">Tindakan Petugas &amp; Admin</span>
+                <h2 class="text-lg font-extrabold text-navy mt-0.5">Perbarui Status &amp; Tandai Selesai</h2>
+                <p class="text-xs text-text-muted font-semibold mt-1">
+                    Saat ditandai <strong>Selesai</strong>, penanda pada peta publik tetap tampil berwarna hijau selama masa tenggang 7 hari, lalu otomatis diarsipkan agar peta tidak menumpuk. Seluruh data tetap tersimpan permanen dan dapat dilacak kapan pun via ID tiket.
                 </p>
 
                 <form action="{{ route('staff.reports.status', $report) }}"
@@ -130,42 +164,42 @@
                     @method('PATCH')
 
                     <div>
-                        <label for="status-select" class="block text-xs font-extrabold text-[#17324D] mb-1">Pilih Status Baru</label>
+                        <label for="status-select" class="block text-xs font-extrabold text-navy mb-1">Pilih Status Baru</label>
                         <select id="status-select"
                                 name="status"
                                 required
-                                class="w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border border-[#D7E1E5] text-sm font-extrabold text-[#17324D] bg-white">
+                                class="w-full min-h-[48px] px-4 py-2 rounded-xl border border-border text-sm font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
                             <option value="ditugaskan" @selected($report->status === 'ditugaskan')>Ditugaskan ke Petugas</option>
                             <option value="diproses" @selected($report->status === 'diproses' || $report->status === 'baru')>Diproses di Lapangan</option>
-                            <option value="selesai" @selected($report->status === 'selesai')>✓ Selesai / Tuntas</option>
+                            <option value="selesai" @selected($report->status === 'selesai')>Selesai / Tuntas</option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="after-photo-input" class="block text-xs font-extrabold text-[#17324D] mb-1">
+                        <label for="after-photo-input" class="block text-xs font-extrabold text-navy mb-1">
                             Foto Bukti Setelah Perbaikan (Opsional, disarankan saat Selesai)
                         </label>
                         <input id="after-photo-input"
                                type="file"
                                name="after_photo"
                                accept="image/jpeg,image/png,image/webp"
-                               class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-dashed border-[#278653] bg-[#E1F5EA]/40 text-xs font-bold text-[#17324D] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-[#278653] file:text-white file:font-extrabold">
+                               class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-dashed border-success bg-success-soft/40 text-xs font-bold text-navy file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-success file:text-white file:font-extrabold">
                     </div>
 
                     <div>
-                        <label for="status-note" class="block text-xs font-extrabold text-[#17324D] mb-1">
-                            Catatan Tindak Lanjut Publik <span class="text-[#D94343]">*</span>
+                        <label for="status-note" class="block text-xs font-extrabold text-navy mb-1">
+                            Catatan Tindak Lanjut Publik <span class="text-danger">*</span>
                         </label>
                         <textarea id="status-note"
                                   name="note"
                                   rows="3"
                                   required
                                   placeholder="Contoh: Tim lapangan sudah menambal lubang jalan dengan hotmix dan lokasi sudah aman dilalui..."
-                                  class="w-full p-3 rounded-xl border border-[#D7E1E5] text-sm text-[#17324D]"></textarea>
+                                  class="w-full p-3 rounded-xl border border-border text-sm text-navy focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary"></textarea>
                     </div>
 
                     <button type="submit"
-                            class="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#16A6D8] hover:bg-[#0D8BB8] text-white font-extrabold text-sm shadow-[0_4px_14px_rgba(22,166,216,0.3)] transition cursor-pointer">
+                            class="w-full min-h-[44px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-sm shadow-[0_4px_14px_rgba(22,166,216,0.3)] transition cursor-pointer active:scale-[0.99]">
                         Simpan Perubahan Status
                     </button>
                 </form>
@@ -173,10 +207,10 @@
 
             <!-- 2. Admin Only: Manual Assignment & Moderation Reject (FR-22 & FR-24) -->
             @if($user->isAdmin())
-                <div class="bg-white rounded-[24px] border border-[#D7E1E5] p-5 sm:p-6 space-y-4">
+                <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6 space-y-4">
                     <div>
-                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#7966D9]">Khusus Moderator / Admin</span>
-                        <h3 class="text-base font-extrabold text-[#17324D]">Penugasan Instansi &amp; Petugas</h3>
+                        <span class="text-caption font-extrabold uppercase tracking-wider text-[#7966D9]">Khusus Moderator / Admin</span>
+                        <h3 class="text-base font-extrabold text-navy">Penugasan Instansi &amp; Petugas</h3>
                     </div>
 
                     <form action="{{ route('staff.reports.assign', $report) }}" method="POST" class="space-y-3.5">
@@ -184,11 +218,11 @@
                         @method('PATCH')
 
                         <div>
-                            <label for="agency-select" class="block text-xs font-extrabold text-[#17324D] mb-1">Instansi Berwenang</label>
+                            <label for="agency-select" class="block text-xs font-extrabold text-navy mb-1">Instansi Berwenang</label>
                             <select id="agency-select"
                                     name="agency_id"
                                     required
-                                    class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs font-extrabold text-[#17324D]">
+                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
                                 @foreach($agencies as $agency)
                                     <option value="{{ $agency->id }}" @selected($report->agency_id === $agency->id)>
                                         {{ $agency->code }} — {{ $agency->name }}
@@ -198,10 +232,10 @@
                         </div>
 
                         <div>
-                            <label for="officer-select" class="block text-xs font-extrabold text-[#17324D] mb-1">Petugas Lapangan</label>
+                            <label for="officer-select" class="block text-xs font-extrabold text-navy mb-1">Petugas Lapangan</label>
                             <select id="officer-select"
                                     name="assigned_to"
-                                    class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs font-extrabold text-[#17324D]">
+                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
                                 <option value="">-- Pilih Petugas Lapangan --</option>
                                 @foreach($officers as $officer)
                                     <option value="{{ $officer->id }}" @selected($report->assigned_to === $officer->id)>
@@ -212,26 +246,27 @@
                         </div>
 
                         <div>
-                            <label for="assign-note" class="block text-xs font-extrabold text-[#17324D] mb-1">Catatan Penugasan (Opsional)</label>
+                            <label for="assign-note" class="block text-xs font-extrabold text-navy mb-1">Catatan Penugasan (Opsional)</label>
                             <input id="assign-note"
                                    type="text"
                                    name="note"
                                    placeholder="Misal: Mohon segera ditinjau hari ini"
-                                   class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs text-[#17324D]">
+                                   class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs text-navy focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
                         </div>
 
                         <button type="submit"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs font-extrabold transition cursor-pointer">
+                                class="w-full min-h-[44px] px-4 py-2 rounded-xl bg-navy hover:bg-primary-hover text-white text-xs font-extrabold transition cursor-pointer active:scale-[0.99]">
                             Tugaskan Laporan
                         </button>
                     </form>
 
                     <!-- Reject Spam/Invalid Form -->
-                    <div class="pt-4 border-t border-[#D7E1E5]" x-data="{ showReject: false }">
+                    <div class="pt-4 border-t border-border" x-data="{ showReject: false }">
                         <button type="button"
                                 @click="showReject = !showReject"
-                                class="text-xs font-extrabold text-[#D94343] hover:underline cursor-pointer">
-                            ✕ Tolak Laporan (Spam / Tidak Valid / Di Luar Kewenangan)
+                                class="text-xs font-extrabold text-danger hover:underline inline-flex items-center gap-1.5 cursor-pointer">
+                            <x-icon name="x-circle" class="w-3.5 h-3.5" />
+                            <span>Tolak Laporan (Spam / Tidak Valid / Di Luar Kewenangan)</span>
                         </button>
 
                         <form x-show="showReject"
@@ -242,7 +277,7 @@
                             @csrf
                             @method('PATCH')
                             <div>
-                                <label for="rejection-reason" class="block text-xs font-extrabold text-[#D94343] mb-1">
+                                <label for="rejection-reason" class="block text-xs font-extrabold text-danger mb-1">
                                     Alasan Penolakan (Ditampilkan Transparan di Lacak Tiket) *
                                 </label>
                                 <textarea id="rejection-reason"
@@ -251,10 +286,10 @@
                                           required
                                           minlength="10"
                                           placeholder="Jelaskan alasan penolakan secara sopan dan jelas..."
-                                          class="w-full p-2.5 rounded-xl border border-[#D94343] text-xs text-[#17324D]"></textarea>
+                                          class="w-full p-2.5 rounded-xl border border-danger text-xs text-navy focus:outline-none focus:ring-3 focus:ring-danger/30"></textarea>
                             </div>
                             <button type="submit"
-                                    class="w-full min-h-[42px] px-4 py-2 rounded-xl bg-[#D94343] hover:opacity-90 text-white text-xs font-extrabold cursor-pointer">
+                                    class="w-full min-h-[40px] px-4 py-2 rounded-xl bg-danger hover:opacity-90 text-white text-xs font-extrabold cursor-pointer transition active:scale-[0.99]">
                                 Konfirmasi Tolak Laporan
                             </button>
                         </form>
@@ -263,9 +298,9 @@
             @endif
 
             <!-- 3. Status History Timeline -->
-            <div class="bg-white rounded-[24px] border border-[#D7E1E5] p-5 sm:p-6">
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-[#17324D] mb-4">Riwayat Perubahan Status</h3>
-                <ol class="relative border-l-2 border-[#D7E1E5] ml-2.5 space-y-4">
+            <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6">
+                <h3 class="text-sm font-extrabold uppercase tracking-wider text-navy mb-4">Riwayat Perubahan Status</h3>
+                <ol class="relative border-l-2 border-border ml-2.5 space-y-4">
                     @foreach($report->statusHistories as $history)
                         @php
                             $meta = \App\Models\Report::getStatusMetadata($history->to_status);
@@ -274,9 +309,9 @@
                             <span class="absolute -left-[9px] w-4 h-4 rounded-full border-2 border-white"
                                   style="background-color: {{ $meta['color'] }};"></span>
                             <div class="text-xs">
-                                <span class="font-extrabold text-[#17324D]">{{ $meta['label'] }}</span>
-                                <span class="text-[#617482] font-semibold"> • {{ $history->created_at?->format('d M Y H:i') }}</span>
-                                <p class="mt-0.5 text-[#617482] font-semibold">{{ $history->note }}</p>
+                                <span class="font-extrabold text-navy">{{ $meta['label'] }}</span>
+                                <span class="text-text-muted font-semibold"> • {{ $history->created_at?->format('d M Y H:i') }}</span>
+                                <p class="mt-0.5 text-text-muted font-semibold">{{ $history->note }}</p>
                             </div>
                         </li>
                     @endforeach

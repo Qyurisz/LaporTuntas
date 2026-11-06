@@ -158,3 +158,13 @@ window.downloadTicketCardPng = async function (ticketData) {
 };
 
 Alpine.start();
+
+// PWA Service Worker Registration
+if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.warn('ServiceWorker registration failed:', err);
+        });
+    });
+}
+

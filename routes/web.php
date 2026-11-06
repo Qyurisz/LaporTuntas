@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ReportApiController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportSupportController;
 use App\Http\Controllers\StaffAuthController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\StaffReportActionController;
@@ -24,6 +25,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::prefix('api')->group(function (): void {
     Route::get('/reports/nearby', [ReportApiController::class, 'nearby'])->name('api.reports.nearby');
+    Route::post('/reports/{ticketId}/support', [ReportSupportController::class, 'toggle'])
+        ->middleware('throttle:60,1')
+        ->name('api.reports.support');
 });
 
 Route::post('/lapor', [ReportController::class, 'store'])
@@ -49,6 +53,7 @@ Route::prefix('staff')->group(function (): void {
 
     Route::middleware('auth')->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+        Route::get('/reports/export', [StaffDashboardController::class, 'export'])->name('staff.reports.export');
         Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('staff.reports.show');
         Route::patch('/reports/{report}/assign', [StaffReportActionController::class, 'assign'])->name('staff.reports.assign');
         Route::patch('/reports/{report}/status', [StaffReportActionController::class, 'updateStatus'])->name('staff.reports.status');

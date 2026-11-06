@@ -1,0 +1,22 @@
+{
+  "name": "Lapor Tuntas — Lacak Sampai Tuntas",
+  "short_name": "LaporTuntas",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#F3F7F8",
+  "theme_color": "#16A6D8",
+  "orientation": "portrait",
+  "description": "Platform pelaporan masalah fasilitas publik cepat dan transparan tanpa login.",
+  "categories": ["utilities", "government"],
+  "icons": [
+    {
+      "src": "/images/favicon-laportuntas.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

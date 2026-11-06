@@ -99,13 +99,13 @@ class DatabaseSeeder extends Seeder
         );
 
         $categoriesData = [
-            ['name' => 'Jalan rusak / berlubang', 'slug' => 'jalan-rusak', 'icon' => 'construction', 'agency_id' => $pu->id],
-            ['name' => 'Lampu jalan mati', 'slug' => 'lampu-jalan', 'icon' => 'lightbulb', 'agency_id' => $dishub->id],
-            ['name' => 'Sampah menumpuk', 'slug' => 'sampah-menumpuk', 'icon' => 'trash-2', 'agency_id' => $dlh->id],
-            ['name' => 'Drainase / banjir', 'slug' => 'drainase-banjir', 'icon' => 'cloud-rain', 'agency_id' => $dsda->id],
-            ['name' => 'Rambu / marka jalan', 'slug' => 'rambu-marka', 'icon' => 'traffic-cone', 'agency_id' => $dishub->id],
-            ['name' => 'Fasilitas umum rusak', 'slug' => 'fasilitas-umum', 'icon' => 'wrench', 'agency_id' => $pu->id],
-            ['name' => 'Lainnya', 'slug' => 'lainnya', 'icon' => 'map-pin', 'agency_id' => $pu->id],
+            ['name' => 'Jalan rusak / berlubang', 'slug' => 'jalan-rusak', 'icon' => 'construction', 'agency_id' => $pu->id, 'sla_hours' => 168],
+            ['name' => 'Lampu jalan mati', 'slug' => 'lampu-jalan', 'icon' => 'lightbulb', 'agency_id' => $dishub->id, 'sla_hours' => 48],
+            ['name' => 'Sampah menumpuk', 'slug' => 'sampah-menumpuk', 'icon' => 'trash-2', 'agency_id' => $dlh->id, 'sla_hours' => 72],
+            ['name' => 'Drainase / banjir', 'slug' => 'drainase-banjir', 'icon' => 'cloud-rain', 'agency_id' => $dsda->id, 'sla_hours' => 72],
+            ['name' => 'Rambu / marka jalan', 'slug' => 'rambu-marka', 'icon' => 'traffic-cone', 'agency_id' => $dishub->id, 'sla_hours' => 120],
+            ['name' => 'Fasilitas umum rusak', 'slug' => 'fasilitas-umum', 'icon' => 'wrench', 'agency_id' => $pu->id, 'sla_hours' => 168],
+            ['name' => 'Lainnya', 'slug' => 'lainnya', 'icon' => 'map-pin', 'agency_id' => $pu->id, 'sla_hours' => 72],
         ];
 
         foreach ($categoriesData as $cat) {
@@ -115,6 +115,7 @@ class DatabaseSeeder extends Seeder
                     'name' => $cat['name'],
                     'icon' => $cat['icon'],
                     'default_agency_id' => $cat['agency_id'],
+                    'sla_hours' => $cat['sla_hours'],
                 ]
             );
         }
