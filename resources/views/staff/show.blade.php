@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Tindak Lanjut Tiket ' . $report->ticket_id . ' — Panel Petugas'])
+@extends('layouts.app', ['title' => 'Tindak Lanjut Tiket ' . $report->ticket_id . ' - Lapor Tuntas'])
 
 @section('content')
 <div class="max-w-[1160px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
@@ -6,26 +6,23 @@
     <!-- Breadcrumb & Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <a href="{{ route('staff.dashboard') }}" class="text-xs font-extrabold text-[#0D8BB8] hover:underline inline-flex items-center gap-1">
-                <span>← Kembali ke Daftar Tugas</span>
+            <a href="{{ route($user->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') }}" class="text-xs font-extrabold text-[#0D8BB8] hover:underline inline-flex items-center gap-1">
+                <span>Kembali ke daftar tugas</span>
             </a>
             <div class="mt-2 flex flex-wrap items-center gap-2.5">
                 <span class="px-3 py-1 rounded-lg bg-[#17324D] text-white font-mono font-extrabold text-sm tabular-nums">
                     {{ $report->ticket_id }}
                 </span>
                 <x-status-badge :status="$report->status" />
-                <span class="text-xs font-bold {{ $report->is_visible_on_map ? 'text-[#0D8BB8]' : 'text-[#617482]' }}">
-                    {{ $report->is_visible_on_map ? '● Tampil di Peta Publik' : '○ Disembunyikan dari Peta Publik' }}
-                </span>
+                <span class="text-xs font-bold {{ $report->is_visible_on_map ? 'text-[#0D8BB8]' : 'text-[#617482]' }}">{{ $report->is_visible_on_map ? 'Tampil di peta publik' : 'Disembunyikan dari peta publik' }}</span>
             </div>
             <h1 class="mt-2 text-xl sm:text-2xl font-extrabold text-[#17324D]">{{ $report->title }}</h1>
         </div>
 
         <a href="{{ route('tickets.show', ['ticketId' => $report->ticket_id]) }}"
-           target="_blank"
            class="min-h-[44px] px-4 py-2.5 rounded-xl bg-white border border-[#D7E1E5] hover:bg-[#F3F7F8] text-[#17324D] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0">
-            <span>Lihat Halaman Publik Warga</span>
-            <span>↗</span>
+            <span>Lihat halaman publik warga</span>
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg>
         </a>
     </div>
 
@@ -68,10 +65,8 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                         <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#617482]">Titik GPS Lokasi Masalah</h2>
                         <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
-                           target="_blank"
-                           rel="noopener"
                            class="text-xs font-extrabold text-[#0D8BB8] hover:underline">
-                            Buka Navigasi Google Maps ↗
+                            Buka Google Maps
                         </a>
                     </div>
                     <p class="text-xs font-bold text-[#0D8BB8] mb-2">
@@ -114,10 +109,11 @@
         <!-- Right Column: Action Forms (Update Status, Admin Assignment, Reject, Timeline) -->
         <div class="lg:col-span-5 space-y-5">
 
-            <!-- 1. Officer & Admin Operational Status Update Form (FR-22 & FR-23) -->
+            @if($user->isPetugas())
+            <!-- Petugas updates field progress and completion. -->
             <div class="bg-white rounded-[24px] border-2 border-[#16A6D8] p-5 sm:p-6 shadow-[0_4px_14px_rgba(23,50,77,0.08)]">
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0D8BB8]">Tindakan Petugas &amp; Admin</span>
-                <h2 class="text-lg font-extrabold text-[#17324D] mt-0.5">Perbarui Status &amp; Tandai Selesai</h2>
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0D8BB8]">Pembaruan Petugas</span>
+                <h2 class="text-lg font-extrabold text-[#17324D] mt-0.5">Progres Penanganan Lapangan</h2>
                 <p class="text-xs text-[#617482] font-semibold mt-1">
                     Saat ditandai <strong>Selesai</strong>, penanda pada peta publik tetap tampil berwarna hijau (Selesai) beserta bukti tindak lanjut.
                 </p>
@@ -170,16 +166,18 @@
                     </button>
                 </form>
             </div>
+            @endif
 
             <!-- 2. Admin Only: Manual Assignment & Moderation Reject (FR-22 & FR-24) -->
             @if($user->isAdmin())
                 <div class="bg-white rounded-[24px] border border-[#D7E1E5] p-5 sm:p-6 space-y-4">
                     <div>
-                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#7966D9]">Khusus Moderator / Admin</span>
-                        <h3 class="text-base font-extrabold text-[#17324D]">Penugasan Instansi &amp; Petugas</h3>
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#7966D9]">Tugas Administrator</span>
+                        <h3 class="text-base font-extrabold text-[#17324D]">Tentukan Dinas Penanggung Jawab</h3>
+                        <p class="mt-1 text-xs text-[#617482]">Kategori ini disarankan ditangani oleh {{ $report->category?->defaultAgency?->name ?? 'dinas terkait' }}.</p>
                     </div>
 
-                    <form action="{{ route('staff.reports.assign', $report) }}" method="POST" class="space-y-3.5">
+                    <form action="{{ route('admin.reports.assign', $report) }}" method="POST" class="space-y-3.5">
                         @csrf
                         @method('PATCH')
 
@@ -190,26 +188,24 @@
                                     required
                                     class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs font-extrabold text-[#17324D]">
                                 @foreach($agencies as $agency)
-                                    <option value="{{ $agency->id }}" @selected($report->agency_id === $agency->id)>
+                                    <option value="{{ $agency->id }}" @selected(($report->agency_id ?? $report->category?->default_agency_id) === $agency->id)>
                                         {{ $agency->code }} — {{ $agency->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div>
-                            <label for="officer-select" class="block text-xs font-extrabold text-[#17324D] mb-1">Petugas Lapangan</label>
-                            <select id="officer-select"
-                                    name="assigned_to"
-                                    class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs font-extrabold text-[#17324D]">
-                                <option value="">-- Pilih Petugas Lapangan --</option>
-                                @foreach($officers as $officer)
-                                    <option value="{{ $officer->id }}" @selected($report->assigned_to === $officer->id)>
-                                        {{ $officer->name }} ({{ $officer->agency?->code }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if($sharedPetugas)
+                            <input type="hidden" name="assigned_to" value="{{ $sharedPetugas->id }}">
+                            <div class="rounded-xl bg-[#F3F7F8] p-3">
+                                <p class="text-xs font-extrabold text-[#17324D]">Petugas pelaksana</p>
+                                <p class="mt-1 text-xs text-[#617482]">{{ $sharedPetugas->name }} · akun bersama untuk seluruh dinas</p>
+                            </div>
+                        @else
+                            <div class="rounded-xl bg-[#FEF5DC] p-3 text-xs font-bold text-[#8A5D00]">
+                                Akun petugas bersama belum tersedia. Jalankan seeder database untuk menyiapkannya.
+                            </div>
+                        @endif
 
                         <div>
                             <label for="assign-note" class="block text-xs font-extrabold text-[#17324D] mb-1">Catatan Penugasan (Opsional)</label>
@@ -220,9 +216,9 @@
                                    class="w-full min-h-[44px] px-3 py-2 rounded-xl border border-[#D7E1E5] text-xs text-[#17324D]">
                         </div>
 
-                        <button type="submit"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs font-extrabold transition cursor-pointer">
-                            Tugaskan Laporan
+                        <button type="submit" @disabled(! $sharedPetugas)
+                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] disabled:opacity-50 text-white text-xs font-extrabold transition cursor-pointer">
+                            Tetapkan Dinas dan Kirim ke Petugas
                         </button>
                     </form>
 
@@ -236,7 +232,7 @@
 
                         <form x-show="showReject"
                               x-transition
-                              action="{{ route('staff.reports.reject', $report) }}"
+                              action="{{ route('admin.reports.reject', $report) }}"
                               method="POST"
                               class="mt-3 space-y-3">
                             @csrf

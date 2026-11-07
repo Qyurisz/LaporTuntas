@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Lapor Tuntas — Lacak sampai tuntas' }}</title>
+    <title>{{ $title ?? 'Lapor Tuntas - Lacak sampai tuntas' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/favicon-laportuntas.png') }}?v=hd">
 
     <!-- Google Fonts: Nunito Sans & JetBrains Mono with graceful system fallback -->
@@ -17,22 +17,24 @@
 <body class="min-h-full bg-[#F3F7F8] text-[#17324D] antialiased selection:bg-[#DFF5FC] selection:text-[#17324D] flex flex-col">
     @php
         $isFullBleedMobile = $fullBleedMobile ?? false;
+        $isInternalUser = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isPetugas());
+        $mapUrl = route('home', $isInternalUser ? ['map' => 1] : []);
     @endphp
 
     <!-- Top Navigation Header (Hidden on Mobile Map Home for Full-Bleed Map Experience) -->
     <header class="{{ $isFullBleedMobile ? 'hidden lg:block' : 'block' }} sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#D7E1E5] shadow-[0_2px_10px_rgba(23,50,77,0.05)]">
         <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
+            <a href="{{ $mapUrl }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
                 <img src="{{ asset('images/logo-laportuntas.png') }}?v=hd"
-                     alt="LaporTuntas — Lacak sampai tuntas"
+                     alt="Lapor Tuntas"
                      class="h-9 sm:h-10 w-auto object-contain">
                 <span class="sr-only">Lapor Tuntas</span>
             </a>
 
             <!-- Desktop Primary Actions -->
             <nav class="hidden lg:flex items-center gap-2.5" aria-label="Navigasi Utama Desktop">
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 transition-colors {{ request()->routeIs('home') ? 'bg-[#DFF5FC] text-[#0D8BB8]' : 'text-[#17324D] hover:bg-[#F3F7F8]' }}">
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
@@ -42,6 +44,7 @@
                     <span>Peta</span>
                 </a>
 
+                @guest
                 <a href="{{ route('tickets.index') }}"
                    class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 border border-[#D7E1E5] transition-colors {{ request()->routeIs('tickets.*') ? 'bg-[#17324D] text-white border-[#17324D]' : 'bg-white text-[#17324D] hover:bg-[#F3F7F8]' }}">
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -50,7 +53,9 @@
                     </svg>
                     <span>Lacak tiket</span>
                 </a>
+                @endguest
 
+                @guest
                 @if(request()->routeIs('home'))
                     <button type="button"
                             @click="$dispatch('open-report-modal')"
@@ -71,13 +76,14 @@
                         <span>Buat laporan</span>
                     </a>
                 @endif
+                @endguest
 
                 @auth
-                    <a href="{{ route('staff.dashboard') }}"
+                    <a href="{{ route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') }}"
                        class="min-h-[44px] px-3 py-2 rounded-xl bg-[#17324D] text-white text-xs font-extrabold flex items-center gap-1.5 hover:opacity-90 transition"
-                       title="Panel Petugas & Admin">
+                       title="Panel {{ auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}">
                         <span class="w-2 h-2 rounded-full bg-[#C5E84A]"></span>
-                        <span>Panel Petugas</span>
+                        <span>Panel {{ auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}</span>
                     </a>
                 @else
                     <a href="{{ route('staff.login') }}"
@@ -94,9 +100,9 @@
 
             <!-- Compact Mobile Secondary Header Badge (on non-map pages) -->
             <div class="flex lg:hidden items-center gap-2">
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="min-h-[40px] px-3 py-1.5 rounded-full bg-[#F3F7F8] text-xs font-extrabold text-[#17324D] flex items-center gap-1.5">
-                    <span>← Peta</span>
+                    <span>Peta</span>
                 </a>
             </div>
         </div>
@@ -115,7 +121,7 @@
                     <span>{{ session('success') }}</span>
                 </div>
                 <button type="button" @click="show = false" class="p-1 rounded-lg hover:bg-black/5 cursor-pointer" aria-label="Tutup pesan">
-                    ✕
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
                 </button>
             </div>
         </div>
@@ -131,9 +137,9 @@
     @if(!$isFullBleedMobile)
         <nav aria-label="Navigasi Bawah Mobile"
              class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white rounded-t-[26px] shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-[#E6EEF2] px-3 pb-[env(safe-area-inset-bottom)]">
-            <div class="h-[74px] max-w-md mx-auto grid grid-cols-5 items-center relative">
+            <div class="h-[74px] max-w-md mx-auto {{ $isInternalUser ? 'grid grid-cols-3' : 'grid grid-cols-5' }} items-center relative">
                 <!-- 1. Peta (Home) -->
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] transition">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -143,7 +149,7 @@
                 </a>
 
                 <!-- 2. Sekitar (Discover) -->
-                <a href="{{ route('home') }}#sekitar"
+                <a href="{{ $mapUrl }}#sekitar"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl text-[#617482] hover:text-[#17324D] transition">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/>
@@ -153,6 +159,7 @@
                 </a>
 
                 <!-- Center Raised "+" Action Button (Buat Laporan) -->
+                @guest
                 <div class="flex items-center justify-center">
                     <a href="{{ route('home') }}#buat-laporan"
                        aria-label="Buat laporan"
@@ -163,8 +170,10 @@
                         </svg>
                     </a>
                 </div>
+                @endguest
 
                 <!-- 3. Lacak Tiket -->
+                @guest
                 <a href="{{ route('tickets.index') }}"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition {{ request()->routeIs('tickets.*', 'reports.success') ? 'bg-gradient-to-b from-[#DFF5FC]/40 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold' : 'text-[#617482] hover:text-[#17324D]' }}">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -175,9 +184,9 @@
                     </svg>
                     <span class="text-[11px] {{ request()->routeIs('tickets.*', 'reports.success') ? 'font-extrabold' : 'font-bold' }}">Lacak</span>
                 </a>
-
+                @endguest
                 <!-- 4. Petugas / Admin -->
-                <a href="{{ auth()->check() ? route('staff.dashboard') : route('staff.login') }}"
+                <a href="{{ auth()->check() ? route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') : route('staff.login') }}"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-2xl transition {{ request()->routeIs('staff.*') ? 'bg-gradient-to-b from-[#DFF5FC]/40 to-[#DFF5FC]/90 text-[#0D8BB8] font-extrabold' : 'text-[#617482] hover:text-[#17324D]' }}">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>

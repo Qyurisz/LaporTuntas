@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ReportController extends Controller
@@ -19,6 +20,8 @@ class ReportController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        abort_if(Auth::user()?->isAdmin() || Auth::user()?->isPetugas(), 403, 'Akun internal tidak dapat membuat laporan warga.');
+
         $validated = $request->validate(
             [
                 'category_id' => ['required', 'exists:categories,id'],

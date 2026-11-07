@@ -41,17 +41,24 @@ Route::get('/lacak/{ticketId}', [TicketController::class, 'show'])
     ->middleware('throttle:track-ticket')
     ->name('tickets.show');
 
+Route::get('/laporan/{report}', [StaffDashboardController::class, 'publicShow'])->name('reports.public.show');
+
 // Staff & Admin Authentication Routes
 Route::prefix('staff')->group(function (): void {
     Route::get('/login', [StaffAuthController::class, 'showLogin'])->name('staff.login');
     Route::post('/login', [StaffAuthController::class, 'login'])->name('staff.login.submit');
     Route::post('/logout', [StaffAuthController::class, 'logout'])->name('staff.logout');
 
-    Route::middleware('auth')->group(function (): void {
+    Route::middleware(['auth', 'role:petugas'])->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
         Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('staff.reports.show');
-        Route::patch('/reports/{report}/assign', [StaffReportActionController::class, 'assign'])->name('staff.reports.assign');
         Route::patch('/reports/{report}/status', [StaffReportActionController::class, 'updateStatus'])->name('staff.reports.status');
-        Route::patch('/reports/{report}/reject', [StaffReportActionController::class, 'reject'])->name('staff.reports.reject');
     });
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::get('/dashboard', [StaffDashboardController::class, 'adminIndex'])->name('dashboard');
+    Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('reports.show');
+    Route::patch('/reports/{report}/assign', [StaffReportActionController::class, 'assign'])->name('reports.assign');
+    Route::patch('/reports/{report}/reject', [StaffReportActionController::class, 'reject'])->name('reports.reject');
 });

@@ -5,14 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Report;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     /**
      * Render the map-first Lapor Tuntas homepage.
      */
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
+        $user = Auth::user();
+        $isInternalUser = $user?->isAdmin() || $user?->isPetugas();
+
+        if ($isInternalUser && ! $request->boolean('map')) {
+            return redirect()->route($user->isAdmin() ? 'admin.dashboard' : 'staff.dashboard');
+        }
+
         $categories = Category::query()
             ->with('defaultAgency')
             ->orderBy('id')
@@ -28,6 +38,7 @@ class HomeController extends Controller
         return view('home', [
             'categories' => $categories,
             'activeStatuses' => $activeStatuses,
+            'isInternalMap' => (bool) $isInternalUser,
         ]);
     }
 }

@@ -15,6 +15,8 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    public const SHARED_PETUGAS_EMAIL = 'petugas@laportuntas.id';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
