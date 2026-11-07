@@ -95,7 +95,7 @@
                 </div>
 
                 @auth
-                    <a href="{{ route('staff.reports.show', $report) }}"
+                    <a href="{{ route('reports.public.show', $report) }}"
                        class="min-h-[44px] px-4 py-2.5 rounded-xl bg-[#17324D] hover:bg-[#0D8BB8] text-white text-xs font-extrabold inline-flex items-center gap-2 shrink-0">
                         <span>Kelola di Panel Petugas</span>
                         <span>→</span>
