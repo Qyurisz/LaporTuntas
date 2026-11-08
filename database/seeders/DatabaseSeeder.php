@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Agency;
 use App\Models\Category;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -48,7 +49,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::query()->updateOrCreate(
+        User::query()->firstOrCreate(
             ['email' => 'admin@laportuntas.id'],
             [
                 'name' => 'Moderator Lapor Tuntas',
@@ -58,45 +59,25 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::query()->updateOrCreate(
-            ['email' => 'petugas.pu@laportuntas.id'],
+        $sharedPetugas = User::query()->firstOrCreate(
+            ['email' => User::SHARED_PETUGAS_EMAIL],
             [
-                'name' => 'Petugas Dinas Bina Marga & PU',
+                'name' => 'Petugas Lapor Tuntas',
                 'password' => Hash::make('password'),
                 'role' => 'petugas',
-                'agency_id' => $pu->id,
+                'agency_id' => null,
             ]
         );
 
-        User::query()->updateOrCreate(
-            ['email' => 'petugas.dlh@laportuntas.id'],
-            [
-                'name' => 'Petugas Dinas Lingkungan Hidup',
-                'password' => Hash::make('password'),
-                'role' => 'petugas',
-                'agency_id' => $dlh->id,
-            ]
-        );
+        $sharedPetugas->update([
+            'name' => 'Petugas Lapor Tuntas',
+            'role' => 'petugas',
+            'agency_id' => null,
+        ]);
 
-        User::query()->updateOrCreate(
-            ['email' => 'petugas.dishub@laportuntas.id'],
-            [
-                'name' => 'Petugas Dinas Perhubungan & PJU',
-                'password' => Hash::make('password'),
-                'role' => 'petugas',
-                'agency_id' => $dishub->id,
-            ]
-        );
-
-        User::query()->updateOrCreate(
-            ['email' => 'petugas.dsda@laportuntas.id'],
-            [
-                'name' => 'Petugas Dinas SDA & Drainase',
-                'password' => Hash::make('password'),
-                'role' => 'petugas',
-                'agency_id' => $dsda->id,
-            ]
-        );
+        Report::query()
+            ->whereIn('assigned_to', User::query()->where('role', 'petugas')->where('id', '!=', $sharedPetugas->id)->select('id'))
+            ->update(['assigned_to' => $sharedPetugas->id]);
 
         $categoriesData = [
             ['name' => 'Jalan rusak / berlubang', 'slug' => 'jalan-rusak', 'icon' => 'construction', 'agency_id' => $pu->id, 'sla_hours' => 168],

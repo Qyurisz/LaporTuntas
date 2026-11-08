@@ -18,7 +18,7 @@
 
 ### Prasyarat
 - PHP >= 8.3 & Composer
-- MySQL >= 8.0 (misalnya melalui Laragon)
+- MySQL >= 8.0 (tahap pengembangan awal)
 - Node.js & NPM
 
 ### Langkah Instalasi
@@ -68,7 +68,7 @@
    - Halaman Utama Peta Warga: `http://localhost:8000`
    - Panel Petugas & Admin: `http://localhost:8000/petugas/login`
      - **Admin / Moderator:** `admin@laportuntas.id` | Password: `password`
-     - **Petugas Lapangan:** `petugas.pu@laportuntas.id` | Password: `password`
+     - **Petugas Lapangan:** `petugas@laportuntas.id` | Password: `password`
 
 ---
 

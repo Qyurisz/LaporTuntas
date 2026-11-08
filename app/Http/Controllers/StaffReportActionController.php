@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class StaffReportActionController extends Controller
 {
@@ -26,21 +27,28 @@ class StaffReportActionController extends Controller
         }
 
         $validated = $request->validate([
-            'agency_id' => ['required', 'exists:agencies,id'],
-            'assigned_to' => ['nullable', 'exists:users,id'],
+            'agency_id' => ['required', 'integer', 'exists:agencies,id'],
+            'assigned_to' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')->where(fn ($query) => $query
+                    ->where('role', 'petugas')
+                    ->where('email', User::SHARED_PETUGAS_EMAIL)),
+            ],
             'note' => ['nullable', 'string', 'max:500'],
         ]);
 
         DB::transaction(function () use ($report, $validated, $user): void {
             $oldStatus = $report->status;
-            $newStatus = $oldStatus === Report::STATUS_BARU
+            $newStatus = in_array($oldStatus, [Report::STATUS_BARU, Report::STATUS_DITOLAK], true)
                 ? Report::STATUS_DITUGASKAN
                 : $oldStatus;
 
             $report->update([
                 'agency_id' => (int) $validated['agency_id'],
-                'assigned_to' => ! empty($validated['assigned_to']) ? (int) $validated['assigned_to'] : null,
+                'assigned_to' => (int) $validated['assigned_to'],
                 'status' => $newStatus,
+                'rejection_reason' => null,
                 'is_visible_on_map' => in_array($newStatus, [
                     Report::STATUS_BARU,
                     Report::STATUS_DITUGASKAN,
@@ -77,6 +85,8 @@ class StaffReportActionController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
+
+        abort_unless($user->isPetugas() && $report->assignedOfficer?->isPetugas(), 403);
 
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:ditugaskan,diproses,selesai'],
@@ -153,6 +163,7 @@ class StaffReportActionController extends Controller
             $report->update([
                 'status' => Report::STATUS_DITOLAK,
                 'rejection_reason' => trim($validated['rejection_reason']),
+                'assigned_to' => null,
                 'is_visible_on_map' => false,
             ]);
 

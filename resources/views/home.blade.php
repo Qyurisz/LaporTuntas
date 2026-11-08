@@ -97,10 +97,12 @@
 
             <div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-border-soft flex items-center justify-between gap-2 text-xs">
                 <span class="text-text-muted font-semibold">Sudah punya ID tiket?</span>
+                @guest
                 <a href="{{ route('tickets.index') }}" class="font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
                     <span>Lacak tiket</span>
                     <x-icon name="arrow-right" class="w-3.5 h-3.5" />
                 </a>
+                @endguest
             </div>
         </div>
     </div>
@@ -460,12 +462,14 @@
                             <p class="text-sm font-extrabold text-[#17324D] truncate">Belum ada laporan di radius ini</p>
                             <p class="text-xs text-[#617482] font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
                         </div>
+                        @if(! $isInternalMap)
                         <button type="button"
                                 @click="openCreateReportModal()"
                                 class="min-h-[40px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold shrink-0 cursor-pointer inline-flex items-center gap-1 transition active:scale-[0.99]">
                             <x-icon name="plus" class="w-3.5 h-3.5" stroke-width="2.2" />
                             <span>Lapor</span>
                         </button>
+                        @endif
                     </div>
                 </div>
             </template>
@@ -670,12 +674,14 @@
                 <div class="p-6 text-center rounded-2xl bg-canvas border border-dashed border-border">
                     <p class="text-sm font-extrabold text-navy">Belum ada laporan di radius ini</p>
                     <p class="mt-1 text-xs text-text-muted font-normal">Temukan masalah fasilitas umum? Kirim laporan pertamamu sekarang.</p>
+                    @if(! $isInternalMap)
                     <button type="button"
                             @click="activeMobileTab = 'peta'; openCreateReportModal()"
                             class="mt-3 min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold cursor-pointer inline-flex items-center justify-center gap-1.5 transition active:scale-[0.99]">
                         <x-icon name="plus" class="w-3.5 h-3.5" stroke-width="2.2" />
                         <span>Buat Laporan Baru</span>
                     </button>
+                    @endif
                 </div>
             </template>
 
@@ -803,8 +809,8 @@
     <!-- MOBILE BOTTOM NAVIGATION BAR + RAISED "+" BUTTON (Matches Reference!) -->
     <!-- ===================================================================== -->
     <nav aria-label="Navigasi Bawah Mobile"
-         class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface rounded-t-2xl shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-border-soft px-3 pb-[env(safe-area-inset-bottom)]">
-        <div class="h-[72px] max-w-md mx-auto grid grid-cols-5 items-center relative">
+         class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface rounded-t-[28px] shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-border-soft px-3 pb-[env(safe-area-inset-bottom)]">
+        <div class="h-[74px] max-w-md mx-auto {{ $isInternalMap ? 'grid grid-cols-3' : 'grid grid-cols-5' }} items-center relative">
             <!-- 1. Peta (Home) -->
             <button type="button"
                     @click="activeMobileTab = 'peta'"
@@ -834,6 +840,7 @@
             </button>
 
             <!-- Center Raised Circular "+" Action Button (Buat Laporan) -->
+            @if(! $isInternalMap)
             <div class="flex items-center justify-center">
                 <button type="button"
                         @click="openCreateReportModal()"
@@ -846,8 +853,10 @@
                     </svg>
                 </button>
             </div>
+            @endif
 
             <!-- 3. Lacak Tiket -->
+            @guest
             <a href="{{ route('tickets.index') }}"
                class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl text-text-muted hover:text-navy font-bold transition">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -858,15 +867,16 @@
                 </svg>
                 <span class="text-[11px]">Lacak</span>
             </a>
+            @endguest
 
             <!-- 4. Petugas / Admin -->
-            <a href="{{ auth()->check() ? route('staff.dashboard') : route('staff.login') }}"
+            <a href="{{ auth()->check() ? route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') : route('staff.login') }}"
                class="flex flex-col items-center justify-center gap-1 h-[60px] rounded-2xl text-text-muted hover:text-navy font-bold transition">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-                <span class="text-[11px]">Petugas</span>
+                <span class="text-[11px]">{{ auth()->check() && auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}</span>
             </a>
         </div>
     </nav>
@@ -959,6 +969,7 @@
                     <p class="text-xs text-text-muted font-normal mt-1 leading-relaxed">
                         Perluas jangkauan radius atau buat laporan baru jika kamu menemukan masalah fasilitas umum di sekitarmu.
                     </p>
+                    @if(! $isInternalMap)
                     <div class="mt-4">
                         <button type="button"
                                 @click="openCreateReportModal()"
@@ -967,6 +978,7 @@
                             <span>Buat laporan pertama di sini</span>
                         </button>
                     </div>
+                    @endif
                 </div>
             </template>
 
@@ -1093,6 +1105,7 @@
     </aside>
 
     <!-- ===================================================================== -->
+    @if(! $isInternalMap)
     <!-- MODAL FORMULIR PELAPORAN TANPA AKUN (Style Guide 9.4 & PRD FR-01..03) -->
     <!-- ===================================================================== -->
     <div x-show="reportModalOpen"
@@ -1369,6 +1382,7 @@
             </form>
         </div>
     </div>
+    @endif
 </div>
 
 <script>
@@ -1430,6 +1444,7 @@
             radiusMenuOpen: false,
             filterPopoverOpen: false,
             reportModalOpen: false,
+            openReportModalAfterGps: false,
             isCompressingPhotos: false,
             isSubmitting: false,
             isSupportingFromModal: false,
@@ -1504,17 +1519,20 @@
                             const initialSearchLng = mapRefs.pendingFocusLng ?? this.userLng;
                             this.fetchNearbyReports(initialSearchLat, initialSearchLng);
                             this.resolveUserAreaName(this.userLat, this.userLng);
-                            if (mapRefs.pendingOpenModal || window.location.hash === '#buat-laporan' || this.reportModalOpen) {
-                                mapRefs.pendingOpenModal = false;
-                                if (window.location.hash === '#buat-laporan' && window.history && window.history.replaceState) {
-                                    window.history.replaceState({}, '', window.location.pathname + window.location.search);
-                                }
+                            const shouldOpenReportModal = ! @js($isInternalMap) && (mapRefs.pendingOpenModal || this.openReportModalAfterGps || window.location.hash === '#buat-laporan' || this.reportModalOpen);
+                            mapRefs.pendingOpenModal = false;
+                            this.openReportModalAfterGps = false;
+                            if (window.location.hash === '#buat-laporan' && window.history && window.history.replaceState) {
+                                window.history.replaceState({}, '', window.location.pathname + window.location.search);
+                            }
+                            if (shouldOpenReportModal) {
                                 this.openCreateReportModal();
                             }
                         });
                     },
                     (error) => {
                         this.gpsState = 'denied';
+                        this.openReportModalAfterGps = false;
                         if (!window.isSecureContext) {
                             this.gpsErrorMessage = 'Browser memblokir akses GPS pada koneksi HTTP biasa. Buka melalui https:// atau http://localhost:8000 agar GPS perangkat aktif.';
                         } else if (error.code === error.PERMISSION_DENIED) {
@@ -2091,7 +2109,12 @@
 
                 if (this.gpsState !== 'granted') {
                     mapRefs.pendingOpenModal = true;
-                    this.requestGpsLocation();
+                    this.openReportModalAfterGps = true;
+
+                    if (this.gpsState !== 'loading') {
+                        this.requestGpsLocation();
+                    }
+
                     return;
                 }
 

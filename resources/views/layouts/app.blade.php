@@ -26,22 +26,24 @@
 <body class="min-h-full bg-canvas text-navy antialiased selection:bg-primary-soft selection:text-navy flex flex-col">
     @php
         $isFullBleedMobile = $fullBleedMobile ?? false;
+        $isInternalUser = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isPetugas());
+        $mapUrl = route('home', $isInternalUser ? ['map' => 1] : []);
     @endphp
 
     <!-- Top Navigation Header (Hidden on Mobile Map Home for Full-Bleed Map Experience) -->
     <header class="{{ $isFullBleedMobile ? 'hidden lg:block' : 'block' }} sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-border shadow-[0_2px_10px_rgba(23,50,77,0.05)]">
         <div class="{{ request()->routeIs('home') ? 'w-full px-4 sm:px-6' : 'max-w-[1280px] mx-auto px-4 sm:px-6' }} h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
+            <a href="{{ $mapUrl }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
                 <img src="{{ asset('images/logo-laportuntas.png') }}?v=v2"
-                     alt="LaporTuntas — Lacak sampai tuntas"
+                     alt="Lapor Tuntas — Lacak sampai tuntas"
                      class="h-9 sm:h-10 w-auto object-contain">
                 <span class="sr-only">Lapor Tuntas</span>
             </a>
 
             <!-- Desktop Primary Actions -->
             <nav class="hidden lg:flex items-center gap-2.5" aria-label="Navigasi Utama Desktop">
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="min-h-[44px] px-4 py-2 rounded-xl text-sm flex items-center gap-2 transition-colors {{ request()->routeIs('home') ? 'bg-primary-soft text-primary-hover font-extrabold' : 'text-navy hover:bg-canvas font-bold' }}">
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
@@ -51,6 +53,7 @@
                     <span>Peta</span>
                 </a>
 
+                @guest
                 <a href="{{ route('tickets.index') }}"
                    class="min-h-[44px] px-4 py-2 rounded-xl text-sm flex items-center gap-2 border border-border transition-colors {{ request()->routeIs('tickets.*') ? 'bg-navy text-white border-navy font-extrabold' : 'bg-surface text-navy hover:bg-canvas font-bold' }}">
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -59,7 +62,9 @@
                     </svg>
                     <span>Lacak tiket</span>
                 </a>
+                @endguest
 
+                @guest
                 @if(request()->routeIs('home'))
                     <button type="button"
                             onclick="window.dispatchEvent(new CustomEvent('open-report-modal'))"
@@ -80,13 +85,14 @@
                         <span>Buat laporan</span>
                     </a>
                 @endif
+                @endguest
 
                 @auth
-                    <a href="{{ route('staff.dashboard') }}"
+                    <a href="{{ route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') }}"
                        class="min-h-[44px] px-4 py-2 rounded-xl bg-navy text-white text-xs font-extrabold flex items-center gap-2 hover:opacity-90 transition"
-                       title="Panel Petugas & Admin">
+                       title="Panel {{ auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}">
                         <span class="w-2 h-2 rounded-full bg-lime"></span>
-                        <span>Panel Petugas</span>
+                        <span>Panel {{ auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}</span>
                     </a>
                 @else
                     <a href="{{ route('staff.login') }}"
@@ -103,7 +109,7 @@
 
             <!-- Compact Mobile Secondary Header Badge (on non-map pages) -->
             <div class="flex lg:hidden items-center gap-2">
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="min-h-[40px] px-3.5 py-2 rounded-full bg-canvas text-xs font-extrabold text-navy flex items-center gap-1.5 border border-border/60">
                     <x-icon name="arrow-left" class="w-3.5 h-3.5" />
                     <span>Peta</span>
@@ -138,9 +144,9 @@
     @if(!$isFullBleedMobile)
         <nav aria-label="Navigasi Bawah Mobile"
              class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface rounded-t-[28px] shadow-[0_-8px_28px_rgba(23,50,77,0.09)] border-t border-border-soft px-3 pb-[env(safe-area-inset-bottom)]">
-            <div class="h-[74px] max-w-md mx-auto grid grid-cols-5 items-center relative">
+            <div class="h-[74px] max-w-md mx-auto {{ $isInternalUser ? 'grid grid-cols-3' : 'grid grid-cols-5' }} items-center relative">
                 <!-- 1. Peta (Home) -->
-                <a href="{{ route('home') }}"
+                <a href="{{ $mapUrl }}"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-xl text-text-muted hover:text-navy transition">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -150,7 +156,7 @@
                 </a>
 
                 <!-- 2. Sekitar (Discover) -->
-                <a href="{{ route('home') }}#sekitar"
+                <a href="{{ $mapUrl }}#sekitar"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-xl text-text-muted hover:text-navy transition">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/>
@@ -160,6 +166,7 @@
                 </a>
 
                 <!-- Center Raised "+" Action Button (Buat Laporan) -->
+                @guest
                 <div class="flex items-center justify-center">
                     <a href="{{ route('home') }}#buat-laporan"
                        aria-label="Buat laporan"
@@ -170,8 +177,10 @@
                         </svg>
                     </a>
                 </div>
+                @endguest
 
                 <!-- 3. Lacak Tiket -->
+                @guest
                 <a href="{{ route('tickets.index') }}"
                    class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-xl transition {{ request()->routeIs('tickets.*', 'reports.success') ? 'bg-gradient-to-b from-primary-soft/40 to-primary-soft/90 text-primary-hover font-extrabold' : 'text-text-muted hover:text-navy' }}">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -182,10 +191,16 @@
                     </svg>
                     <span class="text-[11px] {{ request()->routeIs('tickets.*', 'reports.success') ? 'font-extrabold' : 'font-bold' }}">Lacak</span>
                 </a>
-
+                @endguest
                 <!-- 4. Petugas / Admin -->
-                <a href="{{ auth()->check() ? route('staff.dashboard') : route('staff.login') }}"
-                   class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-xl transition {{ request()->routeIs('staff.*') ? 'bg-gradient-to-b from-primary-soft/40 to-primary-soft/90 text-primary-hover font-extrabold' : 'text-text-muted hover:text-navy' }}">
+                <a href="{{ auth()->check() ? route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'staff.dashboard') : route('staff.login') }}"
+                   class="flex flex-col items-center justify-center gap-1 h-[62px] rounded-xl transition {{ request()->routeIs('staff.*', 'admin.*') ? 'bg-gradient-to-b from-primary-soft/40 to-primary-soft/90 text-primary-hover font-extrabold' : 'text-text-muted hover:text-navy' }}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span class="text-[11px] {{ request()->routeIs('staff.*', 'admin.*') ? 'font-extrabold' : 'font-bold' }}">{{ auth()->check() && auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}</span>
+                </a>
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>

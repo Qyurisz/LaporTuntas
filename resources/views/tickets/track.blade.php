@@ -90,7 +90,7 @@
                 </div>
 
                 @auth
-                    <a href="{{ route('staff.reports.show', $report) }}"
+                    <a href="{{ route('reports.public.show', $report) }}"
                        class="min-h-[44px] px-4 py-2 rounded-xl bg-navy hover:bg-primary-hover text-white text-xs font-extrabold inline-flex items-center gap-2 shrink-0 transition">
                         <span>Kelola di Panel Petugas</span>
                         <x-icon name="arrow-right" class="w-4 h-4" />

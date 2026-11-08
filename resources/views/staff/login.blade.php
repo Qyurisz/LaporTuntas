@@ -8,11 +8,11 @@
                  alt="LaporTuntas — Lacak sampai tuntas"
                  class="h-10 w-auto mx-auto mb-4 object-contain">
             <span class="inline-block px-3 py-0.5 rounded-full text-xs font-extrabold bg-primary-soft text-primary-hover">
-                Khusus Internal Instansi
+                Portal Internal Dinas
             </span>
-            <h1 class="mt-2 text-2xl font-extrabold text-navy">Portal Petugas &amp; Moderator</h1>
+            <h1 class="mt-2 text-2xl font-extrabold text-navy">Masuk Petugas atau Admin</h1>
             <p class="mt-1 text-xs sm:text-sm text-text-muted font-semibold">
-                Warga tidak memerlukan login untuk melapor atau melacak tiket. Halaman ini hanya untuk petugas dinas dan admin.
+                Semua petugas lintas dinas menggunakan akun petugas bersama. Admin tetap masuk dengan akun admin masing-masing.
             </p>
         </div>
 
@@ -25,7 +25,7 @@
         <form action="{{ route('staff.login.submit') }}" method="POST" class="mt-6 space-y-4">
             @csrf
             <div>
-                <label for="staff-email" class="block text-xs font-extrabold text-navy mb-1">Email Dinas / Admin</label>
+                <label for="staff-email" class="block text-xs font-extrabold text-navy mb-1">Email akun internal</label>
                 <input id="staff-email"
                        type="email"
                        name="email"
