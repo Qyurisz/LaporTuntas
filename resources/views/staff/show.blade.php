@@ -62,12 +62,12 @@
                         @endphp
                         <div class="mt-1.5 flex items-center gap-1.5">
                             @if($sla['is_overdue'])
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FDE8E8] text-[#9B1C1C] border border-[#F98080]/50">
-                                    <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-[#9B1C1C]" stroke-width="2.2" />
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-extrabold bg-danger/10 text-danger border border-danger/30">
+                                    <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-danger" stroke-width="2.2" />
                                     <span>{{ $sla['badge_label'] }} (Batas: {{ $sla['deadline_label'] }})</span>
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-surface text-text-muted border border-border">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-bold bg-surface text-text-muted border border-border">
                                     <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
                                     <span>{{ $sla['badge_label'] }} (Target: {{ $sla['target_label'] }})</span>
                                 </span>
@@ -81,7 +81,7 @@
                             @if($report->assignedOfficer)
                                 <p class="text-xs font-bold text-primary-hover">{{ $report->assignedOfficer->name }}</p>
                             @endif
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $report->supports_count > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-surface text-text-muted border border-border' }}">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-caption font-extrabold {{ $report->supports_count > 0 ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-surface text-text-muted border border-border' }}">
                                 <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2.2" />
                                 <span>{{ $report->supports_count ?? 0 }} Dukungan Warga</span>
                             </span>
@@ -255,7 +255,7 @@
             @if($user->isAdmin())
                 <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6 space-y-4">
                     <div>
-                        <span class="text-caption font-extrabold uppercase tracking-wider text-[#7966D9]">Tugas Administrator</span>
+                        <span class="text-caption font-extrabold uppercase tracking-wider text-status-verified">Tugas Administrator</span>
                         <h3 class="text-base font-extrabold text-navy">Tentukan Dinas Penanggung Jawab</h3>
                         <p class="mt-1 text-xs text-text-muted">Kategori ini disarankan ditangani oleh {{ $report->category?->defaultAgency?->name ?? 'dinas terkait' }}.</p>
                     </div>

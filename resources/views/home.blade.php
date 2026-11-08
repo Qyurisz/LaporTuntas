@@ -7,7 +7,7 @@
 <div x-data="laporTuntasMapApp()"
      x-init="initApp()"
      @open-report-modal.window="openCreateReportModal()"
-     class="relative w-full h-[100dvh] lg:h-[calc(100dvh-4rem)] min-h-[540px] shrink-0 flex flex-col lg:flex-row overflow-hidden bg-[#DCE8EE]">
+     class="relative w-full h-[100dvh] lg:h-[calc(100dvh-4rem)] min-h-[540px] shrink-0 flex flex-col lg:flex-row overflow-hidden bg-canvas">
 
     <!-- ===================================================================== -->
     <!-- MANDATORY GPS LOCATION PERMISSION GATE (PRD FR-02 & FR-15)             -->
@@ -70,7 +70,7 @@
             <!-- State when GPS permission is denied (PRD FR-15) -->
             <template x-if="gpsState === 'denied'">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-extrabold bg-[#FF6B5C]/15 text-danger mb-1.5 sm:mb-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-caption sm:text-xs font-extrabold bg-danger/10 text-danger mb-1.5 sm:mb-2">
                         Izin Lokasi Belum Aktif
                     </span>
                     <h1 class="text-base sm:text-xl font-extrabold text-navy">
@@ -139,34 +139,34 @@
                 <!-- Radius & Map Style Dropdown Card -->
                 <div x-show="radiusMenuOpen"
                      x-transition
-                     class="mt-2.5 w-72 bg-white rounded-2xl p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-[#E6EEF2] space-y-3.5">
+                     class="mt-2.5 w-72 bg-surface rounded-2xl p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-border-soft space-y-3.5">
                     <div>
-                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Mode Tampilan Peta</p>
-                        <div class="grid grid-cols-3 gap-2 bg-[#F3F7F8] p-1 rounded-2xl">
+                        <p class="text-caption font-extrabold uppercase tracking-wider text-text-muted mb-2">Mode Tampilan Peta</p>
+                        <div class="grid grid-cols-3 gap-2 bg-canvas p-1 rounded-2xl">
                             <button type="button"
                                     @click="setMapLayer('jalan')"
-                                    :class="activeMapLayer === 'jalan' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    :class="activeMapLayer === 'jalan' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
                                     class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Jalan
                             </button>
                             <button type="button"
                                     @click="setMapLayer('satelit')"
-                                    :class="activeMapLayer === 'satelit' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    :class="activeMapLayer === 'satelit' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
                                     class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Satelit
                             </button>
                             <button type="button"
                                     @click="setMapLayer('terang')"
-                                    :class="activeMapLayer === 'terang' ? 'bg-[#17324D] text-white shadow-xs' : 'text-[#617482] hover:text-[#17324D]'"
+                                    :class="activeMapLayer === 'terang' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
                                     class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Terang
                             </button>
                         </div>
                     </div>
 
-                    <div class="pt-2.5 border-t border-[#E6EEF2]">
-                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#617482] mb-2">Jangkauan Radius Peta</p>
-                        <div class="grid grid-cols-3 gap-2 bg-[#F3F7F8] p-1 rounded-2xl">
+                    <div class="pt-2.5 border-t border-border-soft">
+                        <p class="text-caption font-extrabold uppercase tracking-wider text-text-muted mb-2">Jangkauan Radius Peta</p>
+                        <div class="grid grid-cols-3 gap-2 bg-canvas p-1 rounded-2xl">
                             <template x-for="r in [500, 1000, 5000]" :key="r">
                                 <button type="button"
                                         @click="setRadius(r)"
@@ -352,11 +352,11 @@
                         </template>
 
                         <div class="min-w-0 flex-1">
-                            <h3 class="text-[15px] font-extrabold text-[#17324D] truncate" x-text="selectedReport.title"></h3>
+                            <h3 class="text-[15px] font-extrabold text-navy truncate" x-text="selectedReport.title"></h3>
 
                             <!-- Timestamp + Status Pill Row -->
-                            <div class="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#617482]">
-                                <svg class="w-3.5 h-3.5 shrink-0 text-[#617482]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-text-muted">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
                                     <line x1="16" x2="16" y1="2" y2="6"/>
                                     <line x1="8" x2="8" y1="2" y2="6"/>
@@ -370,22 +370,22 @@
                             </div>
 
                             <!-- Location Pin Row -->
-                            <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#617482]">
-                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-[#617482]" />
+                            <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-text-muted">
+                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-text-muted" />
                                 <span class="truncate" x-text="selectedReport.location_label"></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- SLA & Community Support Row -->
-                    <div class="mt-2.5 pt-2.5 border-t border-[#F3F7F8] flex items-center justify-between text-xs font-bold text-[#617482]">
+                    <div class="mt-2.5 pt-2.5 border-t border-border-soft flex items-center justify-between text-xs font-bold text-text-muted">
                         <span class="inline-flex items-center gap-1.5"
-                              :class="selectedReport.is_overdue ? 'text-[#9B1C1C]' : 'text-[#617482]'">
+                              :class="selectedReport.is_overdue ? 'text-danger' : 'text-text-muted'">
                             <template x-if="selectedReport.is_overdue">
-                                <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-[#9B1C1C]" stroke-width="2.2" />
+                                <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-danger" stroke-width="2.2" />
                             </template>
                             <template x-if="!selectedReport.is_overdue">
-                                <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-[#617482]" stroke-width="2" />
+                                <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
                             </template>
                             <span x-text="selectedReport.sla_badge_label"></span>
                         </span>
@@ -457,10 +457,10 @@
             <!-- Empty State Compact Floating Card -->
             <template x-if="!isLoadingNearby && reports.length === 0">
                 <div class="px-4 pointer-events-auto">
-                    <div class="bg-white rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center justify-between gap-3">
+                    <div class="bg-surface rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] border border-border-soft flex items-center justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="text-sm font-extrabold text-[#17324D] truncate">Belum ada laporan di radius ini</p>
-                            <p class="text-xs text-[#617482] font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
+                            <p class="text-sm font-extrabold text-navy truncate">Belum ada laporan di radius ini</p>
+                            <p class="text-xs text-text-muted font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
                         </div>
                         @if(! $isInternalMap)
                         <button type="button"
@@ -608,7 +608,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="translate-y-0"
          x-transition:leave-end="translate-y-full"
-         class="lg:hidden fixed inset-x-0 top-12 bottom-[72px] z-30 bg-white rounded-t-2xl shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-[#E6EEF2] flex flex-col overflow-hidden">
+         class="lg:hidden fixed inset-x-0 top-12 bottom-[72px] z-30 bg-surface rounded-t-2xl shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-border-soft flex flex-col overflow-hidden">
         <!-- Header Matching Reference -->
         <div class="p-4 border-b border-border-soft bg-surface space-y-3">
             <div class="flex items-start justify-between gap-3">
@@ -1113,7 +1113,7 @@
          x-transition.opacity
          @click.self="closeCreateReportModal()"
          @keydown.escape.window="closeCreateReportModal()"
-         class="fixed inset-0 z-50 bg-[#17324D]/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
+         class="fixed inset-0 z-50 bg-navy/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
          role="dialog"
          aria-modal="true"
          aria-labelledby="modal-report-title">
@@ -1144,7 +1144,7 @@
                 <input type="hidden" name="device_token" :value="deviceId">
 
                 @if($errors->any())
-                    <div class="p-4 rounded-2xl bg-[#FF6B5C]/15 border border-danger text-danger text-xs sm:text-sm font-bold space-y-1">
+                    <div class="p-4 rounded-2xl bg-danger/10 border border-danger text-danger text-xs sm:text-sm font-bold space-y-1">
                         <p class="font-extrabold">Periksa kembali isian formulir kamu:</p>
                         <ul class="list-disc list-inside">
                             @foreach($errors->all() as $err)
@@ -1234,7 +1234,7 @@
                     <input type="hidden" name="latitude" :value="form.latitude">
                     <input type="hidden" name="longitude" :value="form.longitude">
 
-                    <div id="mini-picker-map" class="w-full h-52 rounded-2xl border border-border overflow-hidden bg-[#DCE8EE]"></div>
+                    <div id="mini-picker-map" class="w-full h-52 rounded-2xl border border-border overflow-hidden bg-canvas"></div>
                     <p class="text-xs text-text-muted font-semibold inline-flex items-center gap-1.5">
                         <x-icon name="info" class="w-3.5 h-3.5 text-primary-hover shrink-0" />
                         <span>Geser penanda atau ketuk titik pada peta jika masalah berada di posisi berbeda.</span>
@@ -2024,36 +2024,36 @@
 
             getStepperSegmentClass(status, step) {
                 if (status === 'selesai') {
-                    return 'bg-[#278653]';
+                    return 'bg-success';
                 }
                 if (status === 'ditugaskan') {
                     if (step === 1 || step === 2) return 'bg-[#7966D9]';
-                    return 'bg-[#E6EEF2]';
+                    return 'bg-border-soft';
                 }
                 if (status === 'diproses') {
                     if (step === 1 || step === 2) return 'bg-[#F5B82E]';
-                    return 'bg-[#E6EEF2]';
+                    return 'bg-border-soft';
                 }
                 if (status === 'baru') {
                     if (step === 1) return 'bg-primary';
-                    return 'bg-[#E6EEF2]';
+                    return 'bg-border-soft';
                 }
                 if (status === 'ditolak') {
-                    if (step === 1) return 'bg-[#697782]';
-                    return 'bg-[#E6EEF2]';
+                    if (step === 1) return 'bg-text-muted';
+                    return 'bg-border-soft';
                 }
-                return 'bg-[#E6EEF2]';
+                return 'bg-border-soft';
             },
 
             getStepperTextClass(status, step) {
                 if (status === 'selesai' && step === 3) {
-                    return 'text-[#185B37] font-extrabold';
+                    return 'text-success font-extrabold';
                 }
                 if (status === 'ditugaskan' && step === 2) {
                     return 'text-[#4D3BA8] font-extrabold';
                 }
                 if (status === 'diproses' && step === 2) {
-                    return 'text-[#8A5D00] font-extrabold';
+                    return 'text-warning font-extrabold';
                 }
                 if (status === 'baru' && step === 1) {
                     return 'text-primary-hover font-extrabold';

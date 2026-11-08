@@ -70,7 +70,7 @@
                         </span>
                         <x-status-badge :status="$report->status" size="md" />
                         @if(!$report->is_visible_on_map)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-[#E9EEF1] text-text-muted border border-border">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-canvas text-text-muted border border-border">
                                 <x-icon name="info" class="w-3.5 h-3.5 shrink-0" stroke-width="2.2" />
                                 <span>Tidak tampil di peta publik</span>
                             </span>
@@ -127,9 +127,9 @@
                     @php
                         $sla = $report->getSlaMeta();
                     @endphp
-                    <div class="p-4 sm:p-5 rounded-2xl border {{ $sla['is_overdue'] ? 'bg-[#FDE8E8]/60 border-[#F98080]' : 'bg-canvas border-border' }} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="p-4 sm:p-5 rounded-2xl border {{ $sla['is_overdue'] ? 'bg-danger/10 border-danger/30' : 'bg-canvas border-border' }} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="space-y-1">
-                            <p class="text-xs font-bold {{ $sla['is_overdue'] ? 'text-[#9B1C1C]' : 'text-text-muted' }}">
+                            <p class="text-xs font-bold {{ $sla['is_overdue'] ? 'text-danger' : 'text-text-muted' }}">
                                 Target Standar Waktu Penanganan (SLA)
                             </p>
                             <div class="flex flex-wrap items-center gap-2">
@@ -144,8 +144,8 @@
 
                         <div>
                             @if($sla['is_overdue'])
-                                <span class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#FDE8E8] text-[#9B1C1C] border border-[#F98080] inline-flex items-center gap-1.5 whitespace-nowrap">
-                                    <x-icon name="alert-triangle" class="w-4 h-4 text-[#9B1C1C]" stroke-width="2.2" />
+                                <span class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-danger/10 text-danger border border-danger/30 inline-flex items-center gap-1.5 whitespace-nowrap">
+                                    <x-icon name="alert-triangle" class="w-4 h-4 text-danger" stroke-width="2.2" />
                                     <span>{{ $sla['badge_label'] }}</span>
                                 </span>
                             @else
@@ -172,7 +172,7 @@
                             <div class="space-y-1 min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="text-sm font-extrabold text-navy">Dukungan Warga</h3>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold whitespace-nowrap tabular-nums {{ ((int) ($report->supports_count ?? 0)) > 0 ? 'bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/40' : 'bg-canvas text-text-muted border border-border' }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-extrabold whitespace-nowrap tabular-nums {{ ((int) ($report->supports_count ?? 0)) > 0 ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-canvas text-text-muted border border-border' }}">
                                         {{ (int) ($report->supports_count ?? 0) }} Warga Mengalami Ini
                                     </span>
                                 </div>
@@ -200,12 +200,12 @@
                     </div>
 
                     @if($report->status === 'ditolak' && $report->rejection_reason)
-                        <div class="p-4 rounded-2xl bg-[#E9EEF1] border border-[#697782] text-sm text-navy">
+                        <div class="p-4 rounded-2xl bg-canvas border border-border text-sm text-navy">
                             <p class="font-extrabold text-danger flex items-center gap-1.5">
                                 <x-icon name="x-circle" class="w-4 h-4" />
                                 <span>Alasan Penolakan Laporan:</span>
                             </p>
-                            <p class="mt-1 font-semibold">{{ $report->rejection_reason }}</p>
+                            <p class="mt-1 font-semibold text-text-muted">{{ $report->rejection_reason }}</p>
                         </div>
                     @endif
 
@@ -241,7 +241,7 @@
                                         @foreach($afterPhotos as $media)
                                             <img src="{{ $media->publicUrl() }}"
                                                  alt="Foto bukti setelah perbaikan"
-                                                 class="w-full h-52 object-cover rounded-xl border-2 border-[#278653] bg-canvas">
+                                                 class="w-full h-52 object-cover rounded-xl border-2 border-success bg-canvas">
                                         @endforeach
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@
                             <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" />
                             <span>{{ $report->location_label }}</span>
                         </div>
-                        <div id="detail-report-map" class="w-full h-60 rounded-2xl border border-border overflow-hidden bg-[#DCE8EE]"></div>
+                        <div id="detail-report-map" class="w-full h-60 rounded-2xl border border-border overflow-hidden bg-canvas"></div>
                     </div>
                 </div>
 

@@ -27,14 +27,14 @@
 
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Ringkasan tugas petugas">
         @foreach([
-            ['all', 'Semua tugas', $counts['total'], '#17324D'],
-            ['ditugaskan', 'Siap ditangani', $counts['ditugaskan'], '#7966D9'],
-            ['diproses', 'Sedang dikerjakan', $counts['diproses'], '#B77900'],
-            ['selesai', 'Sudah selesai', $counts['selesai'], '#278653'],
-        ] as [$status, $label, $count, $color])
+            ['all', 'Semua Tugas', $counts['total'], 'text-navy'],
+            ['ditugaskan', 'Siap Ditangani', $counts['ditugaskan'], 'text-status-verified'],
+            ['diproses', 'Sedang Dikerjakan', $counts['diproses'], 'text-warning'],
+            ['selesai', 'Sudah Selesai', $counts['selesai'], 'text-success'],
+        ] as [$status, $label, $count, $colorClass])
             <a href="{{ route('staff.dashboard', ['status' => $status]) }}" class="rounded-2xl border border-border bg-surface p-4 hover:shadow-xs transition">
                 <p class="text-xs font-bold text-text-muted">{{ $label }}</p>
-                <p class="mt-1 text-2xl font-extrabold tabular-nums" style="color: {{ $color }}">{{ $count }}</p>
+                <p class="mt-1 text-2xl font-extrabold tabular-nums {{ $colorClass }}">{{ $count }}</p>
             </a>
         @endforeach
     </section>
