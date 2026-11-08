@@ -12,7 +12,7 @@
             </span>
             <h1 class="mt-2 text-2xl font-extrabold text-navy">Masuk Petugas atau Admin</h1>
             <p class="mt-1 text-xs sm:text-sm text-text-muted font-semibold">
-                Semua petugas lintas dinas menggunakan akun petugas bersama. Admin tetap masuk dengan akun admin masing-masing.
+                Masuk menggunakan akun dinas atau administrator untuk mengelola dan menindaklanjuti laporan warga.
             </p>
         </div>
 

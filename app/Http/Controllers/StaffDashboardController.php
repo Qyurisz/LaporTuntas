@@ -38,9 +38,14 @@ class StaffDashboardController extends Controller
             ->with(['category', 'agency', 'assignedOfficer', 'media']);
 
         if (! $isAdmin) {
-            $baseQuery->whereHas('assignedOfficer', function ($query): void {
-                $query->where('role', 'petugas');
-            });
+            if ($user->agency_id !== null) {
+                $baseQuery->where(function ($query) use ($user): void {
+                    $query->where('agency_id', $user->agency_id)
+                        ->orWhere('assigned_to', $user->id);
+                });
+            } else {
+                $baseQuery->where('assigned_to', $user->id);
+            }
         }
 
         $statusFilter = (string) $request->query('status', 'all');
@@ -223,21 +228,24 @@ class StaffDashboardController extends Controller
         $user = Auth::user();
 
         if ($user->isPetugas()) {
-            abort_unless($report->assignedOfficer?->isPetugas(), 403);
+            if ($user->agency_id !== null && $report->agency_id !== null && $report->agency_id !== $user->agency_id) {
+                abort(403, 'Laporan ini di luar kewenangan dinas Anda.');
+            }
+            abort_unless($report->assigned_to === $user->id || $report->assignedOfficer?->isPetugas(), 403);
         }
 
         $report->load(['category.defaultAgency', 'agency', 'assignedOfficer', 'media', 'statusHistories.actor', 'supportsWithPhotos', 'supportsWithComments']);
 
         $agencies = $user->isAdmin() ? Agency::query()->orderBy('name')->get() : collect();
-        $sharedPetugas = $user->isAdmin()
-            ? User::query()->where('email', User::SHARED_PETUGAS_EMAIL)->first()
-            : null;
+        $officers = $user->isAdmin()
+            ? User::query()->where('role', 'petugas')->with('agency')->orderBy('name')->get()
+            : collect();
 
         return view('staff.show', [
             'user' => $user,
             'report' => $report,
             'agencies' => $agencies,
-            'sharedPetugas' => $sharedPetugas,
+            'officers' => $officers,
         ]);
     }
 

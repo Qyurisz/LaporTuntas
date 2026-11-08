@@ -572,5 +572,94 @@ class ReportFlowTest extends TestCase
         $dashboardResponse->assertDontSee('LT-SLA1-0001');
         $dashboardResponse->assertDontSee('LT-SLA3-0003');
     }
+
+    /**
+     * Test that each agency officer's dashboard and status update actions
+     * are strictly scoped to their respective agency.
+     */
+    public function test_officer_dashboard_and_actions_are_strictly_scoped_to_their_agency(): void
+    {
+        $category = Category::query()->firstOrFail();
+        $puAgency = Agency::query()->where('code', 'DPU')->firstOrFail();
+        $dlhAgency = Agency::query()->where('code', 'DLH')->firstOrFail();
+
+        $officerPu = User::query()->where('email', 'petugas.pu@laportuntas.id')->firstOrFail();
+        $officerDlh = User::query()->where('email', 'petugas.dlh@laportuntas.id')->firstOrFail();
+
+        $puReport = Report::query()->create([
+            'ticket_id' => 'LT-DPU1-0001',
+            'category_id' => $category->id,
+            'agency_id' => $puAgency->id,
+            'assigned_to' => $officerPu->id,
+            'title' => 'Perbaikan jalan aspal berlubang DPU',
+            'description' => 'Aspal rusak parah di pertigaan jalan utama.',
+            'latitude' => -7.9550000,
+            'longitude' => 112.6280000,
+            'location_label' => 'Jalan PU',
+            'status' => Report::STATUS_DITUGASKAN,
+            'is_visible_on_map' => true,
+        ]);
+
+        $dlhReport = Report::query()->create([
+            'ticket_id' => 'LT-DLH1-0001',
+            'category_id' => $category->id,
+            'agency_id' => $dlhAgency->id,
+            'assigned_to' => $officerDlh->id,
+            'title' => 'Pengangkutan tumpukan sampah DLH',
+            'description' => 'Sampah menumpuk di tempat pembuangan sementara.',
+            'latitude' => -7.9560000,
+            'longitude' => 112.6290000,
+            'location_label' => 'Jalan DLH',
+            'status' => Report::STATUS_DITUGASKAN,
+            'is_visible_on_map' => true,
+        ]);
+
+        // 1. DLH Officer dashboard must only see DLH reports
+        $dlhDashboard = $this->actingAs($officerDlh)->get(route('staff.dashboard'));
+        $dlhDashboard->assertOk();
+        $dlhDashboard->assertSee('LT-DLH1-0001');
+        $dlhDashboard->assertDontSee('LT-DPU1-0001');
+
+        // 2. DLH Officer cannot view or update DPU report (403 Forbidden)
+        $this->actingAs($officerDlh)
+            ->get(route('staff.reports.show', $puReport))
+            ->assertForbidden();
+
+        $this->actingAs($officerDlh)
+            ->patch(route('staff.reports.status', $puReport), [
+                'status' => Report::STATUS_DIPROSES,
+                'note' => 'Coba ubah status bukan dinas saya.',
+            ])
+            ->assertForbidden();
+
+        // 3. DLH Officer can update their own DLH report
+        $this->actingAs($officerDlh)
+            ->patch(route('staff.reports.status', $dlhReport), [
+                'status' => Report::STATUS_DIPROSES,
+                'note' => 'Tim DLH sedang menuju lokasi untuk pengangkutan.',
+            ])
+            ->assertRedirect();
+
+        $dlhReport->refresh();
+        $this->assertSame(Report::STATUS_DIPROSES, $dlhReport->status);
+
+        // 4. PU Officer dashboard must only see PU reports
+        $puDashboard = $this->actingAs($officerPu)->get(route('staff.dashboard'));
+        $puDashboard->assertOk();
+        $puDashboard->assertSee('LT-DPU1-0001');
+        $puDashboard->assertDontSee('LT-DLH1-0001');
+
+        // 5. PU Officer cannot view or update DLH report
+        $this->actingAs($officerPu)
+            ->get(route('staff.reports.show', $dlhReport))
+            ->assertForbidden();
+
+        $this->actingAs($officerPu)
+            ->patch(route('staff.reports.status', $dlhReport), [
+                'status' => Report::STATUS_SELESAI,
+                'note' => 'Coba selesaikan dinas lain.',
+            ])
+            ->assertForbidden();
+    }
 }
 

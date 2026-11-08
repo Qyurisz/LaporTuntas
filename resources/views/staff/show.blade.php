@@ -278,17 +278,21 @@
                             </select>
                         </div>
 
-                        @if($sharedPetugas)
-                            <input type="hidden" name="assigned_to" value="{{ $sharedPetugas->id }}">
-                            <div class="rounded-xl bg-canvas border border-border p-3">
-                                <p class="text-xs font-extrabold text-navy">Petugas Pelaksana</p>
-                                <p class="mt-1 text-xs text-text-muted">{{ $sharedPetugas->name }} · akun bersama untuk seluruh dinas</p>
-                            </div>
-                        @else
-                            <div class="rounded-xl bg-warning-surface border border-warning/30 p-3 text-xs font-bold text-warning-text">
-                                Akun petugas bersama belum tersedia. Jalankan seeder database untuk menyiapkannya.
-                            </div>
-                        @endif
+                        <div>
+                            <label for="officer-select" class="block text-xs font-extrabold text-navy mb-1">Petugas Lapangan Instansi Terkait</label>
+                            <select id="officer-select"
+                                    name="assigned_to"
+                                    required
+                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
+                                <option value="">-- Pilih Petugas Pelaksana --</option>
+                                @foreach($officers as $officer)
+                                    <option value="{{ $officer->id }}" @selected($report->assigned_to === $officer->id || (! $report->assigned_to && $officer->agency_id === ($report->agency_id ?? $report->category?->default_agency_id)))>
+                                        {{ $officer->name }} ({{ $officer->agency?->code ?? 'Umum' }}) — {{ $officer->email }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-[11px] text-text-muted">Laporan akan langsung muncul di panel kerja petugas dinas terkait.</p>
+                        </div>
 
                         <div>
                             <label for="assign-note" class="block text-xs font-extrabold text-navy mb-1">Catatan Penugasan (Opsional)</label>
@@ -299,10 +303,9 @@
                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs text-navy focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
                         </div>
 
-                        <button type="submit" @disabled(! $sharedPetugas)
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-navy hover:bg-primary-hover disabled:opacity-50 text-white text-xs font-extrabold transition cursor-pointer active:scale-[0.99]">
-                            Tetapkan Dinas dan Kirim ke Petugas
-                        </button>
+                        <button type="submit"
+                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-navy hover:bg-primary-hover text-white text-xs font-extrabold transition cursor-pointer active:scale-[0.99]">
+                            Tugaskan Laporan ke Petugas
                         </button>
                     </form>
 

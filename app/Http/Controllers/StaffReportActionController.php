@@ -31,9 +31,7 @@ class StaffReportActionController extends Controller
             'assigned_to' => [
                 'required',
                 'integer',
-                Rule::exists('users', 'id')->where(fn ($query) => $query
-                    ->where('role', 'petugas')
-                    ->where('email', User::SHARED_PETUGAS_EMAIL)),
+                Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'petugas')),
             ],
             'note' => ['nullable', 'string', 'max:500'],
         ]);
@@ -86,7 +84,13 @@ class StaffReportActionController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        abort_unless($user->isPetugas() && $report->assignedOfficer?->isPetugas(), 403);
+        abort_unless($user->isPetugas(), 403);
+
+        if ($user->agency_id !== null && $report->agency_id !== null && $report->agency_id !== $user->agency_id) {
+            abort(403, 'Anda tidak memiliki wewenang untuk memperbarui laporan dinas ini.');
+        }
+
+        abort_unless($report->assigned_to === $user->id || $report->assignedOfficer?->isPetugas(), 403);
 
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:ditugaskan,diproses,selesai'],

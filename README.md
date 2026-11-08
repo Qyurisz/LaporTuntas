@@ -68,7 +68,10 @@
    - Halaman Utama Peta Warga: `http://localhost:8000`
    - Panel Petugas & Admin: `http://localhost:8000/petugas/login`
      - **Admin / Moderator:** `admin@laportuntas.id` | Password: `password`
-     - **Petugas Lapangan:** `petugas@laportuntas.id` | Password: `password`
+     - **Petugas Dinas PU (Jalan & Fasum):** `petugas.pu@laportuntas.id` | Password: `password`
+     - **Petugas DLH (Sampah):** `petugas.dlh@laportuntas.id` | Password: `password`
+     - **Petugas Dishub (Lampu Jalan & Rambu):** `petugas.dishub@laportuntas.id` | Password: `password`
+     - **Petugas DSDA (Drainase & Banjir):** `petugas.dsda@laportuntas.id` | Password: `password`
 
 ---
 

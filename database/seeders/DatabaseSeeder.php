@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::query()->firstOrCreate(
+        User::query()->updateOrCreate(
             ['email' => 'admin@laportuntas.id'],
             [
                 'name' => 'Moderator Lapor Tuntas',
@@ -59,25 +59,40 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $sharedPetugas = User::query()->firstOrCreate(
-            ['email' => User::SHARED_PETUGAS_EMAIL],
+        $officers = [
             [
-                'name' => 'Petugas Lapor Tuntas',
-                'password' => Hash::make('password'),
-                'role' => 'petugas',
-                'agency_id' => null,
-            ]
-        );
+                'email' => 'petugas.pu@laportuntas.id',
+                'name' => 'Petugas Dinas Bina Marga & PU',
+                'agency_id' => $pu->id,
+            ],
+            [
+                'email' => 'petugas.dlh@laportuntas.id',
+                'name' => 'Petugas Dinas Lingkungan Hidup',
+                'agency_id' => $dlh->id,
+            ],
+            [
+                'email' => 'petugas.dishub@laportuntas.id',
+                'name' => 'Petugas Dinas Perhubungan & PJU',
+                'agency_id' => $dishub->id,
+            ],
+            [
+                'email' => 'petugas.dsda@laportuntas.id',
+                'name' => 'Petugas Dinas SDA & Drainase',
+                'agency_id' => $dsda->id,
+            ],
+        ];
 
-        $sharedPetugas->update([
-            'name' => 'Petugas Lapor Tuntas',
-            'role' => 'petugas',
-            'agency_id' => null,
-        ]);
-
-        Report::query()
-            ->whereIn('assigned_to', User::query()->where('role', 'petugas')->where('id', '!=', $sharedPetugas->id)->select('id'))
-            ->update(['assigned_to' => $sharedPetugas->id]);
+        foreach ($officers as $officerData) {
+            User::query()->updateOrCreate(
+                ['email' => $officerData['email']],
+                [
+                    'name' => $officerData['name'],
+                    'password' => Hash::make('password'),
+                    'role' => 'petugas',
+                    'agency_id' => $officerData['agency_id'],
+                ]
+            );
+        }
 
         $categoriesData = [
             ['name' => 'Jalan rusak / berlubang', 'slug' => 'jalan-rusak', 'icon' => 'construction', 'agency_id' => $pu->id, 'sla_hours' => 168],

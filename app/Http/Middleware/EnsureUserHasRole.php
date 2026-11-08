@@ -27,18 +27,6 @@ class EnsureUserHasRole
             abort(403);
         }
 
-        if ($user instanceof User && $user->isPetugas()) {
-            if ($user->email !== User::SHARED_PETUGAS_EMAIL) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return redirect()
-                    ->route('staff.login')
-                    ->withErrors(['email' => 'Masuk kembali menggunakan akun petugas bersama.']);
-            }
-        }
-
         return $next($request);
     }
 }

@@ -7,11 +7,17 @@
             <div class="flex flex-wrap items-center gap-2">
                 <span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-lime text-navy">Petugas Lapangan</span>
                 @if($user->agency)
-                    <span class="text-xs font-bold text-primary-soft">{{ $user->agency->name }}</span>
+                    <span class="text-xs font-bold text-primary-soft">{{ $user->agency->name }} ({{ $user->agency->code }})</span>
                 @endif
             </div>
-            <h1 class="mt-2 text-xl sm:text-2xl font-extrabold">Tugas lapangan, {{ $user->name }}</h1>
-            <p class="mt-1 text-sm text-primary-soft/85">Pantau tugas lintas dinas, pilih dinas yang ingin dilihat, lalu laporkan progres penanganannya.</p>
+            <h1 class="mt-2 text-xl sm:text-2xl font-extrabold">Tugas Lapangan: {{ $user->name }}</h1>
+            <p class="mt-1 text-sm text-primary-soft/85">
+                @if($user->agency)
+                    Pantau dan laporkan progres penanganan khusus kewenangan {{ $user->agency->name }}.
+                @else
+                    Pantau tugas lapangan yang ditugaskan kepada Anda, lalu laporkan progres penanganannya.
+                @endif
+            </p>
         </div>
         <form action="{{ route('staff.logout') }}" method="POST">
             @csrf
@@ -52,12 +58,14 @@
                         <option value="{{ $category->id }}" @selected((int) $categoryFilter === $category->id)>{{ $category->name }}</option>
                     @endforeach
                 </select>
+                @if(! $user->agency_id)
                 <select name="agency" onchange="this.form.submit()" aria-label="Filter dinas tugas" class="min-h-[42px] px-3 rounded-xl bg-surface border border-border text-xs font-extrabold text-navy">
                     <option value="0" @selected($agencyFilter === 0)>Semua dinas</option>
                     @foreach($agencies as $agency)
                         <option value="{{ $agency->id }}" @selected($agencyFilter === $agency->id)>{{ $agency->name }}</option>
                     @endforeach
                 </select>
+                @endif
             </form>
         </div>
 
