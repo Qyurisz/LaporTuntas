@@ -227,6 +227,42 @@ class ReportFlowTest extends TestCase
     }
 
     /**
+     * Test staff authentication allows agency officers and admin to login.
+     */
+    public function test_agency_officers_and_admin_can_login_via_form(): void
+    {
+        // 1. Officer PU login
+        $puResponse = $this->post(route('staff.login.submit'), [
+            'email' => 'petugas.pu@laportuntas.id',
+            'password' => 'password',
+        ]);
+        $puResponse->assertRedirect(route('staff.dashboard'));
+        $this->assertAuthenticatedAs(User::query()->where('email', 'petugas.pu@laportuntas.id')->firstOrFail());
+
+        // Logout
+        $this->post(route('staff.logout'))->assertRedirect(route('staff.login'));
+
+        // 2. Officer DLH login
+        $dlhResponse = $this->post(route('staff.login.submit'), [
+            'email' => 'petugas.dlh@laportuntas.id',
+            'password' => 'password',
+        ]);
+        $dlhResponse->assertRedirect(route('staff.dashboard'));
+        $this->assertAuthenticatedAs(User::query()->where('email', 'petugas.dlh@laportuntas.id')->firstOrFail());
+
+        // Logout
+        $this->post(route('staff.logout'))->assertRedirect(route('staff.login'));
+
+        // 3. Admin login
+        $adminResponse = $this->post(route('staff.login.submit'), [
+            'email' => 'admin@laportuntas.id',
+            'password' => 'password',
+        ]);
+        $adminResponse->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs(User::query()->where('email', 'admin@laportuntas.id')->firstOrFail());
+    }
+
+    /**
      * Test RBAC authorization prevents field officers from rejecting or assigning reports.
      */
     public function test_petugas_cannot_reject_or_assign_reports(): void

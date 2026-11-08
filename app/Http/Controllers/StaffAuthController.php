@@ -16,13 +16,14 @@ class StaffAuthController extends Controller
     public function showLogin(Request $request): View|RedirectResponse
     {
         if (Auth::check()) {
+            /** @var User $user */
             $user = Auth::user();
 
             if ($user->isAdmin()) {
                 return redirect()->route('admin.dashboard');
             }
 
-            if ($user->isPetugas() && $user->email === User::SHARED_PETUGAS_EMAIL) {
+            if ($user->isPetugas()) {
                 return redirect()->route('staff.dashboard');
             }
 
@@ -48,13 +49,13 @@ class StaffAuthController extends Controller
             /** @var User $user */
             $user = Auth::user();
 
-            if (! $user->isAdmin() && (! $user->isPetugas() || $user->email !== User::SHARED_PETUGAS_EMAIL)) {
+            if (! $user->isAdmin() && ! $user->isPetugas()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 return back()
-                    ->withErrors(['email' => 'Gunakan akun admin atau akun petugas bersama untuk masuk.'])
+                    ->withErrors(['email' => 'Hanya akun administrator atau petugas yang diizinkan masuk.'])
                     ->onlyInput('email');
             }
 
