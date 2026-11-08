@@ -71,11 +71,16 @@ class ReportDetailGalleryTest extends TestCase
 
         // 2. Check Staff Detail Page
         $staffUser = User::query()->create([
-            'name' => 'Petugas DLH',
-            'email' => 'petugas.dlh@malang.go.id',
+            'name' => 'Petugas Lapangan',
+            'email' => User::SHARED_PETUGAS_EMAIL,
             'password' => bcrypt('password'),
             'role' => 'petugas',
             'agency_id' => $agency->id,
+        ]);
+
+        $report->update([
+            'assigned_to' => $staffUser->id,
+            'status' => Report::STATUS_DITUGASKAN,
         ]);
 
         $staffRes = $this->actingAs($staffUser)->get(route('staff.reports.show', ['report' => $report->id]));

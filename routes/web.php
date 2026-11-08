@@ -53,9 +53,12 @@ Route::prefix('staff')->group(function (): void {
     Route::post('/login', [StaffAuthController::class, 'login'])->name('staff.login.submit');
     Route::post('/logout', [StaffAuthController::class, 'logout'])->name('staff.logout');
 
+    Route::middleware(['auth', 'role:petugas,admin'])->group(function (): void {
+        Route::get('/reports/export', [StaffDashboardController::class, 'export'])->name('staff.reports.export');
+    });
+
     Route::middleware(['auth', 'role:petugas'])->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
-        Route::get('/reports/export', [StaffDashboardController::class, 'export'])->name('staff.reports.export');
         Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('staff.reports.show');
         Route::patch('/reports/{report}/status', [StaffReportActionController::class, 'updateStatus'])->name('staff.reports.status');
     });
@@ -63,6 +66,7 @@ Route::prefix('staff')->group(function (): void {
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/dashboard', [StaffDashboardController::class, 'adminIndex'])->name('dashboard');
+    Route::get('/reports/export', [StaffDashboardController::class, 'export'])->name('reports.export');
     Route::get('/reports/{report}', [StaffDashboardController::class, 'show'])->name('reports.show');
     Route::patch('/reports/{report}/assign', [StaffReportActionController::class, 'assign'])->name('reports.assign');
     Route::patch('/reports/{report}/reject', [StaffReportActionController::class, 'reject'])->name('reports.reject');

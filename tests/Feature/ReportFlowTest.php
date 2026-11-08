@@ -101,7 +101,7 @@ class ReportFlowTest extends TestCase
 
         // 2. Admin assigns report -> Ditugaskan remains visible with status=all
         $this->actingAs($admin)
-            ->patch(route('staff.reports.assign', $report), [
+            ->patch(route('admin.reports.assign', $report), [
                 'agency_id' => $agency->id,
                 'assigned_to' => $officer->id,
                 'note' => 'Segera tindak lanjuti malam ini.',
@@ -196,7 +196,7 @@ class ReportFlowTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-            ->patch(route('staff.reports.reject', $spamReport), [
+            ->patch(route('admin.reports.reject', $spamReport), [
                 'rejection_reason' => 'Foto tidak menunjukkan fasilitas umum yang dilaporkan.',
             ])
             ->assertRedirect();
@@ -251,7 +251,7 @@ class ReportFlowTest extends TestCase
         ]);
 
         $this->actingAs($officer)
-            ->patch(route('staff.reports.reject', $report), [
+            ->patch(route('admin.reports.reject', $report), [
                 'rejection_reason' => 'Coba tolak sebagai petugas biasa.',
             ])
             ->assertForbidden();
@@ -564,7 +564,7 @@ class ReportFlowTest extends TestCase
         $this->assertFalse($completedReport->isOverdue());
 
         // 4. Test staff dashboard filter by status=overdue
-        $dashboardResponse = $this->actingAs($admin)->get(route('staff.dashboard', [
+        $dashboardResponse = $this->actingAs($admin)->get(route('admin.dashboard', [
             'status' => 'overdue',
         ]));
         $dashboardResponse->assertOk();

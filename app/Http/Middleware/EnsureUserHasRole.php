@@ -20,14 +20,14 @@ class EnsureUserHasRole
         $user = $request->user();
 
         if (! in_array($user?->role, $roles, true)) {
-            if ($user instanceof User && ($user->isAdmin() || $user->isPetugas())) {
+            if ($request->isMethod('GET') && $user instanceof User && ($user->isAdmin() || $user->isPetugas())) {
                 return redirect()->route($user->isAdmin() ? 'admin.dashboard' : 'staff.dashboard');
             }
 
             abort(403);
         }
 
-        if (in_array('petugas', $roles, true) && $user instanceof User) {
+        if ($user instanceof User && $user->isPetugas()) {
             if ($user->email !== User::SHARED_PETUGAS_EMAIL) {
                 Auth::logout();
                 $request->session()->invalidate();
