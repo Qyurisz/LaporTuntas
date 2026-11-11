@@ -157,6 +157,113 @@ window.downloadTicketCardPng = async function (ticketData) {
     link.click();
 };
 
+/**
+ * Seamless asynchronous filter & pagination for staff/admin dashboards.
+ * Updates table rows, pagination, and stats without full page reload.
+ */
+Alpine.data('dashboardTableFilter', () => ({
+    loading: false,
+
+    init() {
+        window.addEventListener('popstate', () => {
+            this.fetchUrl(window.location.href, false);
+        });
+    },
+
+    async applyFilter() {
+        const form = this.$refs.filterForm;
+        if (!form) return;
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+        for (const [key, val] of formData.entries()) {
+            if (val !== '' && val !== null) {
+                params.append(key, val);
+            }
+        }
+        const actionUrl = form.getAttribute('action') || window.location.pathname;
+        const fullUrl = `${actionUrl}?${params.toString()}`;
+        await this.fetchUrl(fullUrl, true);
+    },
+
+    handleStatsClick(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && !link.href.includes('export') && !link.href.includes('logout')) {
+            e.preventDefault();
+            this.fetchUrl(link.href, true);
+        }
+    },
+
+    handlePaginationClick(e) {
+        const link = e.target.closest('a');
+        if (link && link.href) {
+            e.preventDefault();
+            this.fetchUrl(link.href, true);
+        }
+    },
+
+    async fetchUrl(url, pushState = true) {
+        this.loading = true;
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Gagal memuat data');
+            }
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // 1. Update Table Container
+            const newTable = doc.getElementById('dashboard-table-container');
+            const currentTable = document.getElementById('dashboard-table-container');
+            if (newTable && currentTable) {
+                currentTable.innerHTML = newTable.innerHTML;
+            }
+
+            // 2. Update Pagination Container
+            const newPagination = doc.getElementById('dashboard-pagination-container');
+            const currentPagination = document.getElementById('dashboard-pagination-container');
+            if (newPagination && currentPagination) {
+                currentPagination.innerHTML = newPagination.innerHTML;
+            }
+
+            // 3. Update Summary Stats Grid
+            const newStats = doc.getElementById('dashboard-stats-grid');
+            const currentStats = document.getElementById('dashboard-stats-grid');
+            if (newStats && currentStats) {
+                currentStats.innerHTML = newStats.innerHTML;
+            }
+
+            // 4. Synchronize Selects in the Filter Form
+            const newForm = doc.querySelector('[x-ref="filterForm"]');
+            if (newForm && this.$refs.filterForm) {
+                const selects = newForm.querySelectorAll('select');
+                selects.forEach((newSelect) => {
+                    const currentSelect = this.$refs.filterForm.querySelector(`select[name="${newSelect.name}"]`);
+                    if (currentSelect) {
+                        currentSelect.value = newSelect.value;
+                    }
+                });
+            }
+
+            // 5. Update browser history state
+            if (pushState && window.location.href !== url) {
+                window.history.pushState({}, '', url);
+            }
+        } catch (err) {
+            console.error('AJAX filter error, fallback to normal navigation:', err);
+            if (pushState) {
+                window.location.href = url;
+            }
+        } finally {
+            this.loading = false;
+        }
+    },
+}));
+
 Alpine.start();
 
 // PWA Service Worker Registration

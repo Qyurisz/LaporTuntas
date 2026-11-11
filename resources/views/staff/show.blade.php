@@ -50,96 +50,100 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Left Column: Report Details & Photos -->
+        <!-- Left Column: Report Details & Photos (Matches Image 1) -->
         <div class="lg:col-span-7 space-y-6">
-            <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6 space-y-5">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm">
-                    <div class="p-3.5 rounded-xl bg-canvas border border-border">
-                        <p class="text-xs font-bold text-text-muted">Kategori &amp; Target SLA</p>
-                        <p class="font-extrabold text-navy mt-0.5">{{ $report->category?->name }}</p>
-                        @php
-                            $sla = $report->getSlaMeta();
-                        @endphp
-                        <div class="mt-1.5 flex items-center gap-1.5">
-                            @if($sla['is_overdue'])
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-extrabold bg-danger/10 text-danger border border-danger/30">
-                                    <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-danger" stroke-width="2.2" />
-                                    <span>{{ $sla['badge_label'] }} (Batas: {{ $sla['deadline_label'] }})</span>
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-bold bg-surface text-text-muted border border-border">
-                                    <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
-                                    <span>{{ $sla['badge_label'] }} (Target: {{ $sla['target_label'] }})</span>
-                                </span>
-                            @endif
-                        </div>
+            <div class="bg-surface rounded-2xl sm:rounded-3xl border border-border p-5 sm:p-7 space-y-6 shadow-xs">
+                <!-- Header: Label & Title -->
+                <div>
+                    <p class="text-[11px] font-extrabold uppercase tracking-wider text-text-muted">MASALAH</p>
+                    <h2 class="mt-1 text-lg sm:text-xl font-extrabold text-navy leading-snug">
+                        {{ $report->title }}
+                    </h2>
+                </div>
+
+                <!-- Metadata Rows -->
+                <div class="space-y-3 text-xs sm:text-sm">
+                    <div class="grid grid-cols-12 gap-2 items-baseline">
+                        <span class="col-span-4 sm:col-span-3 text-text-muted font-bold">Kategori</span>
+                        <span class="col-span-8 sm:col-span-9 font-extrabold text-navy">{{ $report->category?->name ?? 'Lainnya' }}</span>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-canvas border border-border">
-                        <p class="text-xs font-bold text-text-muted">Instansi &amp; Dukungan Warga</p>
-                        <p class="font-extrabold text-navy mt-0.5">{{ $report->agency?->name ?? 'Belum ditugaskan' }}</p>
-                        <div class="mt-1.5 flex items-center gap-2">
+
+                    <div class="grid grid-cols-12 gap-2 items-baseline">
+                        <span class="col-span-4 sm:col-span-3 text-text-muted font-bold">Instansi</span>
+                        <div class="col-span-8 sm:col-span-9">
+                            <p class="font-extrabold text-navy">{{ $report->agency?->name ?? 'Belum ditugaskan' }}</p>
                             @if($report->assignedOfficer)
-                                <p class="text-xs font-bold text-primary-hover">{{ $report->assignedOfficer->name }}</p>
+                                <p class="text-xs text-text-muted font-medium mt-0.5">{{ $report->assignedOfficer->name }}</p>
                             @endif
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-caption font-extrabold {{ $report->supports_count > 0 ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-surface text-text-muted border border-border' }}">
-                                <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2.2" />
-                                <span>{{ $report->supports_count ?? 0 }} Dukungan Warga</span>
-                            </span>
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-12 gap-2 items-baseline">
+                        <span class="col-span-4 sm:col-span-3 text-text-muted font-bold">SLA</span>
+                        <div class="col-span-8 sm:col-span-9">
+                            @php $sla = $report->getSlaMeta(); @endphp
+                            <span class="font-extrabold {{ $sla['is_overdue'] ? 'text-danger' : 'text-navy' }}">
+                                {{ $sla['badge_label'] }}
+                            </span>
+                            <span class="text-text-muted font-normal">(target {{ $sla['target_label'] }})</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-12 gap-2 items-baseline">
+                        <span class="col-span-4 sm:col-span-3 text-text-muted font-bold">Dukungan</span>
+                        <span class="col-span-8 sm:col-span-9 font-extrabold text-navy tabular-nums">{{ (int) ($report->supports_count ?? 0) }} warga</span>
                     </div>
                 </div>
 
-                <div>
-                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-text-muted">Deskripsi Masalah</h2>
-                    <p class="mt-1.5 p-4 rounded-2xl bg-canvas text-sm font-semibold text-navy leading-relaxed">
-                        {{ $report->description }}
-                    </p>
-                </div>
-
-                <div>
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <h2 class="text-xs font-extrabold uppercase tracking-wider text-text-muted">Titik GPS Lokasi Masalah</h2>
+                <!-- Lokasi Section -->
+                <div class="space-y-2 pt-1 border-t border-border-soft">
+                    <div class="flex items-center justify-between pt-3">
+                        <h3 class="text-xs sm:text-sm font-extrabold text-navy">Lokasi</h3>
                         <a href="https://www.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}"
                            target="_blank"
                            rel="noopener"
-                           class="text-xs font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
-                            <span>Buka Navigasi Google Maps</span>
-                            <x-icon name="external-link" class="w-3 h-3" />
+                           class="text-xs font-bold text-primary hover:underline">
+                            Buka di Google Maps
                         </a>
                     </div>
-                    <p class="text-xs font-bold text-primary-hover mb-2 inline-flex items-center gap-1">
-                        <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" />
-                        <span>{{ $report->location_label }} ({{ number_format($report->latitude, 6) }}, {{ number_format($report->longitude, 6) }})</span>
+                    <p class="text-xs sm:text-sm text-text-muted font-medium">
+                        {{ $report->location_label }}
                     </p>
-                    <div id="staff-report-map" class="w-full h-60 rounded-2xl border border-border overflow-hidden bg-canvas"></div>
+                    <div id="staff-report-map" class="w-full h-52 sm:h-56 rounded-2xl border border-border overflow-hidden bg-canvas"></div>
                 </div>
 
-                <!-- Media Evidence -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <span class="inline-block px-2.5 py-1 rounded-full bg-primary-soft text-primary-hover text-xs font-extrabold mb-2">
-                            Foto Sebelum (Warga)
-                        </span>
-                        @foreach($report->media->where('type', 'before') as $media)
-                            <img src="{{ $media->publicUrl() }}"
-                                 alt="Foto bukti sebelum perbaikan"
-                                 class="w-full h-48 object-cover rounded-2xl border border-border mb-2">
-                        @endforeach
-                    </div>
+                <!-- Sebelum & Sesudah Photos -->
+                <div class="pt-1 border-t border-border-soft">
+                    <div class="grid grid-cols-2 gap-4 pt-3">
+                        <!-- Sebelum -->
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-extrabold text-navy mb-2">Sebelum</h4>
+                            @php $beforePhoto = $report->media->where('type', 'before')->first(); @endphp
+                            @if($beforePhoto)
+                                <img src="{{ $beforePhoto->publicUrl() }}"
+                                     alt="Foto sebelum perbaikan"
+                                     class="w-full h-44 sm:h-48 object-cover rounded-2xl border border-border">
+                            @else
+                                <div class="w-full h-44 sm:h-48 rounded-2xl bg-[#D7E1E8] flex items-center justify-center text-text-muted/70">
+                                    <x-icon name="image" class="w-8 h-8" stroke-width="1.8" />
+                                </div>
+                            @endif
+                        </div>
 
-                    <div>
-                        <span class="inline-block px-2.5 py-1 rounded-full bg-success-soft text-success text-xs font-extrabold mb-2">
-                            Foto Sesudah Perbaikan (Petugas)
-                        </span>
-                        @forelse($report->media->where('type', 'after') as $media)
-                            <img src="{{ $media->publicUrl() }}"
-                                 alt="Foto setelah perbaikan"
-                                 class="w-full h-48 object-cover rounded-2xl border-2 border-success mb-2">
-                        @empty
-                            <div class="h-48 rounded-2xl border border-dashed border-border bg-canvas flex items-center justify-center p-4 text-center text-xs font-semibold text-text-muted">
-                                Belum ada foto bukti perbaikan yang diunggah petugas.
-                            </div>
-                        @endforelse
+                        <!-- Sesudah -->
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-extrabold text-navy mb-2">Sesudah</h4>
+                            @php $afterPhoto = $report->media->where('type', 'after')->first(); @endphp
+                            @if($afterPhoto)
+                                <img src="{{ $afterPhoto->publicUrl() }}"
+                                     alt="Foto sesudah perbaikan"
+                                     class="w-full h-44 sm:h-48 object-cover rounded-2xl border-2 border-success">
+                            @else
+                                <div class="w-full h-44 sm:h-48 rounded-2xl border border-dashed border-border flex items-center justify-center p-4 text-center text-xs text-text-muted font-medium">
+                                    Belum ada foto perbaikan.
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -251,96 +255,126 @@
             </div>
             @endif
 
-            <!-- 2. Admin Only: Manual Assignment & Moderation Reject (FR-22 & FR-24) -->
+            <!-- 2. Admin Only: Manual Assignment & Moderation Reject (Matches Image 2) -->
             @if($user->isAdmin())
-                <div class="bg-surface rounded-2xl border border-border p-5 sm:p-6 space-y-4">
-                    <div>
-                        <span class="text-caption font-extrabold uppercase tracking-wider text-status-verified">Tugas Administrator</span>
-                        <h3 class="text-base font-extrabold text-navy">Tentukan Dinas Penanggung Jawab</h3>
-                        <p class="mt-1 text-xs text-text-muted">Kategori ini disarankan ditangani oleh {{ $report->category?->defaultAgency?->name ?? 'dinas terkait' }}.</p>
-                    </div>
+                <div class="bg-surface rounded-2xl sm:rounded-3xl border border-border p-5 sm:p-7 space-y-4 shadow-xs"
+                     x-data="{
+                         selectedAgencyId: '{{ $report->agency_id ?? $report->category?->default_agency_id }}',
+                         selectedOfficerId: '{{ $report->assigned_to ?? '' }}',
+                         showReject: false
+                     }">
+                    <h3 class="text-base sm:text-lg font-extrabold text-navy">Tugaskan laporan</h3>
 
-                    <form action="{{ route('admin.reports.assign', $report) }}" method="POST" class="space-y-3.5">
+                    <form action="{{ route('admin.reports.assign', $report) }}" method="POST" class="space-y-4">
                         @csrf
                         @method('PATCH')
 
+                        <!-- Instansi Field -->
                         <div>
-                            <label for="agency-select" class="block text-xs font-extrabold text-navy mb-1">Instansi Berwenang</label>
-                            <select id="agency-select"
-                                    name="agency_id"
-                                    required
-                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
-                                @foreach($agencies as $agency)
-                                    <option value="{{ $agency->id }}" @selected(($report->agency_id ?? $report->category?->default_agency_id) === $agency->id)>
-                                        {{ $agency->code }} — {{ $agency->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label for="agency-select" class="block text-xs font-bold text-navy mb-1.5">Instansi</label>
+                            <div class="relative">
+                                <select id="agency-select"
+                                        name="agency_id"
+                                        x-model="selectedAgencyId"
+                                        required
+                                        class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border text-xs sm:text-sm font-bold text-navy bg-surface appearance-none pr-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary cursor-pointer">
+                                    @foreach($agencies as $agency)
+                                        <option value="{{ $agency->id }}" @selected(($report->agency_id ?? $report->category?->default_agency_id) === $agency->id)>
+                                            {{ $agency->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted">
+                                    <x-icon name="chevron-down" class="w-4 h-4" stroke-width="2.2" />
+                                </div>
+                            </div>
+                            <p class="mt-1.5 text-xs text-text-muted font-medium">
+                                Disarankan untuk kategori {{ $report->category?->name ?? 'masalah ini' }}.
+                            </p>
                         </div>
 
+                        <!-- Petugas Field -->
                         <div>
-                            <label for="officer-select" class="block text-xs font-extrabold text-navy mb-1">Petugas Lapangan Instansi Terkait</label>
-                            <select id="officer-select"
-                                    name="assigned_to"
-                                    required
-                                    class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs font-extrabold text-navy bg-surface focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
-                                <option value="">-- Pilih Petugas Pelaksana --</option>
-                                @foreach($officers as $officer)
-                                    <option value="{{ $officer->id }}" @selected($report->assigned_to === $officer->id || (! $report->assigned_to && $officer->agency_id === ($report->agency_id ?? $report->category?->default_agency_id)))>
-                                        {{ $officer->name }} ({{ $officer->agency?->code ?? 'Umum' }}) — {{ $officer->email }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="mt-1 text-[11px] text-text-muted">Laporan akan langsung muncul di panel kerja petugas dinas terkait.</p>
+                            <label for="officer-select" class="block text-xs font-bold text-navy mb-1.5">Petugas</label>
+                            <div class="relative">
+                                <select id="officer-select"
+                                        name="assigned_to"
+                                        x-model="selectedOfficerId"
+                                        required
+                                        class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border text-xs sm:text-sm font-bold text-navy bg-surface appearance-none pr-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary cursor-pointer">
+                                    <option value="">-- Pilih Petugas Pelaksana --</option>
+                                    @foreach($officers as $officer)
+                                        <option value="{{ $officer->id }}" @selected($report->assigned_to === $officer->id || (! $report->assigned_to && $officer->agency_id === ($report->agency_id ?? $report->category?->default_agency_id)))>
+                                            {{ $officer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted">
+                                    <x-icon name="chevron-down" class="w-4 h-4" stroke-width="2.2" />
+                                </div>
+                            </div>
+                            <p class="mt-1.5 text-xs text-text-muted font-medium">
+                                {{ $report->assignedOfficer?->email ?? ($officers->first()?->email ?? 'petugas@laportuntas.id') }}
+                            </p>
                         </div>
 
+                        <!-- Catatan Field -->
                         <div>
-                            <label for="assign-note" class="block text-xs font-extrabold text-navy mb-1">Catatan Penugasan (Opsional)</label>
+                            <label for="assign-note" class="block text-xs font-bold text-navy mb-1.5">Catatan (opsional)</label>
                             <input id="assign-note"
                                    type="text"
                                    name="note"
-                                   placeholder="Misal: Mohon segera ditinjau hari ini"
-                                   class="w-full min-h-[44px] px-4 py-2 rounded-xl border border-border text-xs text-navy focus:outline-none focus:ring-3 focus:ring-primary/35 focus:border-primary">
+                                   placeholder="Mis. mohon segera ditinjau hari ini"
+                                   class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border text-xs sm:text-sm text-navy placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
                         </div>
 
-                        <button type="submit"
-                                class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-navy hover:bg-primary-hover text-white text-xs font-extrabold transition cursor-pointer active:scale-[0.99]">
-                            Tugaskan Laporan ke Petugas
-                        </button>
+                        <!-- Action Row (Matches Image 2) -->
+                        <div class="pt-2 flex items-center justify-between gap-3">
+                            <button type="button"
+                                    @click="showReject = !showReject"
+                                    class="text-xs sm:text-sm font-bold text-danger hover:underline cursor-pointer">
+                                Tolak laporan
+                            </button>
+
+                            <button type="submit"
+                                    class="min-h-[42px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-extrabold shadow-[0_4px_14px_rgba(10,123,157,0.3)] transition active:scale-[0.99] cursor-pointer">
+                                Tugaskan
+                            </button>
+                        </div>
                     </form>
 
-                    <!-- Reject Spam/Invalid Form -->
-                    <div class="pt-4 border-t border-border" x-data="{ showReject: false }">
-                        <button type="button"
-                                @click="showReject = !showReject"
-                                class="text-xs font-extrabold text-danger hover:underline inline-flex items-center gap-1.5 cursor-pointer">
-                            <x-icon name="x-circle" class="w-3.5 h-3.5" />
-                            <span>Tolak Laporan (Spam / Tidak Valid / Di Luar Kewenangan)</span>
-                        </button>
-
-                        <form x-show="showReject"
-                              x-transition
-                              action="{{ route('admin.reports.reject', $report) }}"
+                    <!-- Reject Form Box (appears when clicking Tolak laporan) -->
+                    <div x-show="showReject"
+                         x-transition
+                         class="pt-3 border-t border-border mt-3">
+                        <form action="{{ route('admin.reports.reject', $report) }}"
                               method="POST"
-                              class="mt-3 space-y-3">
+                              class="space-y-3">
                             @csrf
                             @method('PATCH')
                             <div>
-                                <label for="rejection-reason" class="block text-xs font-extrabold text-danger mb-1">
-                                    Alasan Penolakan (Ditampilkan Transparan di Lacak Tiket) *
+                                <label for="rejection-reason" class="block text-xs font-bold text-danger mb-1">
+                                    Alasan Penolakan Laporan <span class="text-danger">*</span>
                                 </label>
                                 <textarea id="rejection-reason"
                                           name="rejection_reason"
                                           rows="2"
                                           required
                                           minlength="10"
-                                          placeholder="Jelaskan alasan penolakan secara sopan dan jelas..."
-                                          class="w-full p-2.5 rounded-xl border border-danger text-xs text-navy focus:outline-none focus:ring-3 focus:ring-danger/30"></textarea>
+                                          placeholder="Jelaskan alasan penolakan secara jelas (mis. laporan spam / di luar kewenangan dinas)..."
+                                          class="w-full p-2.5 rounded-xl border border-danger/40 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-danger/30"></textarea>
                             </div>
-                            <button type="submit"
-                                    class="w-full min-h-[40px] px-4 py-2 rounded-xl bg-danger hover:opacity-90 text-white text-xs font-extrabold cursor-pointer transition active:scale-[0.99]">
-                                Konfirmasi Tolak Laporan
-                            </button>
+                            <div class="flex items-center justify-end gap-2">
+                                <button type="button"
+                                        @click="showReject = false"
+                                        class="px-3 py-1.5 rounded-xl border border-border text-xs font-bold text-text-muted hover:bg-canvas">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                        class="px-4 py-1.5 rounded-xl bg-danger hover:opacity-90 text-white text-xs font-extrabold transition cursor-pointer">
+                                    Konfirmasi Tolak
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

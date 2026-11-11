@@ -30,7 +30,7 @@ window.createRealMapLayerSet = function () {
             err.tile.dataset.fallbackApplied = '1';
             const coords = err.coords;
             const sub = ['a', 'b', 'c'][Math.abs(coords.x + coords.y) % 3];
-            err.tile.src = `https://${sub}.basemaps.cartocdn.com/rastertiles/voyager/${coords.z}/${coords.x}/${coords.y}.png`;
+            err.tile.src = `https://${sub}.tile.openstreetmap.fr/hot/${coords.z}/${coords.x}/${coords.y}.png`;
         }
     });
 
@@ -52,19 +52,9 @@ window.createRealMapLayerSet = function () {
 
     const satelliteHybrid = L.layerGroup([satelliteImagery, satelliteLabels]);
 
-    const cleanVoyager = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-        }
-    );
-
     return {
         jalan: streetOsm,
         satelit: satelliteHybrid,
-        terang: cleanVoyager,
     };
 };
 
@@ -88,7 +78,6 @@ window.initStaticReportMap = function (elementId, lat, lng, popupTitle = '', sta
         {
             'Peta Jalan (OSM)': layers.jalan,
             'Citra Satelit': layers.satelit,
-            'Peta Terang': layers.terang,
         },
         {},
         { position: 'topright', collapsed: true }

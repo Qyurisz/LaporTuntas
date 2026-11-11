@@ -506,8 +506,9 @@ class ReportFlowTest extends TestCase
 
         $track = $this->get(route('tickets.show', ['ticketId' => 'LT-SUP1-0001']));
         $track->assertOk();
-        $track->assertSee('1 Warga Mengalami Ini');
-        $track->assertSee('Terdata 1 Dukungan');
+        $track->assertSee('1 warga');
+        $track->assertSee('mengalami masalah ini');
+        $track->assertSee('Dukunganmu membantu dinas terkait memprioritaskan laporan ini');
 
         // Test support from modal creation flow (with from_form = true)
         $formSupportResponse = $this->postJson(route('api.reports.support', ['ticketId' => $report->ticket_id]), [

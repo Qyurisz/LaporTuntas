@@ -10,100 +10,110 @@
      class="relative w-full h-[100dvh] lg:h-[calc(100dvh-4rem)] min-h-[540px] shrink-0 flex flex-col lg:flex-row overflow-hidden bg-canvas">
 
     <!-- ===================================================================== -->
-    <!-- MANDATORY GPS LOCATION PERMISSION GATE (PRD FR-02 & FR-15)             -->
+    <!-- APP SPLASH SCREEN + GPS LOCATION GATE (PRD FR-02 & FR-15)             -->
+    <!-- Plays on open while GPS resolves; displays location prompt card if denied. -->
     <!-- ===================================================================== -->
-    <div x-show="gpsState !== 'granted'"
-         x-transition.opacity
-         class="absolute inset-0 z-40 bg-navy/30 backdrop-blur-[3px] flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div class="my-auto max-w-md w-full bg-surface rounded-2xl border border-border-soft shadow-[0_14px_36px_rgba(23,50,77,0.12)] p-4 sm:p-7 text-center">
-            <!-- Brand Logo -->
-            <img src="{{ asset('images/logo-laportuntas.png') }}?v=v2"
-                 alt="LaporTuntas — Lacak sampai tuntas"
-                 class="h-7 sm:h-9 w-auto mx-auto mb-2.5 sm:mb-4 object-contain">
+    <div x-show="splashVisible"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         role="status"
+         aria-live="polite"
+         :aria-busy="gpsState !== 'denied'"
+         :class="gpsState === 'denied' ? 'justify-between sm:justify-center pt-10 pb-6 sm:py-10 gap-6 sm:gap-8' : 'justify-center'"
+         class="lt-splash fixed inset-0 z-[60] bg-primary text-white flex flex-col items-center overflow-y-auto px-5 sm:px-6">
 
-            <!-- Vector Illustration -->
-            <div class="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary-soft border-3 sm:border-4 border-white shadow-md flex items-center justify-center mb-2.5 sm:mb-3.5 relative">
-                <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                    <circle cx="12" cy="10" r="3"/>
+        <!-- Brand mark: pin drops in, oval ripples on landing, check draws itself -->
+        <div class="relative flex flex-col items-center shrink-0">
+            <div class="relative w-24 h-24 flex items-end justify-center" aria-hidden="true">
+                <span class="lt-splash-ripple"></span>
+                <span class="lt-splash-ripple lt-splash-ripple--late"></span>
+                <span class="lt-splash-shadow"></span>
+                <svg class="lt-splash-pin relative w-16 h-20" viewBox="0 0 64 80" fill="none">
+                    <path d="M32 2C16 2 4 14 4 29.5 4 49 32 76 32 76s28-27 28-46.5C60 14 48 2 32 2Z" fill="#FFFFFF"/>
+                    <path class="lt-splash-check" d="M21 30.5 28.5 38 43 23.5" stroke="#0A7B9D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span class="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-lime text-navy font-extrabold flex items-center justify-center text-[9px] sm:text-[10px] border-2 border-white">
-                    GPS
-                </span>
             </div>
 
-            <template x-if="gpsState === 'prompt' || gpsState === 'loading'">
-                <div>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-extrabold bg-primary-soft text-primary-hover mb-1.5 sm:mb-2">
-                        Lapor Tuntas • Peta Warga
-                    </span>
-                    <h1 class="text-base sm:text-xl font-extrabold text-navy leading-snug">
-                        Aktifkan lokasi untuk membuka peta laporan di sekitarmu
-                    </h1>
-                    <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-text-muted leading-relaxed">
-                        Kami menggunakan titik GPS perangkatmu untuk menampilkan masalah publik terdekat dan memastikan lokasi laporan akurat.
-                    </p>
+            <h1 class="lt-splash-fade mt-5 font-brand text-4xl font-extrabold leading-none" style="animation-delay: 700ms">
+                LaporTuntas
+            </h1>
+            <p class="lt-splash-fade mt-1 font-brand text-sm sm:text-base font-medium leading-tight text-white/90" style="animation-delay: 850ms">
+                Lacak sampai tuntas
+            </p>
+        </div>
 
-                    <div class="mt-2.5 sm:mt-3.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-canvas text-left text-xs text-navy space-y-1 sm:space-y-1.5">
-                        <div class="flex items-start gap-2">
-                            <x-icon name="check" class="w-3.5 h-3.5 text-success shrink-0 mt-0.5" stroke-width="2.5" />
-                            <span><strong>Privasi aman:</strong> Posisi kamu tidak disimpan saat menjelajahi peta.</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <x-icon name="check" class="w-3.5 h-3.5 text-success shrink-0 mt-0.5" stroke-width="2.5" />
-                            <span><strong>Tanpa login:</strong> Langsung lapor dan simpan tiket ber-QR.</span>
-                        </div>
-                    </div>
+        <!-- Bottom loading bar while requesting GPS -->
+        <div x-show="gpsState !== 'denied'"
+             class="lt-splash-fade absolute bottom-[calc(3rem+env(safe-area-inset-bottom))] inset-x-0 px-6 flex flex-col items-center text-center"
+             style="animation-delay: 1000ms">
+            <div class="w-40 h-1 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
+                <div class="lt-splash-progress h-full w-1/3 rounded-full bg-lime"></div>
+            </div>
+            <p class="mt-3 text-xs font-bold text-white/90"
+               x-text="gpsState === 'granted' ? 'Lokasi ditemukan' : 'Mencari lokasimu…'">Menyiapkan peta…</p>
+        </div>
 
-                    <button type="button"
-                            @click="requestGpsLocation()"
-                            :disabled="gpsState === 'loading'"
-                            class="mt-4 w-full min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-extrabold text-xs sm:text-sm shadow-[0_6px_18px_rgba(10,123,157,0.32)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
-                        <svg x-show="gpsState !== 'loading'" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        <!-- Location denied floating card + track ticket link (PRD FR-15) -->
+        <div x-show="gpsState === 'denied'"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             style="display: none"
+             class="w-full max-w-[390px] sm:max-w-[420px] flex flex-col items-center shrink-0">
+            <div class="w-full bg-surface text-navy rounded-[24px] p-5 sm:p-6 shadow-[0_20px_50px_rgba(12,45,65,0.22)] text-left">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-warning-soft text-warning flex items-center justify-center shrink-0" aria-hidden="true">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/>
+                            <path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/>
+                            <path d="m2 2 20 20"/>
+                            <path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/>
+                            <path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/>
                         </svg>
-                        <span x-text="gpsState === 'loading' ? 'Mendeteksi titik GPS...' : 'Aktifkan Izin Lokasi'"></span>
-                    </button>
-                </div>
-            </template>
-
-            <!-- State when GPS permission is denied (PRD FR-15) -->
-            <template x-if="gpsState === 'denied'">
-                <div>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-caption sm:text-xs font-extrabold bg-danger/10 text-danger mb-1.5 sm:mb-2">
-                        Izin Lokasi Belum Aktif
-                    </span>
-                    <h1 class="text-base sm:text-xl font-extrabold text-navy">
-                        Peta &amp; form lapor memerlukan akses lokasi
-                    </h1>
-                    <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-text-muted leading-relaxed" x-text="gpsErrorMessage || 'Izin lokasi ditolak oleh browser perangkat kamu.'"></p>
-
-                    <div class="mt-2.5 sm:mt-3.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-canvas text-left text-xs text-navy space-y-1.5">
-                        <p class="font-extrabold">Cara mengaktifkan kembali:</p>
-                        <ol class="list-decimal list-inside space-y-1 text-text-muted font-semibold">
-                            <li>Ketuk ikon <strong>Pengaturan Situs / Gembok</strong> di bilah alamat browser.</li>
-                            <li>Ubah izin <strong>Lokasi (Location)</strong> menjadi <strong>Izinkan (Allow)</strong>.</li>
-                            <li>Tekan tombol <strong>Coba Lagi</strong> di bawah ini.</li>
-                        </ol>
                     </div>
-
-                    <button type="button"
-                            @click="requestGpsLocation()"
-                            class="mt-4 w-full min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-xs sm:text-sm shadow-[0_6px_18px_rgba(10,123,157,0.32)] flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]">
-                        <span>Coba Aktifkan Lagi</span>
-                    </button>
+                    <div class="min-w-0">
+                        <h2 class="text-base sm:text-[17px] font-extrabold text-navy leading-snug">
+                            Lokasi belum aktif
+                        </h2>
+                        <p class="mt-0.5 text-[13px] text-text-muted leading-relaxed"
+                           x-text="gpsErrorMessage || 'Aktifkan lokasi agar peta sekitar dan formulir laporan bisa dipakai.'"></p>
+                    </div>
                 </div>
-            </template>
 
-            <div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-border-soft flex items-center justify-between gap-2 text-xs">
-                <span class="text-text-muted font-semibold">Sudah punya ID tiket?</span>
-                @guest
-                <a href="{{ route('tickets.index') }}" class="font-extrabold text-primary-hover hover:underline inline-flex items-center gap-1">
-                    <span>Lacak tiket</span>
-                    <x-icon name="arrow-right" class="w-3.5 h-3.5" />
-                </a>
-                @endguest
+                <ol class="mt-5 space-y-3 text-[13px] text-text-muted font-medium">
+                    <li class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded-full bg-primary-soft text-primary font-extrabold text-xs flex items-center justify-center shrink-0">1</span>
+                        <span>Ketuk ikon gembok di bilah alamat.</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded-full bg-primary-soft text-primary font-extrabold text-xs flex items-center justify-center shrink-0">2</span>
+                        <span>Ubah izin <strong class="font-extrabold text-navy">Lokasi</strong> menjadi <strong class="font-extrabold text-navy">Izinkan</strong>.</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded-full bg-primary-soft text-primary font-extrabold text-xs flex items-center justify-center shrink-0">3</span>
+                        <span>Kembali ke sini, lalu coba lagi.</span>
+                    </li>
+                </ol>
+
+                <button type="button"
+                        @click="requestGpsLocation()"
+                        class="mt-5 w-full min-h-[46px] px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                    </svg>
+                    <span>Coba lagi</span>
+                </button>
             </div>
+
+            @guest
+            <p class="mt-5 text-center text-[13px] font-semibold text-white/95">
+                Sudah punya ID tiket?
+                <a href="{{ route('tickets.index') }}" class="font-extrabold text-white underline underline-offset-4 hover:text-lime transition ml-1">
+                    Lacak tiket
+                </a>
+            </p>
+            @endguest
         </div>
     </div>
 
@@ -142,7 +152,7 @@
                      class="mt-2.5 w-72 bg-surface rounded-2xl p-4 shadow-[0_14px_36px_rgba(23,50,77,0.16)] border border-border-soft space-y-3.5">
                     <div>
                         <p class="text-caption font-extrabold uppercase tracking-wider text-text-muted mb-2">Mode Tampilan Peta</p>
-                        <div class="grid grid-cols-3 gap-2 bg-canvas p-1 rounded-2xl">
+                        <div class="grid grid-cols-2 gap-2 bg-canvas p-1 rounded-2xl">
                             <button type="button"
                                     @click="setMapLayer('jalan')"
                                     :class="activeMapLayer === 'jalan' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
@@ -154,12 +164,6 @@
                                     :class="activeMapLayer === 'satelit' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
                                     class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
                                 Satelit
-                            </button>
-                            <button type="button"
-                                    @click="setMapLayer('terang')"
-                                    :class="activeMapLayer === 'terang' ? 'bg-navy text-white shadow-xs' : 'text-text-muted hover:text-navy'"
-                                    class="min-h-[40px] sm:min-h-[36px] rounded-xl text-xs font-extrabold transition cursor-pointer">
-                                Terang
                             </button>
                         </div>
                     </div>
@@ -337,99 +341,92 @@
              class="absolute top-[16%] sm:top-[18%] inset-x-4 max-w-[348px] mx-auto z-20 pointer-events-auto">
             <template x-if="selectedReport">
                 <div class="bg-white rounded-2xl p-4 shadow-[0_16px_40px_rgba(23,50,77,0.16)] border border-white relative lt-callout-card">
-                    <!-- Top Content: Left Square Photo + Right Metadata -->
-                    <div class="flex items-center gap-3.5">
+                    <!-- Top Close Button (Image 2) -->
+                    <button type="button"
+                            @click="closeSelectedReport()"
+                            class="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-text-muted hover:text-navy hover:bg-canvas transition cursor-pointer z-10"
+                            aria-label="Tutup detail laporan">
+                        <x-icon name="x" class="w-4 h-4" stroke-width="2.2" />
+                    </button>
+
+                    <!-- Top Content: Left Square Photo / Placeholder + Right Metadata -->
+                    <div class="flex items-start gap-3.5">
                         <template x-if="selectedReport.photo_url">
                             <img :src="selectedReport.photo_url"
                                  x-on:error="selectedReport.photo_url = null"
                                  :alt="selectedReport.title"
-                                 class="w-[72px] h-[72px] rounded-xl object-cover shrink-0 bg-[#F3F7F8]">
+                                 class="w-[72px] h-[72px] rounded-xl object-cover shrink-0 bg-canvas border border-border-soft">
                         </template>
                         <template x-if="!selectedReport.photo_url">
-                            <div class="w-[72px] h-[72px] rounded-xl flex items-center justify-center text-white font-extrabold text-lg shrink-0"
-                                 :style="`background-color: ${selectedReport.status_color}`"
-                                 x-text="selectedReport.category_name.slice(0, 2)"></div>
+                            <div class="w-[72px] h-[72px] rounded-xl bg-gradient-to-br from-[#4A607A] to-[#2B3E52] flex items-center justify-center text-white/90 shrink-0 shadow-inner">
+                                <x-icon name="image" class="w-7 h-7 text-white/80" stroke-width="1.8" />
+                            </div>
                         </template>
 
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-[15px] font-extrabold text-navy truncate" x-text="selectedReport.title"></h3>
+                        <div class="min-w-0 flex-1 pr-6">
+                            <h3 class="text-sm font-extrabold text-navy leading-snug line-clamp-2"
+                                x-text="selectedReport.title"></h3>
 
-                            <!-- Timestamp + Status Pill Row -->
-                            <div class="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-text-muted">
-                                <svg class="w-3.5 h-3.5 shrink-0 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                                    <line x1="16" x2="16" y1="2" y2="6"/>
-                                    <line x1="8" x2="8" y1="2" y2="6"/>
-                                    <line x1="3" x2="21" y1="10" y2="10"/>
-                                </svg>
-                                <span class="truncate" x-text="selectedReport.created_human"></span>
-                                <span>•</span>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0"
-                                      :style="`background:${selectedReport.status_bg}; color:${selectedReport.status_text}`"
-                                      x-text="selectedReport.status_label"></span>
+                            <!-- Status Pill Row -->
+                            <div class="mt-1.5 flex items-center gap-1.5">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-caption font-extrabold shrink-0"
+                                      :style="`background:${selectedReport.status_bg}; color:${selectedReport.status_text}`">
+                                    <x-icon name="clock" class="w-3 h-3 shrink-0" stroke-width="2.2" />
+                                    <span x-text="selectedReport.status_label"></span>
+                                </span>
+                                <template x-if="myReports.includes(selectedReport.ticket_id)">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-primary text-white shrink-0">
+                                        <x-icon name="user" class="w-2.5 h-2.5 shrink-0" stroke-width="2.2" />
+                                        <span>Laporan Anda</span>
+                                    </span>
+                                </template>
                             </div>
 
                             <!-- Location Pin Row -->
-                            <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-text-muted">
-                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-text-muted" />
+                            <div class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-text-muted truncate">
+                                <x-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
                                 <span class="truncate" x-text="selectedReport.location_label"></span>
                             </div>
+
+                            <!-- Created Timestamp Row -->
+                            <div class="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-text-muted truncate">
+                                <x-icon name="calendar" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
+                                <span class="truncate" x-text="selectedReport.created_human"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- SLA & Community Support Row -->
-                    <div class="mt-2.5 pt-2.5 border-t border-border-soft flex items-center justify-between text-xs font-bold text-text-muted">
-                        <span class="inline-flex items-center gap-1.5"
-                              :class="selectedReport.is_overdue ? 'text-danger' : 'text-text-muted'">
+                    <!-- SLA & Community Support Status Row (Matches Image 2 & Design Token Standards) -->
+                    <div class="mt-3 pt-2.5 border-t border-border-soft flex items-center justify-between gap-2">
+                        <!-- SLA Badge -->
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-caption font-extrabold shrink-0 transition"
+                             :class="selectedReport.is_overdue
+                                 ? 'bg-danger/10 text-danger border border-danger/20'
+                                 : (selectedReport.sla_badge_type === 'success'
+                                     ? 'bg-success-soft text-success border border-success/30'
+                                     : 'bg-canvas text-text-muted border border-border')">
                             <template x-if="selectedReport.is_overdue">
-                                <x-icon name="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-danger" stroke-width="2.2" />
+                                <x-icon name="alert-triangle" class="w-3.5 h-3.5 text-danger shrink-0" stroke-width="2.2" />
                             </template>
                             <template x-if="!selectedReport.is_overdue">
-                                <x-icon name="clock" class="w-3.5 h-3.5 shrink-0 text-text-muted" stroke-width="2" />
+                                <x-icon name="clock" class="w-3.5 h-3.5 text-text-muted shrink-0" stroke-width="2" />
                             </template>
                             <span x-text="selectedReport.sla_badge_label"></span>
-                        </span>
-                        <template x-if="myReports.includes(selectedReport.ticket_id)">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-primary text-white">
-                                <x-icon name="user" class="w-3 h-3 shrink-0" stroke-width="2.2" />
-                                <span>Laporan Anda</span>
-                            </span>
-                        </template>
-                        <template x-if="selectedReport.supports_count > 0">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FEF5DC] text-[#8A5D00] border border-[#F5B82E]/30">
-                                <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2" />
-                                <span class="tabular-nums" x-text="selectedReport.supports_count + ' Warga'"></span>
-                            </span>
-                        </template>
-                    </div>
+                        </div>
 
-                    <!-- Statis: Jumlah Dukungan Warga -->
-                    <div class="mt-2.5">
-                        <div class="w-full min-h-[38px] px-3.5 py-2 rounded-xl border border-warning/30 bg-warning-soft/60 text-navy text-xs font-bold flex items-center justify-between gap-2 select-none">
-                            <div class="flex items-center gap-1.5 text-warning font-extrabold">
-                                <x-icon name="thumbs-up" class="w-4 h-4 shrink-0 text-warning" stroke-width="2.2" />
-                                <span>Dukungan Warga</span>
-                            </div>
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-warning border border-warning/30 font-extrabold text-[11px] tabular-nums"
-                                  title="Jumlah warga yang terdaftar mengalami masalah ini">
-                                <span x-text="selectedReport.supports_count || 0"></span>
-                                <span>Warga</span>
-                            </span>
+                        <!-- Citizen Community Support Badge -->
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-caption font-extrabold bg-warning-soft text-warning border border-warning/30 shrink-0 tabular-nums">
+                            <x-icon name="thumbs-up" class="w-3.5 h-3.5 text-warning shrink-0" stroke-width="2.2" />
+                            <span x-text="(selectedReport.supports_count || 0) + ' warga mengalami ini'"></span>
                         </div>
                     </div>
 
-                    <!-- Bottom Dual Action Buttons -->
-                    <div class="mt-3.5 grid grid-cols-2 gap-2.5">
-                        <button type="button"
-                                @click="closeSelectedReport()"
-                                class="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-surface hover:bg-canvas text-navy text-xs sm:text-sm font-bold transition cursor-pointer active:scale-[0.99]">
-                            Tutup
-                        </button>
-                        <a :href="selectedReport.track_url"
-                           class="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-extrabold shadow-[0_4px_14px_rgba(10,123,157,0.3)] flex items-center justify-center transition active:scale-[0.99]">
-                            Lihat detail
-                        </a>
-                    </div>
+                    <!-- Bottom Full-Width Action Button (Image 2) -->
+                    <a :href="selectedReport.track_url"
+                       class="mt-3.5 w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-extrabold shadow-[0_4px_14px_rgba(10,123,157,0.3)] flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer">
+                        <span>Lihat detail</span>
+                        <x-icon name="chevron-right" class="w-4 h-4" stroke-width="2.5" />
+                    </a>
                 </div>
             </template>
         </div>
@@ -442,9 +439,9 @@
 
             <!-- Loading Skeleton Card -->
             <template x-if="isLoadingNearby">
-                <div class="px-4 pointer-events-auto">
-                    <div class="w-[85%] bg-white rounded-2xl p-3 shadow-[0_10px_28px_rgba(23,50,77,0.12)] flex items-center gap-3.5 animate-pulse">
-                        <div class="w-16 h-16 rounded-xl bg-[#D7E1E5] shrink-0"></div>
+                <div class="px-4 pointer-events-auto flex justify-center">
+                    <div class="w-full max-w-[420px] bg-white rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] border border-border-soft flex items-center gap-3.5 animate-pulse">
+                        <div class="w-14 h-14 rounded-xl bg-[#D7E1E5] shrink-0"></div>
                         <div class="flex-1 space-y-2">
                             <div class="h-4 w-3/4 bg-[#D7E1E5] rounded"></div>
                             <div class="h-3 w-1/2 bg-[#F3F7F8] rounded"></div>
@@ -456,8 +453,8 @@
 
             <!-- Empty State Compact Floating Card -->
             <template x-if="!isLoadingNearby && reports.length === 0">
-                <div class="px-4 pointer-events-auto">
-                    <div class="bg-surface rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] border border-border-soft flex items-center justify-between gap-3">
+                <div class="px-4 pointer-events-auto flex justify-center">
+                    <div class="w-full max-w-[420px] bg-surface rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.12)] border border-border-soft flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <p class="text-sm font-extrabold text-navy truncate">Belum ada laporan di radius ini</p>
                             <p class="text-xs text-text-muted font-semibold truncate">Perluas jangkauan radius atau buat laporan baru</p>
@@ -476,11 +473,12 @@
 
             <!-- Horizontal Snap-Scroll Peeking Cards (Matches Desktop & Drawer 3-Stage Progress Card) -->
             <template x-if="!isLoadingNearby && reports.length > 0">
-                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-2 no-scrollbar pointer-events-auto">
+                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-2 no-scrollbar pointer-events-auto"
+                     :class="reports.length <= 1 ? 'justify-center' : 'justify-start'">
                     <template x-for="report in reports" :key="'mob-card-' + report.id">
                         <article @click="focusReportOnMap(report)"
-                                 :class="selectedReport && selectedReport.id === report.id ? 'ring-2 ring-primary border-primary' : ''"
-                                 class="lt-report-card w-[86%] max-w-[340px] shrink-0 snap-start bg-surface rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.14)] border border-border-soft space-y-2.5 cursor-pointer transition active:scale-[0.99]">
+                                 :class="(selectedReport && selectedReport.id === report.id ? 'ring-2 ring-primary border-primary ' : '') + (reports.length <= 1 ? 'w-full max-w-[420px]' : 'w-[calc(100vw-48px)] sm:w-[380px] max-w-[420px]')"
+                                 class="lt-report-card shrink-0 snap-center bg-surface rounded-2xl p-3.5 shadow-[0_10px_28px_rgba(23,50,77,0.14)] border border-border-soft space-y-2.5 cursor-pointer transition active:scale-[0.99]">
                             <!-- Top Section: Photo Thumbnail + Info -->
                             <div class="flex items-start gap-3">
                                 <!-- Thumbnail -->
@@ -611,7 +609,7 @@
          class="lg:hidden fixed inset-x-0 top-12 bottom-[72px] z-30 bg-surface rounded-t-2xl shadow-[0_-12px_36px_rgba(23,50,77,0.18)] border-t border-border-soft flex flex-col overflow-hidden">
         <!-- Header Matching Reference -->
         <div class="p-4 border-b border-border-soft bg-surface space-y-3">
-            <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center justify-between gap-3">
                 <div>
                     <h2 class="text-lg font-extrabold text-navy tracking-tight">
                         Laporan di sekitarmu
@@ -621,10 +619,9 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <button type="button"
-                            @click="filterPopoverOpen = !filterPopoverOpen"
-                            class="min-h-[38px] px-3 py-1.5 rounded-xl border border-border bg-surface text-navy font-extrabold text-xs inline-flex items-center gap-1.5 shadow-2xs">
-                        <svg class="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-canvas text-navy text-xs font-bold select-none cursor-default shrink-0 shadow-2xs"
+                         aria-label="Radius jangkauan laporan">
+                        <svg class="w-3.5 h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"/>
                             <circle cx="12" cy="12" r="3"/>
                             <line x1="12" y1="2" x2="12" y2="5"/>
@@ -632,11 +629,11 @@
                             <line x1="2" y1="12" x2="5" y2="12"/>
                             <line x1="19" y1="12" x2="22" y2="12"/>
                         </svg>
-                        <span class="tabular-nums" x-text="formatRadius(filters.radius)"></span>
-                    </button>
+                        <span class="tabular-nums font-extrabold text-navy" x-text="formatRadius(filters.radius)">1 km</span>
+                    </div>
                     <button type="button"
                             @click="activeMobileTab = 'peta'"
-                            class="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-canvas border border-border text-navy font-extrabold text-xs inline-flex items-center gap-1 cursor-pointer">
+                            class="min-h-[34px] px-3 py-1.5 rounded-xl bg-canvas hover:bg-canvas/80 border border-border text-navy font-extrabold text-xs inline-flex items-center gap-1 cursor-pointer transition">
                         <span>Tutup</span>
                         <x-icon name="x" class="w-3.5 h-3.5" />
                     </button>
@@ -887,7 +884,7 @@
     <aside class="hidden lg:flex lg:w-[400px] xl:w-[440px] 2xl:w-[460px] shrink-0 h-full bg-canvas/40 border-l border-border-soft z-20 flex-col">
         <!-- Header Matching the Reference Design -->
         <div class="px-5 pt-5 pb-3.5 border-b border-border-soft bg-surface space-y-3 shrink-0">
-            <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center justify-between gap-3">
                 <div>
                     <h2 class="text-xl font-extrabold text-navy tracking-tight">
                         Laporan di sekitarmu
@@ -897,12 +894,10 @@
                     </p>
                 </div>
 
-                <!-- Radius Indicator / Selector Button -->
-                <button type="button"
-                        @click="filterPopoverOpen = !filterPopoverOpen"
-                        title="Ubah radius jangkauan"
-                        class="min-h-[38px] px-3.5 py-1.5 rounded-xl border border-border bg-surface hover:bg-canvas text-navy font-extrabold text-xs inline-flex items-center gap-1.5 shadow-2xs transition cursor-pointer active:scale-95 shrink-0">
-                    <svg class="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Radius Indicator (Static Badge) -->
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-canvas text-navy text-xs font-bold select-none cursor-default shrink-0 shadow-2xs"
+                     aria-label="Radius jangkauan laporan">
+                    <svg class="w-3.5 h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"/>
                         <circle cx="12" cy="12" r="3"/>
                         <line x1="12" y1="2" x2="12" y2="5"/>
@@ -910,8 +905,8 @@
                         <line x1="2" y1="12" x2="5" y2="12"/>
                         <line x1="19" y1="12" x2="22" y2="12"/>
                     </svg>
-                    <span class="tabular-nums" x-text="formatRadius(filters.radius)"></span>
-                </button>
+                    <span class="tabular-nums font-extrabold text-navy" x-text="formatRadius(filters.radius)">1 km</span>
+                </div>
             </div>
 
             <!-- Sort Bar -->
@@ -1428,11 +1423,13 @@
         return {
             gpsState: 'prompt',
             gpsErrorMessage: '',
+            splashVisible: true,
+            splashMinElapsed: false,
             userLat: null,
             userLng: null,
             userAreaName: '',
             detectedStreetAddress: '',
-            activeMapLayer: 'jalan', // 'jalan' | 'satelit' | 'terang'
+            activeMapLayer: 'jalan', // 'jalan' | 'satelit'
             reports: [],
             selectedReport: null,
             supportedTickets: JSON.parse(localStorage.getItem('laportuntas_supported_tickets') || '[]'),
@@ -1480,19 +1477,30 @@
                     }
                 });
 
-                if (navigator.permissions && navigator.permissions.query) {
-                    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                        if (result.state === 'granted') {
-                            this.requestGpsLocation();
-                        } else if (result.state === 'denied') {
-                            this.gpsState = 'denied';
-                        }
-                    }).catch(() => {});
-                }
+                // Full splash animation only on the first open per browser session
+                const hasSeenSplash = sessionStorage.getItem('laportuntas_splash_seen') === '1';
+                sessionStorage.setItem('laportuntas_splash_seen', '1');
+                setTimeout(() => {
+                    this.splashMinElapsed = true;
+                    this.maybeHideSplash();
+                }, hasSeenSplash ? 500 : 2000);
+
+                // Request GPS straight away while the splash is playing
+                this.requestGpsLocation();
 
                 @if($errors->any())
                     this.reportModalOpen = true;
                 @endif
+            },
+
+            /**
+             * Hide the splash only after its minimum display time has passed
+             * and the GPS position has been resolved.
+             */
+            maybeHideSplash() {
+                if (this.splashMinElapsed && this.gpsState === 'granted') {
+                    this.splashVisible = false;
+                }
             },
 
             requestGpsLocation() {
@@ -1512,6 +1520,7 @@
                         this.form.latitude = this.userLat;
                         this.form.longitude = this.userLng;
                         this.gpsState = 'granted';
+                        this.maybeHideSplash();
 
                         this.$nextTick(() => {
                             this.activateUserLocationOnMap();
@@ -1536,7 +1545,7 @@
                         if (!window.isSecureContext) {
                             this.gpsErrorMessage = 'Browser memblokir akses GPS pada koneksi HTTP biasa. Buka melalui https:// atau http://localhost:8000 agar GPS perangkat aktif.';
                         } else if (error.code === error.PERMISSION_DENIED) {
-                            this.gpsErrorMessage = 'Izin lokasi ditolak. Aktifkan izin lokasi di browser agar peta sekitar dan formulir laporan dapat digunakan.';
+                            this.gpsErrorMessage = 'Aktifkan lokasi agar peta sekitar dan formulir laporan bisa dipakai.';
                         } else {
                             this.gpsErrorMessage = 'Sinyal GPS belum berhasil ditemukan. Pastikan layanan lokasi perangkat kamu aktif lalu coba lagi.';
                         }

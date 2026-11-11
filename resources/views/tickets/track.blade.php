@@ -115,11 +115,6 @@
                             <p class="mt-1 font-extrabold text-navy">
                                 {{ $report->agency?->name ?? 'Menunggu Penugasan Instansi' }}
                             </p>
-                            @if($report->assignedOfficer)
-                                <p class="text-xs text-primary-hover font-bold mt-0.5">
-                                    Petugas: {{ $report->assignedOfficer->name }}
-                                </p>
-                            @endif
                         </div>
                     </div>
 
@@ -161,33 +156,27 @@
                         </div>
                     </div>
 
-                    <!-- Citizen Community Support Impact Summary (Static) -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                    <!-- Citizen Community Support Impact Summary (Matches Image 1) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-surface border border-border space-y-3.5 shadow-xs">
+                        <div class="flex items-center gap-3.5">
                             <!-- Left Rounded Icon Box -->
-                            <div class="w-12 h-12 rounded-2xl bg-warning-soft border border-warning/30 flex items-center justify-center shrink-0 text-warning">
-                                <x-icon name="thumbs-up" class="w-6 h-6 text-warning" stroke-width="2" />
+                            <div class="w-11 h-11 rounded-2xl bg-warning-soft border border-warning/30 flex items-center justify-center shrink-0 text-warning">
+                                <x-icon name="thumbs-up" class="w-5 h-5 text-warning" stroke-width="2.2" />
                             </div>
 
-                            <div class="space-y-1 min-w-0">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <h3 class="text-sm font-extrabold text-navy">Dukungan Warga</h3>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-extrabold whitespace-nowrap tabular-nums {{ ((int) ($report->supports_count ?? 0)) > 0 ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-canvas text-text-muted border border-border' }}">
-                                        {{ (int) ($report->supports_count ?? 0) }} Warga Mengalami Ini
-                                    </span>
-                                </div>
-                                <p class="text-xs text-text-muted font-normal leading-relaxed">
-                                    Laporan ini didukung oleh warga sekitar agar cepat diprioritaskan oleh dinas terkait tanpa perlu membuat laporan ganda.
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-sm sm:text-base font-extrabold text-navy leading-snug">Dukungan warga</h3>
+                                <p class="text-xs sm:text-sm mt-0.5">
+                                    <span class="font-extrabold text-warning tabular-nums">{{ (int) ($report->supports_count ?? 0) }} warga</span>
+                                    <span class="text-text-muted font-medium">mengalami masalah ini</span>
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Right Static Indicator Badge -->
-                        <div class="shrink-0 flex items-center">
-                            <span class="min-h-[44px] px-4 sm:px-5 py-2.5 rounded-xl border border-warning/30 bg-warning-soft/70 text-warning text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 select-none shadow-xs">
-                                <x-icon name="thumbs-up" class="w-4 h-4 text-warning" stroke-width="2.2" />
-                                <span>Terdata {{ (int) ($report->supports_count ?? 0) }} Dukungan</span>
-                            </span>
+                        <div class="pt-3 border-t border-border-soft">
+                            <p class="text-xs sm:text-sm text-text-muted font-normal leading-relaxed">
+                                Dukunganmu membantu dinas terkait memprioritaskan laporan ini, tanpa perlu membuat laporan ganda.
+                            </p>
                         </div>
                     </div>
 

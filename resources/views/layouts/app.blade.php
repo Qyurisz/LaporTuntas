@@ -16,10 +16,10 @@
     <meta name="apple-mobile-web-app-title" content="LaporTuntas">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon-laportuntas.png') }}?v=v2">
 
-    <!-- Google Fonts: Nunito Sans & JetBrains Mono with graceful system fallback -->
+    <!-- Google Fonts: Baloo Bhaijaan 2 (brand), Nunito Sans & JetBrains Mono with graceful system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=JetBrains+Mono:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -32,7 +32,7 @@
 
     <!-- Top Navigation Header (Hidden on Mobile Map Home for Full-Bleed Map Experience) -->
     <header class="{{ $isFullBleedMobile ? 'hidden lg:block' : 'block' }} sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-border shadow-[0_2px_10px_rgba(23,50,77,0.05)]">
-        <div class="{{ request()->routeIs('home') ? 'w-full px-4 sm:px-6' : 'max-w-[1280px] mx-auto px-4 sm:px-6' }} h-16 flex items-center justify-between gap-2">
+        <div class="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
             <a href="{{ $mapUrl }}" class="flex items-center gap-2.5 group outline-none focus:outline-none focus:ring-0 py-1 select-none">
                 <img src="{{ asset('images/logo-laportuntas.png') }}?v=v2"
@@ -96,7 +96,7 @@
                     </a>
                 @else
                     <a href="{{ route('staff.login') }}"
-                       class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-navy hover:bg-canvas flex items-center gap-2 transition"
+                       class="min-h-[44px] px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition {{ request()->routeIs('staff.login') ? 'bg-primary-soft text-primary-hover font-extrabold' : 'font-bold text-text-muted hover:text-navy hover:bg-canvas' }}"
                        title="Login Khusus Petugas & Admin">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
@@ -200,12 +200,6 @@
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
                     <span class="text-[11px] {{ request()->routeIs('staff.*', 'admin.*') ? 'font-extrabold' : 'font-bold' }}">{{ auth()->check() && auth()->user()->isAdmin() ? 'Admin' : 'Petugas' }}</span>
-                </a>
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span class="text-[11px] {{ request()->routeIs('staff.*') ? 'font-extrabold' : 'font-bold' }}">Petugas</span>
                 </a>
             </div>
         </nav>

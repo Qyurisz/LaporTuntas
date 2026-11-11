@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Tugas Petugas — Lapor Tuntas'])
 
 @section('content')
-<div class="max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+<div x-data="dashboardTableFilter()" class="max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
     <section class="bg-navy text-white rounded-[24px] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_8px_24px_rgba(23,50,77,0.12)]">
         <div>
             <div class="flex flex-wrap items-center gap-2">
@@ -25,7 +25,7 @@
         </form>
     </section>
 
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Ringkasan tugas petugas">
+    <section id="dashboard-stats-grid" @click="handleStatsClick($event)" class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Ringkasan tugas petugas">
         @foreach([
             ['all', 'Semua Tugas', $counts['total'], 'text-navy'],
             ['ditugaskan', 'Siap Ditangani', $counts['ditugaskan'], 'text-status-verified'],
@@ -39,75 +39,187 @@
         @endforeach
     </section>
 
-    <section class="bg-surface rounded-[24px] border border-border shadow-[0_4px_14px_rgba(23,50,77,0.06)] overflow-hidden">
-        <div class="p-4 sm:p-5 border-b border-border bg-canvas/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <!-- Daftar Tugas Saya Table Section (Matches Reference Image) -->
+    <section class="bg-surface rounded-2xl sm:rounded-3xl border border-border shadow-[0_4px_14px_rgba(23,50,77,0.06)] overflow-hidden relative">
+        <!-- Top Loading Indicator -->
+        <div x-show="loading"
+             x-transition.opacity
+             class="absolute inset-x-0 top-0 h-1 bg-primary/20 overflow-hidden z-20">
+            <div class="h-full bg-primary animate-pulse w-full"></div>
+        </div>
+
+        <div class="p-4 sm:p-6 border-b border-border flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface">
             <div>
-                <h2 class="text-base sm:text-lg font-extrabold text-navy">Daftar tugas saya</h2>
-                <p class="mt-0.5 text-xs text-text-muted">Laporan hanya muncul setelah admin menetapkannya kepada Anda.</p>
+                <h2 class="text-xl font-extrabold text-navy tracking-tight">Daftar tugas saya</h2>
+                <p class="mt-1 text-xs sm:text-sm text-text-muted">
+                    {{ $user->agency?->name ?? 'Dinas Bina Marga & Pekerjaan Umum' }} · Laporan muncul setelah admin menetapkannya kepada Anda.
+                </p>
             </div>
-            <form action="{{ route('staff.dashboard') }}" method="GET" class="flex flex-wrap gap-2">
-                <select name="status" onchange="this.form.submit()" aria-label="Filter status tugas" class="min-h-[42px] px-3 rounded-xl bg-surface border border-border text-xs font-extrabold text-navy">
-                    <option value="all" @selected($statusFilter === 'all')>Semua status</option>
-                    <option value="ditugaskan" @selected($statusFilter === 'ditugaskan')>Siap ditangani</option>
-                    <option value="diproses" @selected($statusFilter === 'diproses')>Sedang dikerjakan</option>
-                    <option value="selesai" @selected($statusFilter === 'selesai')>Selesai</option>
-                </select>
-                <select name="category" onchange="this.form.submit()" aria-label="Filter kategori tugas" class="min-h-[42px] px-3 rounded-xl bg-surface border border-border text-xs font-extrabold text-navy">
-                    <option value="all" @selected($categoryFilter === 'all')>Semua kategori</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" @selected((int) $categoryFilter === $category->id)>{{ $category->name }}</option>
-                    @endforeach
-                </select>
+
+            <form x-ref="filterForm"
+                  action="{{ route('staff.dashboard') }}"
+                  method="GET"
+                  @change="applyFilter()"
+                  class="flex flex-wrap items-center gap-2.5">
+                <!-- Status Filter -->
+                <div class="relative">
+                    <select name="status"
+                            aria-label="Filter status tugas"
+                            class="min-h-[38px] pl-3.5 pr-8 py-1.5 rounded-xl bg-surface border border-border text-xs font-bold text-navy appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        <option value="all" @selected($statusFilter === 'all')>Semua status</option>
+                        <option value="baru" @selected($statusFilter === 'baru')>Belum diproses</option>
+                        <option value="ditugaskan" @selected($statusFilter === 'ditugaskan')>Ditugaskan</option>
+                        <option value="diproses" @selected($statusFilter === 'diproses')>Sedang diproses</option>
+                        <option value="selesai" @selected($statusFilter === 'selesai')>Selesai</option>
+                        <option value="ditolak" @selected($statusFilter === 'ditolak')>Ditolak</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-text-muted">
+                        <x-icon name="chevron-down" class="w-3.5 h-3.5" stroke-width="2.2" />
+                    </div>
+                </div>
+
                 @if(! $user->agency_id)
-                <select name="agency" onchange="this.form.submit()" aria-label="Filter dinas tugas" class="min-h-[42px] px-3 rounded-xl bg-surface border border-border text-xs font-extrabold text-navy">
-                    <option value="0" @selected($agencyFilter === 0)>Semua dinas</option>
-                    @foreach($agencies as $agency)
-                        <option value="{{ $agency->id }}" @selected($agencyFilter === $agency->id)>{{ $agency->name }}</option>
-                    @endforeach
-                </select>
+                <!-- Agency Filter (If officer is not tied to one agency) -->
+                <div class="relative">
+                    <select name="agency"
+                            aria-label="Filter dinas tugas"
+                            class="min-h-[38px] pl-3.5 pr-8 py-1.5 rounded-xl bg-surface border border-border text-xs font-bold text-navy appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        <option value="0" @selected($agencyFilter === 0)>Semua dinas</option>
+                        @foreach($agencies as $agency)
+                            <option value="{{ $agency->id }}" @selected($agencyFilter === $agency->id)>{{ $agency->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-text-muted">
+                        <x-icon name="chevron-down" class="w-3.5 h-3.5" stroke-width="2.2" />
+                    </div>
+                </div>
                 @endif
             </form>
         </div>
 
-        <div class="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            @forelse($reports as $report)
-                <article class="rounded-2xl border border-border bg-surface p-4 sm:p-5 flex flex-col gap-4 shadow-2xs">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <span class="text-[11px] font-mono font-extrabold text-primary-hover">{{ $report->ticket_id }}</span>
-                            <h3 class="mt-1 font-extrabold text-navy">{{ $report->title }}</h3>
-                            <p class="mt-1 text-xs font-semibold text-text-muted">{{ $report->category?->name }} · {{ $report->created_at?->diffForHumans() }}</p>
-                            @if($report->supports_count > 0)
-                                <div class="mt-1.5">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-warning-soft text-warning border border-warning/30">
-                                        <x-icon name="thumbs-up" class="w-3 h-3 shrink-0" stroke-width="2.2" />
-                                        <span>{{ $report->supports_count }} Dukungan Warga</span>
+        <div id="dashboard-table-container"
+             class="overflow-x-auto transition-opacity duration-150"
+             :class="loading ? 'opacity-50 pointer-events-none' : ''">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-border bg-surface text-caption font-extrabold uppercase tracking-wider text-text-muted">
+                        <th class="py-3.5 px-4 sm:px-6">TIKET</th>
+                        <th class="py-3.5 px-4 sm:px-6">LAPORAN</th>
+                        <th class="py-3.5 px-4 sm:px-6">LOKASI</th>
+                        <th class="py-3.5 px-4 sm:px-6">STATUS</th>
+                        <th class="py-3.5 px-4 sm:px-6">DUKUNGAN</th>
+                        <th class="py-3.5 px-4 sm:px-6 text-left">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border text-sm">
+                    @forelse($reports as $report)
+                        @php
+                            $locParts = array_filter(array_map('trim', explode(',', $report->location_label ?? '')));
+                            if (count($locParts) > 1) {
+                                $city = array_pop($locParts);
+                                $street = implode(', ', $locParts);
+                            } else {
+                                $street = $report->location_label ?: 'Titik Lokasi Warga';
+                                $city = 'Kota Malang';
+                            }
+                        @endphp
+                        <tr class="hover:bg-canvas/50 transition">
+                            <!-- TIKET -->
+                            <td class="py-4 px-4 sm:px-6 align-middle">
+                                <span class="font-mono font-extrabold text-navy text-xs sm:text-sm tabular-nums">{{ $report->ticket_id }}</span>
+                                <p class="text-xs text-text-muted font-medium mt-0.5">{{ $report->created_at?->diffForHumans() }}</p>
+                            </td>
+
+                            <!-- LAPORAN -->
+                            <td class="py-4 px-4 sm:px-6 align-middle max-w-xs">
+                                <p class="font-extrabold text-navy text-xs sm:text-sm line-clamp-1">{{ $report->title }}</p>
+                                <p class="text-xs text-text-muted font-medium mt-0.5">{{ $report->category?->name }}</p>
+                            </td>
+
+                            <!-- LOKASI -->
+                            <td class="py-4 px-4 sm:px-6 align-middle text-xs">
+                                <p class="font-bold text-navy text-xs sm:text-sm">{{ $street }}</p>
+                                <p class="text-xs text-text-muted font-medium mt-0.5">{{ $city }}</p>
+                            </td>
+
+                            <!-- STATUS -->
+                            <td class="py-4 px-4 sm:px-6 align-middle">
+                                @if($report->status === 'selesai')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success-soft text-success">
+                                        <x-icon name="check-circle" class="w-3.5 h-3.5" stroke-width="2.2" />
+                                        <span>Selesai</span>
                                     </span>
-                                </div>
-                            @endif
-                        </div>
-                        <x-status-badge :status="$report->status" size="sm" />
-                    </div>
-                    <div class="rounded-xl bg-canvas p-3 text-xs">
-                        <p class="font-extrabold text-navy">{{ $report->location_label }}</p>
-                        <p class="mt-1 text-text-muted">{{ $report->agency?->name ?? $user->agency?->name }}</p>
-                    </div>
-                    <a href="{{ route('staff.reports.show', $report) }}" class="min-h-[42px] px-4 py-2 rounded-xl bg-navy hover:bg-primary text-white text-xs font-extrabold inline-flex items-center justify-center gap-2 transition">
-                        {{ $report->status === 'selesai' ? 'Lihat laporan selesai' : 'Buka dan perbarui progres' }}
-                        <x-icon name="arrow-right" class="w-4 h-4 text-white" stroke-width="2.5" />
-                    </a>
-                </article>
-            @empty
-                <div class="lg:col-span-2 py-12 text-center">
-                    <p class="text-sm font-extrabold text-navy">Belum ada tugas untuk Anda</p>
-                    <p class="mt-1 text-xs text-text-muted">Tugas baru akan muncul setelah admin menetapkan laporan kepada Anda.</p>
-                </div>
-            @endforelse
+                                @elseif($report->status === 'ditugaskan')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#F0EBFA] text-[#6B46C1]">
+                                        <x-icon name="clock" class="w-3.5 h-3.5" stroke-width="2.2" />
+                                        <span>Ditugaskan</span>
+                                    </span>
+                                @elseif($report->status === 'diproses')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-warning-soft text-warning">
+                                        <x-icon name="clock" class="w-3.5 h-3.5" stroke-width="2.2" />
+                                        <span>Diproses</span>
+                                    </span>
+                                @elseif($report->status === 'ditolak')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#ECEFF3] text-[#475569]">
+                                        <x-icon name="x-circle" class="w-3.5 h-3.5" stroke-width="2.2" />
+                                        <span>Ditolak</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#E1F3FB] text-[#0A7B9D]">
+                                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <circle cx="12" cy="12" r="2"/>
+                                        </svg>
+                                        <span>Belum diproses</span>
+                                    </span>
+                                @endif
+                            </td>
+
+                            <!-- DUKUNGAN -->
+                            <td class="py-4 px-4 sm:px-6 align-middle">
+                                @if($report->supports_count > 0)
+                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A4500]">
+                                        <x-icon name="thumbs-up" class="w-3.5 h-3.5 shrink-0" stroke-width="2.2" />
+                                        <span class="tabular-nums">{{ $report->supports_count }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-text-muted font-medium text-xs">-</span>
+                                @endif
+                            </td>
+
+                            <!-- AKSI -->
+                            <td class="py-4 px-4 sm:px-6 align-middle text-left whitespace-nowrap">
+                                @if($report->status === 'selesai' || $report->status === 'ditolak')
+                                    <a href="{{ route('staff.reports.show', $report) }}"
+                                       class="min-h-[38px] w-[130px] px-3.5 py-2 rounded-xl bg-surface hover:bg-canvas border border-primary/35 text-primary-hover text-xs font-extrabold inline-flex items-center justify-center whitespace-nowrap text-center transition active:scale-[0.99]">
+                                        Lihat detail
+                                    </a>
+                                @else
+                                    <a href="{{ route('staff.reports.show', $report) }}"
+                                       class="min-h-[38px] w-[130px] px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold inline-flex items-center justify-center whitespace-nowrap text-center transition active:scale-[0.99] shadow-xs">
+                                        Perbarui progres
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-12 text-center text-sm font-bold text-text-muted">
+                                Belum ada tugas yang cocok dengan filter terpilih.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
-        @if($reports->hasPages())
-            <div class="p-4 border-t border-border">{{ $reports->links() }}</div>
-        @endif
+        <div id="dashboard-pagination-container" @click="handlePaginationClick($event)">
+            @if($reports->hasPages())
+                <div class="p-4 sm:p-5 border-t border-border bg-surface">
+                    {{ $reports->links() }}
+                </div>
+            @endif
+        </div>
     </section>
 </div>
 @endsection
